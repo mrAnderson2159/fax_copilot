@@ -1,6 +1,6 @@
 # backend/app/populate_data.py
 from app.database import SessionLocal
-from app.models import Zone, Fiend, AreaConquest, SpeciesConquest, OriginalCreation
+from app.models import Zone, Fiend, AreaConquest, SpeciesConquest, OriginalCreation, CanBeFound
 
 
 def lower_case(function):
@@ -28,15 +28,39 @@ def new_area_conquest(fiend_name: str, zone: Zone) -> AreaConquest:
 
 
 @lower_case
-def new_species_conquest(fiend_name: str, required_fiends: int):
+def new_species_conquest(fiend_name: str, required_fiends: int) -> SpeciesConquest:
     return SpeciesConquest(name=fiend_name, required_fiends=required_fiends,
                            image_url=f"../images/species_conquests/{fiend_name}.png")
 
 
 @lower_case
-def new_original_creation(fiend_name: str, creation_rule: str):
+def new_original_creation(fiend_name: str, creation_rule: str) -> OriginalCreation:
     return OriginalCreation(name=fiend_name, creation_rule=creation_rule,
                             image_url=f"../images/original_creations/{fiend_name}.png")
+
+
+@lower_case
+def new_can_be_found(fiend_name: str, zone_name: str, db: SessionLocal) -> CanBeFound:
+    """
+    Crea una relazione CanBeFound per un mostro che può essere trovato in una zona aggiuntiva.
+
+    :param fiend_name: Nome del mostro che può essere trovato in una zona aggiuntiva.
+    :param zone_name: Nome della zona aggiuntiva in cui può essere trovato il mostro.
+    :param db: Sessione del database per cercare il mostro e la zona.
+    :return: Un'istanza di CanBeFound.
+    :raises ValueError: Se il mostro o la zona non vengono trovati nel database.
+    """
+    # Cerca il mostro nel database
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+
+    # Cerca la zona nel database
+    zone = db.query(Zone).filter(Zone.name == zone_name).first()
+    if not zone:
+        raise ValueError(f"La zona '{zone_name}' non è stata trovata nel database.")
+
+    return CanBeFound(fiend=fiend, zone=zone)
 
 
 def populate_data():
@@ -233,12 +257,33 @@ def populate_data():
             new_fiend('Varna', zones['rovine di omega'])
         ]
 
+        can_be_found_relations = [
+            new_can_be_found('raptor', 'via djose', db),
+            new_can_be_found('gandharva', 'via djose', db),
+            new_can_be_found('ramashut', 'via djose', db),
+            new_can_be_found('fungongo', 'via djose', db),
+
+            new_can_be_found('molboro', 'grotta del crepaccio', db),
+            new_can_be_found('iaguaro', 'grotta del crepaccio', db),
+
+            new_can_be_found('galkimasela', 'monte gagazet', db),
+            new_can_be_found('heg', 'monte gagazet', db),
+
+            new_can_be_found('alyman', 'dentro sin', db),
+
+            new_can_be_found('molboro il grande', 'rovine di omega', db),
+            new_can_be_found('demomonolix', 'rovine di omega', db),
+            new_can_be_found('adamanthart', 'rovine di omega', db),
+            new_can_be_found('alyadin', 'rovine di omega', db)
+        ]
+
         # Aggiungi al database
         db.add_all(area_conquests)
         db.add_all(species_conquests.all())
         db.add_all(zones.values())
         db.add_all(fiends)
         db.add_all(original_creations)
+        db.add_all(can_be_found_relations)
         db.commit()
         print("Dati iniziali inseriti con successo.")
     except Exception as e:
