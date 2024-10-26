@@ -182,7 +182,7 @@ def populate_data():
             new_fiend('Kusarik', zones['piana dei lampi'], species_conquests['fefnil']),
             new_fiend('Larva', zones['piana dei lampi']),
             new_fiend('Thytan', zones['piana dei lampi'], species_conquests["clod d'acciaio"]),
-            new_fiend('Kyactus', zones['piana dei lampi']),
+            new_fiend('Kyactus?', zones['piana dei lampi']),
 
             new_fiend('Lupo delle nevi', zones['macalania'], species_conquests['fenril']),
             new_fiend('Shumelke', zones['macalania']),
@@ -200,7 +200,7 @@ def populate_data():
             new_fiend('Mushuhushu', zones['bikanel'], species_conquests['fefnil']),
             new_fiend('Zuu', zones['bikanel']),
             new_fiend('Anellidus', zones['bikanel']),
-            new_fiend('Kyactus?', zones['bikanel']),
+            new_fiend('Kyactus', zones['bikanel']),
 
             new_fiend('Scoor', zones['piana della bonaccia'], species_conquests['fenril']),
             new_fiend('Nebiros', zones['piana della bonaccia'], species_conquests['honet']),
@@ -258,6 +258,8 @@ def populate_data():
         ]
 
         can_be_found_relations = [
+            new_can_be_found('budino di tuono', 'via mihen'),
+
             new_can_be_found('raptor', 'via djose', db),
             new_can_be_found('gandharva', 'via djose', db),
             new_can_be_found('ramashut', 'via djose', db),
@@ -274,7 +276,9 @@ def populate_data():
             new_can_be_found('molboro il grande', 'rovine di omega', db),
             new_can_be_found('demomonolix', 'rovine di omega', db),
             new_can_be_found('adamanthart', 'rovine di omega', db),
-            new_can_be_found('alyadin', 'rovine di omega', db)
+            new_can_be_found('alyadin', 'rovine di omega', db),
+            new_can_be_found('Ultra Might (spada normale)', 'rovine di omega', db),
+            new_can_be_found('Ultra Might (spada stella)', 'rovine di omega', db)
         ]
 
         # Aggiungi al database
