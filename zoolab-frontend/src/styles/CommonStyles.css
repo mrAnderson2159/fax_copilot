@@ -1,0 +1,11 @@
+/* src/styles/CommonStyles.css */
+.background-cover {
+    background-image: url('../assets/images/spira_map.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    height: 100vh;
+    color: white;
+    margin: 0;
+    overflow: scroll;
+}
