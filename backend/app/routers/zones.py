@@ -43,7 +43,7 @@ def get_zone(zone_id: int, db: Session = Depends(get_db)):
 
 # Definisce un endpoint GET per ottenere i mostri in una zona specificata tramite il suo ID
 @router.get("/{zone_id}/fiends", response_model=list[schemas.Fiend])
-def get_zone_fiends(zone_id: int, db:Session = Depends(get_db)):
+def get_zone_fiends(zone_id: int, db: Session = Depends(get_db)):
     zone = db.query(models.Zone).filter(models.Zone.id == zone_id).first()
     if not zone:
         # Se la zona non esiste, lancia un errore HTTP 404
@@ -51,3 +51,24 @@ def get_zone_fiends(zone_id: int, db:Session = Depends(get_db)):
 
     fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).all()
     return fiends
+
+
+@router.get("/{zone_id}/fiends_with_found", response_model=schemas.FiendWithFound)
+def get_zone_fiends_with_found(zone_id: int, db: Session = Depends(get_db)):
+    """
+    Ottieni tutti i mostri di una zona, suddivisi in:
+    - `native`: mostri nativi della zona.
+    - `others`: mostri trovabili in quella zona, ma nativi di altre zone.
+    """
+    # Recupera i mostri nativi della zona
+    native_fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).all()
+
+    # Recupera i mostri trovabili tramite la relazione `CanBeFound`
+    other_fiends = (
+        db.query(models.Fiend)
+        .join(models.CanBeFound, models.CanBeFound.fiend_id == models.Fiend.id)
+        .filter(models.CanBeFound.zone_id == zone_id)
+        .all()
+    )
+
+    return {"native": native_fiends, "others": other_fiends}

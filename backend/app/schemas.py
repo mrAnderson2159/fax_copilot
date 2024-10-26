@@ -43,6 +43,11 @@ class FiendCapturesUpdateRequest(BaseModel):
     updates: list[FiendCaptureUpdate]
 
 
+class FiendWithFound(BaseModel):
+    native: list[Fiend]
+    others: list[Fiend]
+
+
 class ConquestResponseBase(BaseModel):
     """Base per la risposta delle conquiste, contenente il nome e lo stato di creazione."""
     name: str

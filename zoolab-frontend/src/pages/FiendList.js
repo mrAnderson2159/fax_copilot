@@ -10,7 +10,6 @@ const FiendList = () => {
     const { zoneId } = useParams();
     const [fiends, setFiends] = useState([]);
     const [zone, setZone] = useState({}); // Inizializza come oggetto vuoto
-    const navigate = useNavigate();
 
     useEffect(() => {
         // Funzione per ottenere i mostri
