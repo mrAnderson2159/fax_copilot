@@ -37,3 +37,5 @@ UPDATE zones SET id = 10 WHERE name = 'grotta del crepaccio';
 UPDATE zones SET id = 11 WHERE name = 'monte gagazet';
 UPDATE zones SET id = 12 WHERE name = 'dentro sin';
 UPDATE zones SET id = 13 WHERE name = 'rovine di omega';
+
+UPDATE fiends SET image_url = '../images/fiends/kyactus0.webp' WHERE name = 'kyactus?';

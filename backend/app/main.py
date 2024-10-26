@@ -29,6 +29,7 @@ app.include_router(area_conquests.router)
 app.include_router(species_conquests.router)
 app.include_router(original_creations.router)
 
+
 @app.get("/")
 def read_root():
     return {"message": "Benvenuti sull'app Zoolab!"}
