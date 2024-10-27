@@ -1,10 +1,10 @@
 // src/pages/ZoneList.js
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../api/axios';
-import '../styles/CommonStyles.css';
-import './ZoneList.css';
-import renderCards from '../utils/renderCards';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
+import "../styles/CommonStyles.css";
+import "./ZoneList.css";
+import renderCards from "../utils/renderCards";
 
 const ZoneList = () => {
     const [zones, setZones] = useState([]);
@@ -14,10 +14,10 @@ const ZoneList = () => {
         // Funzione per recuperare le zone
         const fetchZones = async () => {
             try {
-                const response = await axios.get('/zones/');
+                const response = await axios.get("/zones/");
                 setZones(response.data);
             } catch (error) {
-                console.error('Errore nel recupero delle zone:', error);
+                console.error("Errore nel recupero delle zone:", error);
             }
         };
 
@@ -25,8 +25,11 @@ const ZoneList = () => {
     }, []);
 
     return (
-        <div className="background-cover zone-list container-fluid pt-5">
-            {renderCards(zones, (id) => navigate(`/zones/${id}/fiends/`))}
+        <div className="background-cover">
+            <div className="overlay"></div>
+            <div className="zone-list-content container-fluid pt-5">
+                {renderCards(zones, (id) => navigate(`/zones/${id}/fiends/`))}
+            </div>
         </div>
     );
 };

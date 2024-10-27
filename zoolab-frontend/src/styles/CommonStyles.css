@@ -1,6 +1,8 @@
 /* src/styles/CommonStyles.css */
+/* src/styles/CommonStyles.css */
 .background-cover {
-    background-image: url('../assets/images/spira_map.jpg');
+    position: absolute;
+    background-image: url("../assets/images/spira_map.jpg");
     background-size: cover;
     background-attachment: fixed;
     background-position: center;
@@ -8,4 +10,22 @@
     color: white;
     margin: 0;
     overflow: scroll;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Overlay scuro */
+    z-index: 1;
+    pointer-events: none;
+}
+
+.fiend-list-content,
+.zone-list-content {
+    position: relative;
+    z-index: 2; /* Sopra l'overlay */
+    padding: 20px;
 }
