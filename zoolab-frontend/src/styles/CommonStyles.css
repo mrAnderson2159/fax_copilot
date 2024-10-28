@@ -1,6 +1,6 @@
 /* src/styles/CommonStyles.css */
-/* Sfondo per tutta l'applicazione */
-.background-cover {
+/* Sfondo zoolab */
+.zoolab-image {
     position: fixed;
     top: 0;
     left: 0;
