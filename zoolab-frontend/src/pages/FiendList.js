@@ -49,8 +49,7 @@ const FiendList = () => {
     };
 
     return (
-        <div className="background-cover">
-            <div className="overlay"></div>
+        <div className="transparent-background">
             <div className="fiend-list-content container-fluid pt-5">
                 <h2 className="display-4">{titleCase(zone.name || "")}</h2>
                 <div className="fiend-cards fiend-cards-native">

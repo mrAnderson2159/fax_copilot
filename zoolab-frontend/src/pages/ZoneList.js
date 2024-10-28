@@ -42,8 +42,7 @@ const ZoneList = () => {
     };
 
     return (
-        <div className="background-cover">
-            <div className="overlay"></div>
+        <div className="transparent-background">
             <TransitionGroup>
                 <CSSTransition
                     in={true}
