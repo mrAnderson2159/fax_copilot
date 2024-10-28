@@ -1,24 +1,40 @@
-// src/components/Card.js
-import React, { useState } from 'react';
-import { resolveImagePath, titleCase } from '../utils';
-import './Card.css';
+import React from "react";
+import { resolveImagePath, titleCase } from "../utils";
+import "./Card.css";
+import { debug } from "../utils";
+import { useClickHandlers } from "../utils/useClickHandlers";
 
-const placeholderImage = "/images/black_placeholder.jpeg"; // Percorso esatto nel public
+const placeholderImage = "/images/black_placeholder.jpeg";
 
-const Card = ({ imageUrl, name, clickHandler }) => {
-    const [imgSrc, setImgSrc] = useState(resolveImagePath(imageUrl));
+const Card = ({ imageUrl, name, clickHandler, onLongPress, type }) => {
+    const DEBUG = true;
+    const localDebug = (...stuff) => debug(DEBUG, ...stuff);
+    const [imgSrc, setImgSrc] = React.useState(resolveImagePath(imageUrl));
+
+    // Uso del nostro hook personalizzato per gestire i click e lo stato
+    const { handlePressStart, handlePressEnd, isPressed } = useClickHandlers({
+        clickHandler,
+        onLongPress,
+    });
 
     const handleImageError = () => {
-        setImgSrc(placeholderImage); // Imposta il placeholder se l'immagine non viene trovata
+        localDebug("Image error, loading placeholder");
+        setImgSrc(placeholderImage);
     };
 
     return (
-        <div className="card ml-3 mb-4" style={{ width: '100%' }} onClick={clickHandler}>
+        <div
+            className={`card ml-3 mb-4 ${type} ${isPressed ? "pressed" : ""}`}
+            onMouseDown={handlePressStart}
+            onMouseUp={handlePressEnd}
+            onTouchStart={handlePressStart}
+            onTouchEnd={handlePressEnd}
+        >
             <img
                 src={imgSrc}
                 className="card-img-top"
                 alt={name}
-                onError={handleImageError} // Aggiungi il gestore di errore
+                onError={handleImageError}
             />
             <div className="card-body">
                 <p className="card-text">{titleCase(name)}</p>

@@ -1,3 +1,4 @@
+// src/pages/FiendList.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
@@ -10,7 +11,7 @@ import CaptureBar from "../components/CaptureBar";
 const FiendList = () => {
     const { zoneId } = useParams();
     const [fiends, setFiends] = useState([]);
-    const [otherFiends, setOtherFiends] = useState([]); // Per mostri non nativi
+    const [otherFiends, setOtherFiends] = useState([]);
     const [zone, setZone] = useState({});
 
     useEffect(() => {
@@ -19,10 +20,8 @@ const FiendList = () => {
                 const fiendResponse = await axios.get(
                     `/zones/${zoneId}/fiends_with_found`
                 );
-                console.log("Dati dei mostri ricevuti:", fiendResponse.data);
-
-                setFiends(fiendResponse.data.native || []); // Imposta i mostri nativi
-                setOtherFiends(fiendResponse.data.others || []); // Imposta i mostri trovabili
+                setFiends(fiendResponse.data.native || []);
+                setOtherFiends(fiendResponse.data.others || []);
             } catch (error) {
                 console.error("Errore nel recupero dei mostri:", error);
             }
@@ -41,13 +40,24 @@ const FiendList = () => {
         fetchZone();
     }, [zoneId]);
 
+    const funzioneCattura1 = (id) => {
+        console.log(`Cattura singola del mostro con id ${id}`);
+    };
+
+    const funzioneCattura2 = (id) => {
+        console.log(`Cattura profonda del mostro con id ${id}`);
+    };
+
     return (
         <div className="background-cover">
             <div className="overlay"></div>
             <div className="fiend-list-content container-fluid pt-5">
                 <h2 className="display-4">{titleCase(zone.name || "")}</h2>
                 <div className="fiend-cards fiend-cards-native">
-                    {renderCards(fiends)}
+                    {renderCards(fiends, "fiend", {
+                        clickHandler: funzioneCattura1,
+                        onLongPress: funzioneCattura2,
+                    })}
                 </div>
 
                 {otherFiends.length > 0 && (
@@ -55,7 +65,10 @@ const FiendList = () => {
                         <h3 className="section-title">Extra</h3>
                         <div className="divider"></div>
                         <div className="fiend-cards fiend-cards-extra">
-                            {renderCards(otherFiends)}
+                            {renderCards(otherFiends, "fiend", {
+                                clickHandler: funzioneCattura1,
+                                onLongPress: funzioneCattura2,
+                            })}
                         </div>
                     </>
                 )}

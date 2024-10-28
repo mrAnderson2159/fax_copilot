@@ -2,4 +2,4 @@ fastapi
 uvicorn
 psycopg2
 sqlalchemy
-alambic
+alembic
