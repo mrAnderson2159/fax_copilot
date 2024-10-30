@@ -19,3 +19,5 @@ export function debug(flag, ...stuff) {
         console.log(...stuff);
     }
 }
+
+export const MAX_CAPTURES = 10;

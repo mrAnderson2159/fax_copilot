@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 
 export const useClickHandlers = ({ clickHandler, onLongPress }) => {
     const [isPressed, setIsPressed] = useState(false);
-    // eslint-disable-next-line
     const [isLongPress, setIsLongPress] = useState(false);
     const alreadyClicked = useRef(false);
     const isPressedRef = useRef(false);
@@ -25,6 +24,7 @@ export const useClickHandlers = ({ clickHandler, onLongPress }) => {
             if (isPressedRef.current) {
                 setIsLongPress(true);
                 onLongPress();
+                alreadyClicked.current = true; // Impedisce il clickHandler se è stato un long press
             }
         }, 500); // Tempo per il long press
     };
@@ -37,8 +37,8 @@ export const useClickHandlers = ({ clickHandler, onLongPress }) => {
                 clearTimeout(pressTimer.current);
             }
 
-            if (isPressedRef.current && !alreadyClicked.current) {
-                // Gestione del click singolo
+            // Gestione del click singolo solo se non c'è stato un long press
+            if (isPressedRef.current && !isLongPress) {
                 alreadyClicked.current = true;
                 clickHandler();
             }

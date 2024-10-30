@@ -5,11 +5,15 @@ import "../styles/CommonStyles.css";
 import "./ZoneList.css";
 import renderCards from "../utils/renderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { debug } from "../utils";
+
+const DEBUG_MODE = true;
 
 const ZoneList = () => {
     const [zones, setZones] = useState([]);
     const [clickedZoneId, setClickedZoneId] = useState(null); // Stato per tracciare la zona cliccata
     const navigate = useNavigate();
+    const localDebug = (...stuff) => debug(DEBUG_MODE, ...stuff);
 
     useEffect(() => {
         const fetchZones = async () => {
@@ -24,15 +28,19 @@ const ZoneList = () => {
         fetchZones();
     }, []);
 
-    const handleZoneClick = (id) => {
+    const handleZoneClick = ({ id }) => {
+        localDebug(`setting setClickedZoneId(${id})`);
         setClickedZoneId(id); // Imposta l'ID della zona cliccata per attivare l'animazione
+        localDebug(`set setClickedZoneId with value ${clickedZoneId}`);
     };
 
     const handleAnimationEnd = (id) => {
+        localDebug(`about to navigate to ${`/zones/${id}/fiends/`}`);
         navigate(`/zones/${id}/fiends/`);
+        localDebug(`navigated to ${`/zones/${id}/fiends/`}`);
     };
 
-    const showZoneDetails = (id) => {
+    const showZoneDetails = ({ id }) => {
         console.log(`Showing details of zone ${id}`);
         alert(`Showing details of zone ${id}`);
     };

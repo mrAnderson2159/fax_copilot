@@ -10,6 +10,8 @@ const renderCards = (
         onLongPress = () => {},
         transitionOnCard = () => "",
         onAnimationEnd = () => {},
+        children = () => null,
+        props = null,
     }
 ) => {
     const rows = [];
@@ -39,10 +41,13 @@ const renderCards = (
                             <Card
                                 name={item.name}
                                 imageUrl={item.image_url}
-                                clickHandler={() => clickHandler(item.id)}
-                                onLongPress={() => onLongPress(item.id)}
+                                clickHandler={() => clickHandler(item, props)}
+                                onLongPress={() => onLongPress(item, props)}
                                 type={type} // Passa il tipo alla Card per gestire l'animazione
-                            />
+                                props={props}
+                            >
+                                {children(item, props)}
+                            </Card>
                         </div>
                     );
                 })}

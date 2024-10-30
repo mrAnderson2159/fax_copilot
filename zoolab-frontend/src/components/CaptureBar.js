@@ -1,7 +1,6 @@
 import React from "react";
 import "./CaptureBar.css";
-
-const MAX_CAPTURES = 10;
+import { MAX_CAPTURES } from "../utils";
 
 const CaptureBar = ({ fiends }) => {
     return (
