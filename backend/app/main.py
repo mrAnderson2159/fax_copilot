@@ -1,8 +1,11 @@
+# backend/app/main.py
+
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers import zones, fiends, area_conquests, original_creations, species_conquests
+from app.config import CORS_ORIGINS
 
 app = FastAPI()
 
@@ -17,11 +20,13 @@ app.mount("/images", StaticFiles(directory=images_dir), name="images")
 # Configura il middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Specifica l'origine consentita
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],  # Consenti tutti i metodi (GET, POST, ecc.)
-    allow_headers=["*"],  # Consenti tutti gli header
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
+print(CORS_ORIGINS)
 
 app.include_router(zones.router)
 app.include_router(fiends.router)

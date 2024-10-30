@@ -1,4 +1,6 @@
 // src/utils.js
+import { API_BASE_URL } from "./config";
+
 export function titleCase(str) {
     return str
         .toLowerCase()
@@ -9,7 +11,7 @@ export function titleCase(str) {
 
 export function resolveImagePath(relativePath) {
     // Costruisce il percorso assoluto delle immagini
-    return `http://localhost:8000/${relativePath}`;
+    return `${API_BASE_URL}/${relativePath}`;
 }
 
 export function debug(flag, ...stuff) {

@@ -34,6 +34,7 @@ const ZoneList = () => {
 
     const showZoneDetails = (id) => {
         console.log(`Showing details of zone ${id}`);
+        alert(`Showing details of zone ${id}`);
     };
 
     // Funzione per aggiungere la classe di transizione se l'ID è quello cliccato

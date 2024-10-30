@@ -6,7 +6,14 @@ import { useClickHandlers } from "../utils/useClickHandlers";
 
 const placeholderImage = "/images/black_placeholder.jpeg";
 
-const Card = ({ imageUrl, name, clickHandler, onLongPress, type }) => {
+const Card = ({
+    children,
+    imageUrl,
+    name,
+    clickHandler,
+    onLongPress,
+    type,
+}) => {
     const DEBUG = true;
     const localDebug = (...stuff) => debug(DEBUG, ...stuff);
     const [imgSrc, setImgSrc] = React.useState(resolveImagePath(imageUrl));
@@ -38,6 +45,7 @@ const Card = ({ imageUrl, name, clickHandler, onLongPress, type }) => {
             />
             <div className="card-body">
                 <p className="card-text">{titleCase(name)}</p>
+                {children}
             </div>
         </div>
     );
