@@ -14,9 +14,10 @@ export function resolveImagePath(relativePath) {
     return `${API_BASE_URL}/${relativePath}`;
 }
 
-export function debug(flag, ...stuff) {
+// zoolab-frontend/src/utils/debug.js
+export function debug(flag, fileName, functionName, ...stuff) {
     if (flag) {
-        console.log(...stuff);
+        console.log(`[DEBUG - ${fileName} - ${functionName}]`, ...stuff);
     }
 }
 

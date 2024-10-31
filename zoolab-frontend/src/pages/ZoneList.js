@@ -1,3 +1,4 @@
+// zoolab-frontend/src/pages/ZoneList.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
@@ -13,7 +14,8 @@ const ZoneList = () => {
     const [zones, setZones] = useState([]);
     const [clickedZoneId, setClickedZoneId] = useState(null); // Stato per tracciare la zona cliccata
     const navigate = useNavigate();
-    const localDebug = (...stuff) => debug(DEBUG_MODE, ...stuff);
+    const localDebug = (functionName, ...stuff) =>
+        debug(DEBUG_MODE, "ZoneList.js", functionName, ...stuff);
 
     useEffect(() => {
         const fetchZones = async () => {
@@ -29,20 +31,29 @@ const ZoneList = () => {
     }, []);
 
     const handleZoneClick = ({ id }) => {
-        localDebug(`setting setClickedZoneId(${id})`);
+        localDebug("handleZoneClick", `setting setClickedZoneId(${id})`);
         setClickedZoneId(id); // Imposta l'ID della zona cliccata per attivare l'animazione
-        localDebug(`set setClickedZoneId with value ${clickedZoneId}`);
+        localDebug(
+            "handleZoneClick",
+            `set setClickedZoneId with value ${clickedZoneId}`
+        );
     };
 
     const handleAnimationEnd = (id) => {
-        localDebug(`about to navigate to ${`/zones/${id}/fiends/`}`);
+        localDebug(
+            "handleAnimationEnd",
+            `about to navigate to ${`/zones/${id}/fiends/`}`
+        );
         navigate(`/zones/${id}/fiends/`);
-        localDebug(`navigated to ${`/zones/${id}/fiends/`}`);
+        localDebug(
+            "handleAnimationEnd",
+            `navigated to ${`/zones/${id}/fiends/`}`
+        );
     };
 
     const showZoneDetails = ({ id }) => {
         console.log(`Showing details of zone ${id}`);
-        alert(`Showing details of zone ${id}`);
+        // alert(`Showing details of zone ${id}`);
     };
 
     // Funzione per aggiungere la classe di transizione se l'ID è quello cliccato
