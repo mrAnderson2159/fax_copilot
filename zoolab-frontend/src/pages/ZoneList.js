@@ -8,7 +8,7 @@ import renderCards from "../utils/renderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const ZoneList = () => {
     const [zones, setZones] = useState([]);

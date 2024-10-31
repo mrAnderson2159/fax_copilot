@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import { debug } from "../utils";
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 export const useClickHandlers = ({ clickHandler, onLongPress }) => {
     const [isPressed, setIsPressed] = useState(false);
