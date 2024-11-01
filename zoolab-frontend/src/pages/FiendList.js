@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
 import { titleCase, MAX_CAPTURES } from "../utils";
@@ -19,28 +19,32 @@ const FiendList = () => {
     const [selectedFiend, setSelectedFiend] = useState(null);
     const [alert, setAlert] = useState({ show: false, action: null });
 
+    // Funzione per ottenere i dati sui mostri con le informazioni sulle catture
+    const fetchFiendsWithFound = useCallback(async () => {
+        try {
+            const fiendResponse = await axios.get(
+                `/zones/${zoneId}/fiends_with_found`
+            );
+            const nativeFiends = fiendResponse.data.native || [];
+            const otherFiendsData = fiendResponse.data.others || [];
+
+            setFiends(nativeFiends);
+            setOtherFiends(otherFiendsData);
+
+            const initialDeltas = nativeFiends.reduce((acc, fiend) => {
+                acc[fiend.id] = 0;
+                return acc;
+            }, {});
+
+            setDeltas(initialDeltas);
+        } catch (error) {
+            console.error("Errore nel recupero dei mostri:", error);
+        }
+    }, [zoneId]);
+
+    // Recupera i dati all'inizio e ogni volta che zoneId cambia
     useEffect(() => {
-        const fetchFiendsWithFound = async () => {
-            try {
-                const fiendResponse = await axios.get(
-                    `/zones/${zoneId}/fiends_with_found`
-                );
-                const nativeFiends = fiendResponse.data.native || [];
-                const otherFiendsData = fiendResponse.data.others || [];
-
-                setFiends(nativeFiends);
-                setOtherFiends(otherFiendsData);
-
-                const initialDeltas = nativeFiends.reduce((acc, fiend) => {
-                    acc[fiend.id] = 0;
-                    return acc;
-                }, {});
-
-                setDeltas(initialDeltas);
-            } catch (error) {
-                console.error("Errore nel recupero dei mostri:", error);
-            }
-        };
+        fetchFiendsWithFound();
 
         const fetchZone = async () => {
             try {
@@ -51,11 +55,11 @@ const FiendList = () => {
             }
         };
 
-        fetchFiendsWithFound();
         fetchZone();
-    }, [zoneId]);
+    }, [zoneId, fetchFiendsWithFound]);
 
-    const funzioneCattura1 = (fiend) => {
+    // Funzione per il click normale
+    const funzioneCattura1 = useCallback((fiend) => {
         setDeltas((prevDeltas) => {
             const newDelta = Math.min(
                 (prevDeltas[fiend.id] || 0) + 1,
@@ -66,16 +70,14 @@ const FiendList = () => {
                 [fiend.id]: newDelta,
             };
         });
-    };
+    }, []);
 
-    const funzioneCattura2 = (fiend) => {
+    // Funzione per il click prolungato
+    const funzioneCattura2 = useCallback((fiend) => {
         setSelectedFiend(fiend);
-    };
+    }, []);
 
-    const badge = (fiend, { deltas }) => {
-        return <Badge delta={deltas[fiend.id]} />;
-    };
-
+    // Funzione per chiudere il modal
     const handleCloseModal = () => {
         setSelectedFiend(null);
     };
@@ -90,7 +92,7 @@ const FiendList = () => {
 
     const saveChanges = async () => {
         try {
-            await axios.post("/update_captures", {
+            await axios.post("/fiends/update_captures", {
                 updates: Object.entries(deltas)
                     .filter(([_, delta]) => delta !== 0)
                     .map(([fiend_id, delta]) => ({ fiend_id, delta })),
@@ -100,6 +102,7 @@ const FiendList = () => {
                     Object.entries(prev).map(([key]) => [key, 0])
                 )
             );
+            fetchFiendsWithFound(); // Aggiorna i mostri dopo aver salvato
         } catch (error) {
             console.error("Errore nell'aggiornamento delle catture:", error);
         }
@@ -125,6 +128,11 @@ const FiendList = () => {
         setAlert({ show: false, action: null });
     };
 
+    const badge = useCallback(
+        (fiend, { deltas }) => <Badge delta={deltas[fiend.id]} />,
+        [deltas]
+    );
+
     const renderCardsKeywords = {
         clickHandler: funzioneCattura1,
         onLongPress: funzioneCattura2,
@@ -137,7 +145,9 @@ const FiendList = () => {
     return (
         <div className="transparent-background">
             <div className="fiend-list-content container-fluid pt-5">
-                <h2 className="display-4">{titleCase(zone.name || "")}</h2>
+                <h2 className="display-4 fiendlist-title">
+                    {titleCase(zone.name || "")}
+                </h2>
                 <div className="fiend-cards fiend-cards-native">
                     {renderCards(fiends, "fiend", renderCardsKeywords)}
                 </div>
@@ -176,7 +186,9 @@ const FiendList = () => {
                     }
                 />
 
-                <h2 className="display-4">Mostri Catturati</h2>
+                <h2 className="display-4 fiendlist-title capturebar-title">
+                    Mostri Catturati
+                </h2>
                 <div className="container-fluid capture-bar">
                     <CaptureBar fiends={fiends} />
                 </div>

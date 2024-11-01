@@ -19,7 +19,7 @@ def get_zones(db: Session = Depends(get_db)):
     :param db: Sessione del database ottenuta tramite dependency injection.
     :return: Lista di tutte le zone.
     """
-    return db.query(models.Zone).all()
+    return db.query(models.Zone).order_by(models.Zone.id).all()
 
 
 # Definisce un endpoint GET per ottenere una singola zona specificata tramite il suo ID
@@ -49,7 +49,7 @@ def get_zone_fiends(zone_id: int, db: Session = Depends(get_db)):
         # Se la zona non esiste, lancia un errore HTTP 404
         raise HTTPException(status_code=404, detail="Zona non trovata")
 
-    fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).all()
+    fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).order_by(models.Fiend.id).all()
     return fiends
 
 
@@ -61,13 +61,14 @@ def get_zone_fiends_with_found(zone_id: int, db: Session = Depends(get_db)):
     - `others`: mostri trovabili in quella zona, ma nativi di altre zone.
     """
     # Recupera i mostri nativi della zona
-    native_fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).all()
+    native_fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).order_by(models.Fiend.id).all()
 
     # Recupera i mostri trovabili tramite la relazione `CanBeFound`
     other_fiends = (
         db.query(models.Fiend)
         .join(models.CanBeFound, models.CanBeFound.fiend_id == models.Fiend.id)
         .filter(models.CanBeFound.zone_id == zone_id)
+        .order_by(models.Fiend.id)
         .all()
     )
 

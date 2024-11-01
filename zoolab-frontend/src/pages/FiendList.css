@@ -60,3 +60,11 @@
     transform: translateY(-50%);
     background-color: rgba(220, 53, 69, 0.75); /* Rosso, con opacità del 75% */
 }
+
+.fiendlist-title {
+    margin-bottom: 10%;
+}
+
+.capturebar-title {
+    margin-top: 30%;
+}

@@ -9,6 +9,12 @@ const CaptureBar = ({ fiends }) => {
                 // Calcola la larghezza in percentuale rispetto al massimo numero di catture
                 const width = (was_captured / MAX_CAPTURES) * 100;
 
+                // Usa una classe speciale se il numero di catture è al massimo
+                const progressBarClass =
+                    was_captured === MAX_CAPTURES
+                        ? "progress-bar full-capture"
+                        : "progress-bar";
+
                 return (
                     <div key={id} className="capture-bar-item">
                         <p className="capture-bar-name">{name}</p>
@@ -22,7 +28,7 @@ const CaptureBar = ({ fiends }) => {
                                 aria-valuemax="100"
                             >
                                 <div
-                                    className="progress-bar"
+                                    className={progressBarClass}
                                     style={{ width: `${width}%` }}
                                     data-value={width}
                                 ></div>

@@ -35,6 +35,19 @@
 
 .transparent-background {
     background-color: transparent;
+    position: relative;
+}
+
+.transparent-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Overlay scuro al 30% */
+    filter: blur(3px) saturate(50%); /* Sfoca e riduce la saturazione */
+    z-index: -1; /* Manda lo sfondo dietro agli altri elementi */
 }
 
 * {
@@ -48,4 +61,29 @@ img {
     -webkit-user-drag: none; /* Previene il drag delle immagini su Safari */
     user-select: none; /* Previene la selezione delle immagini */
     pointer-events: none; /* Questo impedisce di interagire direttamente con l'immagine */
+}
+
+/* zoolab-frontend/src/styles/CommonStyles.css */
+
+/* Titolo delle sezioni */
+.display-4 {
+    background: rgba(0, 0, 0, 0.6); /* Sfondo nero con trasparenza al 60% */
+    padding: 10px;
+    border-radius: 8px;
+    color: #ffffff; /* Testo bianco */
+    text-align: center; /* Centrato */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Aggiunge profondità */
+}
+
+/* Divisori */
+.divider {
+    height: 2px;
+    width: 80%;
+    margin: 20px auto;
+    background: rgba(
+        255,
+        255,
+        255,
+        0.3
+    ); /* Colore bianco con trasparenza al 30% */
 }
