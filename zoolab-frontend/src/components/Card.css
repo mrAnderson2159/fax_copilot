@@ -15,6 +15,11 @@
     z-index: 10;
 }
 
+.card.unclickable.pressed {
+    transform: none; /* Nessuna trasformazione */
+    z-index: auto; /* Mantieni il valore di default */
+}
+
 /* Effetto di esplosione solo per le zone */
 .card.zone.explode {
     animation: explode 0.4s forwards;

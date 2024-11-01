@@ -1,5 +1,5 @@
 // zoolab-frontend/src/components/Card.js
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { resolveImagePath, titleCase } from "../utils";
 import "./Card.css";
 import { debug } from "../utils";
@@ -11,12 +11,12 @@ const Card = ({
     children,
     imageUrl,
     name,
-    clickHandler,
-    onLongPress,
-    type,
-    props,
+    clickHandler = () => {},
+    onLongPress = () => {},
+    type = "",
+    className = "",
 }) => {
-    const DEBUG = true;
+    const DEBUG = false;
     const localDebug = (...stuff) => debug(DEBUG, "Card.js", ...stuff);
     const [imgSrc, setImgSrc] = useState(resolveImagePath(imageUrl));
 
@@ -33,7 +33,9 @@ const Card = ({
 
     return (
         <div
-            className={`card ml-3 mb-4 ${type} ${isPressed ? "pressed" : ""}`}
+            className={`card ml-3 mb-4 ${type} ${isPressed ? "pressed" : ""} ${
+                className || ""
+            }`} // Aggiungi `className` qui
             onMouseDown={handlePressStart}
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}

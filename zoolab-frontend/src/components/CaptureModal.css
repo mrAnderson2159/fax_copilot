@@ -1,0 +1,149 @@
+/* zoolab-frontend/src/components/CaptureModal.css */
+
+.modal {
+    z-index: 1050;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* zoolab-frontend/src/components/CaptureModal.css */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark, semi-transparent overlay */
+    backdrop-filter: blur(
+        4px
+    ); /* Adds a slight blur for a more elegant effect */
+    z-index: 1040; /* Ensures it stays behind the modal */
+    cursor: pointer; /* Changes the cursor to indicate clickability */
+}
+
+/* Modal container */
+.modal-dialog {
+    margin: 10% auto;
+    background: rgba(10, 32, 47, 0.6);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 1050; /* Ensures it stays above the overlay */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    width: 90%;
+    margin: 5% auto;
+}
+
+/* Modal header styling */
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(
+        20,
+        80,
+        40,
+        0.95
+    ); /* Darker shade of green for the header */
+    color: #ffffff; /* White text to contrast the dark background */
+}
+
+/* Modal title */
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Close button styling */
+.btn-close {
+    color: #ffffff;
+    opacity: 0.8;
+    font-size: 1.2rem;
+    transition: opacity 0.3s ease;
+}
+
+/* Modal body styling */
+.modal-body {
+    padding: 20px;
+    color: #ffffff;
+    line-height: 1.5;
+    background: rgba(15, 50, 25, 0.85); /* Consistent dark green theme */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal footer styling */
+.modal-footer {
+    padding: 10px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(20, 80, 40, 0.95); /* Same shade as header */
+    display: flex;
+    justify-content: center;
+}
+
+/* Button styling for the modal actions */
+.btn {
+    padding: 6px 10px; /* Reduced padding for better fit */
+    border-radius: 4px;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Button select styling */
+.btn-select {
+    width: 45px; /* Leggermente ridotta per adattare meglio il contenuto */
+    height: 45px; /* Altezza uniforme */
+    margin: 4px; /* Spazio uniforme tra tutti i pulsanti */
+    font-size: 0.75rem; /* Font più piccolo per uniformare meglio il contenuto */
+    padding: 0; /* Eliminato il padding interno */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center; /* Centra il testo */
+    text-align: center;
+    border-radius: 8px; /* Coerente con i bottoni */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Ombra leggera */
+}
+
+/* Cambia colore al click */
+.btn-select:active {
+    background-color: rgba(
+        0,
+        0,
+        0,
+        0.1
+    ); /* Leggero scurimento per effetto pressione */
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling per i pulsanti disabilitati */
+.btn-select:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    opacity: 0.6; /* Ridotta opacità per indicare che è disabilitato */
+}
+
+/* Removed redundant btn-danger, btn-primary, btn-success definitions */
+/* Instead, these should be covered by .btn-select with color classes for each */
+
+/* Reduced spacing between rows to fit better */
+.modal-body .row {
+    margin-bottom: 8px; /* Un po' più di spazio per evitare sovrapposizioni visive */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Layout flessibile per i bottoni */
+.modal-body .row .col-3,
+.modal-body .row .col-4 {
+    flex: 0 0 auto;
+    max-width: 25%; /* Maggiore consistenza per evitare che i bottoni si allarghino troppo */
+    padding: 0; /* Rimuovere eventuali padding extra */
+}

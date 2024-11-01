@@ -21,4 +21,8 @@ export function debug(flag, fileName, functionName, ...stuff) {
     }
 }
 
+export function signed(value) {
+    return value > 0 ? `+${value}` : value;
+}
+
 export const MAX_CAPTURES = 10;

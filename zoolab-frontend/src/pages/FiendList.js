@@ -118,6 +118,9 @@ const FiendList = () => {
                     show={selectedFiend !== null}
                     onClose={handleCloseModal}
                     fiend={selectedFiend}
+                    deltas={deltas}
+                    setDeltas={setDeltas}
+                    badge={badge}
                 />
 
                 <h2 className="display-4">Mostri Catturati</h2>
