@@ -92,17 +92,20 @@ const FiendList = () => {
 
     const saveChanges = async () => {
         try {
-            await axios.post("/fiends/update_captures", {
+            const response = await axios.post("/fiends/update_captures", {
                 updates: Object.entries(deltas)
                     .filter(([_, delta]) => delta !== 0)
                     .map(([fiend_id, delta]) => ({ fiend_id, delta })),
             });
+            console.log(response.data);
+
             setDeltas((prev) =>
                 Object.fromEntries(
                     Object.entries(prev).map(([key]) => [key, 0])
                 )
             );
             fetchFiendsWithFound(); // Aggiorna i mostri dopo aver salvato
+            alertConquests(response.data);
         } catch (error) {
             console.error("Errore nell'aggiornamento delle catture:", error);
         }
@@ -114,6 +117,18 @@ const FiendList = () => {
             Object.fromEntries(Object.entries(prev).map(([key]) => [key, 0]))
         );
         setAlert({ show: false, action: null });
+    };
+
+    const alertConquests = ({
+        area_conquests,
+        species_conquests,
+        original_creations,
+    }) => {
+        console.log({
+            area_conquests,
+            species_conquests,
+            original_creations,
+        });
     };
 
     const handleAlertConfirm = () => {

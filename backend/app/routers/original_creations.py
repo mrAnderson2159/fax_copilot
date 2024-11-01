@@ -36,6 +36,17 @@ def get_all_original_creations(db: Session = Depends(get_db)):
     """
     return db.query(models.OriginalCreation).all()
 
+@router.get("/created", response_model=list[schemas.OriginalCreation])
+def get_created_original_creations(db: Session = Depends(get_db)):
+    """
+    Restituisce tutti i campioni di specie creati.
+
+    :param db: Sessione del database.
+    :return: Lista di campioni di zona.
+    """
+    return db.query(models.OriginalCreation).filter(models.OriginalCreation.created).order_by(models.OriginalCreation.id).all()
+
+
 
 @router.get("/{original_creation_id}", response_model=schemas.OriginalCreation)
 def get_original_creation(original_creation_id: int, db: Session = Depends(get_db)):

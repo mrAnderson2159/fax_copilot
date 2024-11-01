@@ -9,6 +9,7 @@ router = APIRouter(
     tags=["Area Conquests"]
 )
 
+
 def _get_area_conquest(area_conquest_id: int, db: Session) -> models.AreaConquest:
     """
     Recupera un campione di zona dal database.
@@ -23,6 +24,7 @@ def _get_area_conquest(area_conquest_id: int, db: Session) -> models.AreaConques
         raise HTTPException(status_code=404, detail="Campione di zona non trovato")
     return area_conquest
 
+
 @router.get("/", response_model=list[schemas.AreaConquest])
 def get_all_area_conquests(db: Session = Depends(get_db)):
     """
@@ -31,7 +33,19 @@ def get_all_area_conquests(db: Session = Depends(get_db)):
     :param db: Sessione del database.
     :return: Lista di campioni di zona.
     """
-    return db.query(models.AreaConquest).all()
+    return db.query(models.AreaConquest).order_by(models.AreaConquest.id).all()
+
+
+@router.get("/created", response_model=list[schemas.AreaConquest])
+def get_created_area_conquests(db: Session = Depends(get_db)):
+    """
+    Restituisce tutti i campioni di zona.
+
+    :param db: Sessione del database.
+    :return: Lista di campioni di zona.
+    """
+    return db.query(models.AreaConquest).filter(models.AreaConquest.created).order_by(models.AreaConquest.id).all()
+
 
 @router.get("/{area_conquest_id}", response_model=schemas.AreaConquest)
 def get_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
@@ -44,6 +58,7 @@ def get_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     :return: Oggetto AreaConquest.
     """
     return _get_area_conquest(area_conquest_id, db)
+
 
 @router.post("/{area_conquest_id}/defeated", response_model=schemas.AreaConquest)
 def defeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
@@ -65,6 +80,7 @@ def defeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db))
         raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento: {str(e)}")
 
     return area_conquest
+
 
 @router.post("/{area_conquest_id}/undefeated", response_model=schemas.AreaConquest)
 def undefeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):

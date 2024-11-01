@@ -20,7 +20,10 @@ const MainLayout = ({ children, headerTitle }) => {
             {/* Background image e overlay mostrati solo se siamo in una pagina /zones/* */}
             {shouldShowBackground && (
                 <>
-                    <div className="zoolab-image"></div>
+                    <div className="zoolab-image-wrapper">
+                        <div className="zoolab-image"></div>
+                    </div>
+
                     <div className="overlay"></div>
                 </>
             )}

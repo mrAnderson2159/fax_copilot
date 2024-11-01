@@ -1,8 +1,7 @@
 # backend/app/routers/fiends.py
-import random
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+import logging
 
 from app.creation_conditions import CreationConditions
 from app import models, schemas
@@ -12,6 +11,8 @@ router = APIRouter(
     prefix="/fiends",
     tags=["Fiends"]
 )
+
+logger = logging.getLogger(__name__)
 
 
 # Rotta per ottenere l'elenco di tutti i mostri
@@ -54,14 +55,23 @@ def update_fiend_captures(request: schemas.FiendCapturesUpdateRequest, db: Sessi
     :raises HTTPException: Se un mostro non viene trovato o i dati non sono validi, lancia un'eccezione HTTP.
     :return: Un messaggio di conferma o errore.
     """
-    captured_fiends: list[models.Fiend] = db.query(models.Fiend).filter(models.Fiend.id.in_(
-        [update.fiend_id for update in request.updates]
-    )).all()
+    logger.info("Richiesta di aggiornamento ricevuta: updates=%s", request.updates)
+
+    captured_fiends: list[models.Fiend] = db.query(models.Fiend).filter(models.Fiend.id.in_([
+        update.fiend_id for update in request.updates
+    ])).all()
+
+    logger.info("Mostri catturati trovati nel database: %s", [fiend.name for fiend in captured_fiends])
 
     deltas = [update.delta for update in request.updates]
+    logger.info("Variazioni di cattura (deltas): %s", deltas)
 
     for captured_fiend, delta in zip(captured_fiends, deltas):
         new_capture_count = captured_fiend.was_captured + delta
+        logger.info(
+            "Controllo cattura per %s: catture attuali=%d, delta=%d, nuovo conteggio=%d",
+            captured_fiend.name, captured_fiend.was_captured, delta, new_capture_count
+        )
 
         if new_capture_count < 0:
             raise HTTPException(status_code=403,
@@ -75,27 +85,39 @@ def update_fiend_captures(request: schemas.FiendCapturesUpdateRequest, db: Sessi
     # Se tutti i controlli passano, esegui gli aggiornamenti effettivi
     for captured_fiend, delta in zip(captured_fiends, deltas):
         captured_fiend.was_captured += delta
+        db.add(captured_fiend)  # Aggiungi l'oggetto alla sessione per il commit successivo
         feedback.append((captured_fiend.name, delta))
+        logger.info("Aggiornamento effettivo per %s: nuovo numero di catture=%d", captured_fiend.name, captured_fiend.was_captured)
 
+    db.flush()
+    logging.info("Flash del database per controllare nuove creazioni")
+
+    # Ora verificare le condizioni per campioni e prototipi
     conquests = CreationConditions(
         db=db,
         captured_fiends=captured_fiends,
         negative_check=any(delta < 0 for delta in deltas)
     ).check()
 
-    # Prova a fare il commit delle modifiche
+    logger.info("Conquiste verificate: %s", conquests)
+
+    # Prova a fare il commit delle modifiche tutte insieme
     try:
         db.commit()
+        logger.info("Commit del database eseguito con successo")
     except Exception as e:
         db.rollback()
+        logger.error("Errore durante il commit del database: %s", str(e))
         raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento: {str(e)}")
 
-    return {
+    response = {
         "message": "Aggiornamento delle catture completato con successo",
         "captures": feedback,
         **conquests
     }
+    logger.info("Risposta restituita: %s", response)
 
+    return response
 
 # Rotta per resettare il numero di catture di tutti i mostri
 @router.post("/reset")
