@@ -1,4 +1,3 @@
-// src/pages/FiendList.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
@@ -9,6 +8,7 @@ import renderCards from "../utils/renderCards";
 import CaptureBar from "../components/CaptureBar";
 import Badge from "../components/Badge";
 import CaptureModal from "../components/CaptureModal";
+import AlertModal from "../components/AlertModal";
 
 const FiendList = () => {
     const { zoneId } = useParams();
@@ -16,7 +16,8 @@ const FiendList = () => {
     const [otherFiends, setOtherFiends] = useState([]);
     const [zone, setZone] = useState({});
     const [deltas, setDeltas] = useState({});
-    const [selectedFiend, setSelectedFiend] = useState(null); // Stato per il modal
+    const [selectedFiend, setSelectedFiend] = useState(null);
+    const [alert, setAlert] = useState({ show: false, action: null });
 
     useEffect(() => {
         const fetchFiendsWithFound = async () => {
@@ -30,7 +31,6 @@ const FiendList = () => {
                 setFiends(nativeFiends);
                 setOtherFiends(otherFiendsData);
 
-                // Inizializza deltas per ogni mostro dopo aver ottenuto i dati
                 const initialDeltas = nativeFiends.reduce((acc, fiend) => {
                     acc[fiend.id] = 0;
                     return acc;
@@ -56,13 +56,11 @@ const FiendList = () => {
     }, [zoneId]);
 
     const funzioneCattura1 = (fiend) => {
-        console.log(`Cattura singola del mostro con id ${fiend.id}`);
         setDeltas((prevDeltas) => {
             const newDelta = Math.min(
                 (prevDeltas[fiend.id] || 0) + 1,
                 MAX_CAPTURES - fiend.was_captured
             );
-
             return {
                 ...prevDeltas,
                 [fiend.id]: newDelta,
@@ -71,8 +69,7 @@ const FiendList = () => {
     };
 
     const funzioneCattura2 = (fiend) => {
-        console.log(`Cattura profonda del mostro con id ${fiend.id}`);
-        setSelectedFiend(fiend); // Mostra il modal per il mostro selezionato
+        setSelectedFiend(fiend);
     };
 
     const badge = (fiend, { deltas }) => {
@@ -80,7 +77,52 @@ const FiendList = () => {
     };
 
     const handleCloseModal = () => {
-        setSelectedFiend(null); // Nasconde il modal
+        setSelectedFiend(null);
+    };
+
+    const confirmSaveChanges = () => {
+        setAlert({ show: true, action: "save" });
+    };
+
+    const confirmResetChanges = () => {
+        setAlert({ show: true, action: "reset" });
+    };
+
+    const saveChanges = async () => {
+        try {
+            await axios.post("/update_captures", {
+                updates: Object.entries(deltas)
+                    .filter(([_, delta]) => delta !== 0)
+                    .map(([fiend_id, delta]) => ({ fiend_id, delta })),
+            });
+            setDeltas((prev) =>
+                Object.fromEntries(
+                    Object.entries(prev).map(([key]) => [key, 0])
+                )
+            );
+        } catch (error) {
+            console.error("Errore nell'aggiornamento delle catture:", error);
+        }
+        setAlert({ show: false, action: null });
+    };
+
+    const resetChanges = () => {
+        setDeltas((prev) =>
+            Object.fromEntries(Object.entries(prev).map(([key]) => [key, 0]))
+        );
+        setAlert({ show: false, action: null });
+    };
+
+    const handleAlertConfirm = () => {
+        if (alert.action === "save") {
+            saveChanges();
+        } else if (alert.action === "reset") {
+            resetChanges();
+        }
+    };
+
+    const handleAlertCancel = () => {
+        setAlert({ show: false, action: null });
     };
 
     const renderCardsKeywords = {
@@ -123,6 +165,17 @@ const FiendList = () => {
                     badge={badge}
                 />
 
+                <AlertModal
+                    show={alert.show}
+                    onConfirm={handleAlertConfirm}
+                    onCancel={handleAlertCancel}
+                    message={
+                        alert.action === "save"
+                            ? "Sei sicuro di voler salvare le modifiche?"
+                            : "Sei sicuro di voler annullare tutte le modifiche?"
+                    }
+                />
+
                 <h2 className="display-4">Mostri Catturati</h2>
                 <div className="container-fluid capture-bar">
                     <CaptureBar fiends={fiends} />
@@ -134,6 +187,23 @@ const FiendList = () => {
                         <div className="container-fluid capture-bar">
                             <CaptureBar fiends={otherFiends} />
                         </div>
+                    </>
+                )}
+
+                {Object.values(deltas).some((delta) => delta !== 0) && (
+                    <>
+                        <button
+                            className="floating-btn save-btn btn btn-success"
+                            onClick={confirmSaveChanges}
+                        >
+                            <i className="bi bi-check"></i>
+                        </button>
+                        <button
+                            className="floating-btn reset-btn btn btn-danger"
+                            onClick={confirmResetChanges}
+                        >
+                            <i className="bi bi-x"></i>
+                        </button>
                     </>
                 )}
             </div>
