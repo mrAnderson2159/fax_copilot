@@ -4,7 +4,6 @@ import { resolveImagePath, titleCase } from "../utils";
 import "./Card.css";
 import { debug } from "../utils";
 import { useClickHandlers } from "../utils/useClickHandlers";
-import { preventDefaultBrowserActions } from "../utils/eventHandlers";
 
 const placeholderImage = "/images/black_placeholder.jpeg";
 
@@ -18,7 +17,7 @@ const Card = ({
     props,
 }) => {
     const DEBUG = true;
-    const localDebug = (...stuff) => debug(DEBUG, ...stuff);
+    const localDebug = (...stuff) => debug(DEBUG, "Card.js", ...stuff);
     const [imgSrc, setImgSrc] = useState(resolveImagePath(imageUrl));
 
     // Uso del nostro hook personalizzato per gestire i click e lo stato
@@ -28,19 +27,9 @@ const Card = ({
     });
 
     const handleImageError = () => {
-        localDebug("Image error, loading placeholder");
+        localDebug("handleImageError", "Image error, loading placeholder");
         setImgSrc(placeholderImage);
     };
-
-    useEffect(() => {
-        // Attiva la prevenzione dei comportamenti del browser e conserva la funzione di pulizia
-        const removeEventListeners = preventDefaultBrowserActions();
-
-        // Funzione di pulizia per rimuovere i listener quando il componente si smonta
-        return () => {
-            removeEventListeners();
-        };
-    }, []);
 
     return (
         <div
@@ -49,12 +38,16 @@ const Card = ({
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
+            draggable="false" // Disabilita il drag su tutto l'elemento
+            style={{ userSelect: "none", WebkitUserDrag: "none" }} // Stili per disabilitare selezione e drag
         >
             <img
                 src={imgSrc}
                 className="card-img-top"
                 alt={name}
                 onError={handleImageError}
+                draggable="false" // Disabilita il drag sull'immagine
+                style={{ userSelect: "none", WebkitUserDrag: "none" }} // Stili per disabilitare selezione e drag
             />
             {children}
             <div className="card-body">

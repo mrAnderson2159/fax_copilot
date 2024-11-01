@@ -20,7 +20,7 @@ class User(Base):
 
 class Zone(Base):
     """
-    Rappresenta una zona nel gioco, in cui possono essere trovati uno o più mostri.
+    Rappresenta una zona nel gioco, in cui può essere trovato una specifica quantità di mostri
 
     Attributi:
         id (int): L'ID univoco della zona.
@@ -41,7 +41,7 @@ class Zone(Base):
 
 class SpeciesConquest(Base):
     """
-    Rappresenta una conquista di specie, sbloccata catturando un numero specifico di mostri della stessa specie.
+    Rappresenta un campione di specie, sbloccato catturando un numero specifico di mostri della stessa specie.
 
     Attributi:
         id (int): L'ID univoco della conquista di specie.
@@ -95,7 +95,7 @@ class Fiend(Base):
 
 class SpecialFiend(Base):
     """
-    Rappresenta un tipo speciale di mostro con caratteristiche particolari.
+    Rappresenta un mostro non catturabile, generalmente un Boss.
 
     Attributi:
         id (int): L'ID univoco del mostro speciale.
@@ -110,7 +110,7 @@ class SpecialFiend(Base):
 
 class AreaConquest(Base):
     """
-    Rappresenta una conquista di zona, generata catturando tutti i mostri di una zona specifica.
+    Rappresenta un campione di zona, generato catturando tutti i mostri di una zona specifica.
 
     Attributi:
         id (int): L'ID univoco della conquista di zona.
@@ -134,7 +134,7 @@ class AreaConquest(Base):
 
 class OriginalCreation(Base):
     """
-    Rappresenta una creazione originale nel gioco, generata in base a regole specifiche.
+    Rappresenta un prototipo zoolab nel gioco, generato in base a regole specifiche.
 
     Attributi:
         id (int): L'ID univoco della creazione originale.

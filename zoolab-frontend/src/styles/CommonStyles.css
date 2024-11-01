@@ -36,3 +36,16 @@
 .transparent-background {
     background-color: transparent;
 }
+
+* {
+    -webkit-touch-callout: none; /* Previene il menu contestuale su iOS */
+    -webkit-user-select: none; /* Previene la selezione del testo su WebKit (Safari) */
+    -webkit-user-drag: none; /* Previene il trascinamento su WebKit */
+    user-select: none; /* Previene la selezione del testo in altri browser */
+}
+
+img {
+    -webkit-user-drag: none; /* Previene il drag delle immagini su Safari */
+    user-select: none; /* Previene la selezione delle immagini */
+    pointer-events: none; /* Questo impedisce di interagire direttamente con l'immagine */
+}

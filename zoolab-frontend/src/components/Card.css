@@ -6,6 +6,8 @@
     border: none;
     position: relative;
     transition: transform 0.2s ease, opacity 0.4s ease;
+    user-select: none; /* Previene la selezione del testo */
+    -webkit-user-drag: none; /* Previene il trascinamento per WebKit */
 }
 
 .card.pressed {
@@ -77,4 +79,6 @@
     display: block;
     width: 100%;
     height: auto;
+    user-select: none; /* Previene la selezione del testo sull'immagine */
+    -webkit-user-drag: none; /* Previene il trascinamento dell'immagine per WebKit */
 }
