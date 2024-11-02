@@ -1,4 +1,4 @@
-from typing import Optional, Iterator, Type, Any, Callable
+from typing import Optional, Iterator, Type, Any, Callable, Union
 from sqlalchemy.orm import Session
 from app import models, schemas
 from sqlalchemy.sql.elements import BinaryExpression, and_
@@ -47,7 +47,8 @@ class CreationConditions:
             self.check_vlakorados(),
             self.check_gasteropodos(),
             self.check_ultima_x(),
-            self.check_shinryu()
+            self.check_shinryu(),
+            self.check_il_supremo()
         ]
 
         # Restituisce solo i prototipi creati con successo
@@ -67,9 +68,11 @@ class CreationConditions:
         logger.info("Inizio verifica delle condizioni di creazione")
         result = {
             "area_conquests": self.check_area_conquest(),
-            "species_conquests": self.check_species_conquest(),
-            "original_creations": self.__check_originals()
+            "species_conquests": self.check_species_conquest()
         }
+        self.db.flush()
+        logger.info(f"Flush del database prima di verificare i prototipi zoolab")
+        result |= {"original_creations": self.__check_originals()}
         logger.info(f"Risultato della verifica delle condizioni di creazione: {result}")
         return result
 
@@ -78,7 +81,7 @@ class CreationConditions:
             *,
             original_creation_name: str,
             create_condition: bool
-    ) -> schemas.OriginalCreationResponse:
+    ) -> Optional[schemas.OriginalCreationResponse]:
         """
         Metodo privato per verificare e gestire la creazione di un prototipo zoolab.
 
@@ -96,11 +99,11 @@ class CreationConditions:
         if not original_creation.created and create_condition:
             original_creation.created = True
             logger.info(f"Prototipo creato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=True)
+            return schemas.OriginalCreationResponse(name=original_creation.name, created=True, image_url=original_creation.image_url)
         elif self.negative_check and not create_condition:
             original_creation.created = False
             logger.info(f"Prototipo annullato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=False)
+            return schemas.OriginalCreationResponse(name=original_creation.name, created=False, image_url=original_creation.image_url)
 
     def __conquests_checker(
             self,
@@ -109,8 +112,8 @@ class CreationConditions:
             conquest_model: Optional[Type[models.Base]],
             conquest_filter: Callable[[Any], BinaryExpression],
             missing_captures_target: Type[models.Base],
-            missing_captures_filter: Callable[[Any, Type[models.Base]], BinaryExpression],
-            schema_class: Type[schemas.BaseModel],
+            missing_captures_filter: Callable[[Any, Union[models.AreaConquest, models.SpeciesConquest]], BinaryExpression],
+            schema_class: Type[schemas.ConquestResponseBase],
     ) -> Optional[list[schemas.BaseModel]]:
         """
         Metodo generico per verificare e gestire la creazione o l'annullamento dei campioni di area e specie.
@@ -131,7 +134,7 @@ class CreationConditions:
         for element in elements_to_check:
             logger.info(f"Verifica conquista per elemento: {element}")
             # Controlla se la conquista è già stata creata
-            conquest = self.db.query(conquest_model).filter(conquest_filter(element)).first()
+            conquest: Union[models.AreaConquest, models.SpeciesConquest] = self.db.query(conquest_model).filter(conquest_filter(element)).first()
 
             if not conquest:
                 logger.info(f"Conquista non trovata per elemento: {element}")
@@ -147,11 +150,11 @@ class CreationConditions:
                 if not conquest.created:
                     conquest.created = True
                     logger.info(f"Conquista creata: {conquest.name}")
-                    results.append(schema_class(name=conquest.name, created=True))
+                    results.append(schema_class(name=conquest.name, created=True, image_url=conquest.image_url))
             elif self.negative_check and conquest.created:
                 conquest.created = False
                 logger.info(f"Conquista annullata: {conquest.name}")
-                results.append(schema_class(name=conquest.name, created=False))
+                results.append(schema_class(name=conquest.name, created=False, image_url=conquest.image_url))
 
         if results:
             return results
@@ -197,7 +200,7 @@ class CreationConditions:
         return self.__originals_checker(
             original_creation_name="mangiaterra",
             create_condition=self.db.query(models.AreaConquest).filter(
-                models.AreaConquest.created == True
+                models.AreaConquest.created
             ).count() >= 2
         )
 
@@ -205,7 +208,7 @@ class CreationConditions:
         return self.__originals_checker(
             original_creation_name="titanosfera",
             create_condition=self.db.query(models.SpeciesConquest).filter(
-                models.SpeciesConquest.created == True
+                models.SpeciesConquest.created
             ).count() >= 2
         )
 
@@ -213,7 +216,7 @@ class CreationConditions:
         return self.__originals_checker(
             original_creation_name="catastrophe",
             create_condition=self.db.query(models.AreaConquest).filter(
-                models.AreaConquest.created == True
+                models.AreaConquest.created
             ).count() >= 6
         )
 
@@ -221,7 +224,7 @@ class CreationConditions:
         return self.__originals_checker(
             original_creation_name="vlakorados",
             create_condition=self.db.query(models.SpeciesConquest).filter(
-                models.SpeciesConquest.created == True
+                models.SpeciesConquest.created
             ).count() >= 6
         )
 
@@ -229,7 +232,7 @@ class CreationConditions:
         return self.__originals_checker(
             original_creation_name="gasteropodos",
             create_condition=self.db.query(models.AreaConquest).filter(
-                models.AreaConquest.created == False
+                 models.AreaConquest.created == False
             ).count() == 0
         )
 

@@ -9,6 +9,7 @@ import CaptureBar from "../components/CaptureBar";
 import Badge from "../components/Badge";
 import CaptureModal from "../components/CaptureModal";
 import AlertModal from "../components/AlertModal";
+import CreationAlertModal from "../components/CreationAlertModal";
 
 const FiendList = () => {
     const { zoneId } = useParams();
@@ -18,6 +19,8 @@ const FiendList = () => {
     const [deltas, setDeltas] = useState({});
     const [selectedFiend, setSelectedFiend] = useState(null);
     const [alert, setAlert] = useState({ show: false, action: null });
+    const [currentCreation, setCurrentCreation] = useState(null); // Creazione attualmente visualizzata
+    const [creationQueue, setCreationQueue] = useState([]); // Coda di creazioni da mostrare
 
     // Funzione per ottenere i dati sui mostri con le informazioni sulle catture
     const fetchFiendsWithFound = useCallback(async () => {
@@ -97,7 +100,6 @@ const FiendList = () => {
                     .filter(([_, delta]) => delta !== 0)
                     .map(([fiend_id, delta]) => ({ fiend_id, delta })),
             });
-            console.log(response.data);
 
             setDeltas((prev) =>
                 Object.fromEntries(
@@ -105,7 +107,7 @@ const FiendList = () => {
                 )
             );
             fetchFiendsWithFound(); // Aggiorna i mostri dopo aver salvato
-            alertConquests(response.data);
+            enqueueConquests(response.data);
         } catch (error) {
             console.error("Errore nell'aggiornamento delle catture:", error);
         }
@@ -119,17 +121,36 @@ const FiendList = () => {
         setAlert({ show: false, action: null });
     };
 
-    const alertConquests = ({
+    const enqueueConquests = ({
         area_conquests,
         species_conquests,
         original_creations,
     }) => {
-        console.log({
-            area_conquests,
-            species_conquests,
-            original_creations,
-        });
+        const allConquests = [
+            ...(area_conquests || []).map((conquest) => ({
+                ...conquest,
+                type: "Campione di Zona",
+            })),
+            ...(species_conquests || []).map((conquest) => ({
+                ...conquest,
+                type: "Campione di Specie",
+            })),
+            ...(original_creations || []).map((conquest) => ({
+                ...conquest,
+                type: "Prototipo",
+            })),
+        ];
+
+        setCreationQueue((prevQueue) => [...prevQueue, ...allConquests]);
     };
+
+    // Mostra il prossimo elemento nella coda
+    useEffect(() => {
+        if (!currentCreation && creationQueue.length > 0) {
+            setCurrentCreation(creationQueue[0]);
+            setCreationQueue((prevQueue) => prevQueue.slice(1));
+        }
+    }, [currentCreation, creationQueue]);
 
     const handleAlertConfirm = () => {
         if (alert.action === "save") {
@@ -141,6 +162,10 @@ const FiendList = () => {
 
     const handleAlertCancel = () => {
         setAlert({ show: false, action: null });
+    };
+
+    const handleCreationAlertClose = () => {
+        setCurrentCreation(null);
     };
 
     const badge = useCallback(
@@ -199,6 +224,12 @@ const FiendList = () => {
                             ? "Sei sicuro di voler salvare le modifiche?"
                             : "Sei sicuro di voler annullare tutte le modifiche?"
                     }
+                />
+
+                <CreationAlertModal
+                    show={!!currentCreation}
+                    onClose={handleCreationAlertClose}
+                    creation={currentCreation}
                 />
 
                 <h2 className="display-4 fiendlist-title capturebar-title">

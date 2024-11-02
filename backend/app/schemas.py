@@ -52,6 +52,7 @@ class ConquestResponseBase(BaseModel):
     """Base per la risposta delle conquiste, contenente il nome e lo stato di creazione."""
     name: str
     created: bool
+    image_url: str
 
 
 class AreaConquestBase(BaseModel):
