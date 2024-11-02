@@ -23,11 +23,11 @@ const AppContent = () => {
         <Routes>
             <Route
                 path="/zones"
-                element={layout("Cattura Mostri", <ZoneList />)}
+                element={layout("Mostri Catturati", <ZoneList />)}
             />
             <Route
                 path="/zones/:zoneId/fiends"
-                element={layout("Cattura Mostri", <FiendList />)}
+                element={layout("Mostri Catturati", <FiendList />)}
             />
             <Route path="/" element={layout("", <Home />)} />
             {/* Aggiungi altre rotte usando la funzione `layout` */}

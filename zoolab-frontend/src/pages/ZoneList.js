@@ -71,6 +71,9 @@ const ZoneList = () => {
                     unmountOnExit
                 >
                     <div className="zone-list-content container-fluid pt-5">
+                        <h2 className="display-4 zonelist-title">
+                            Zone di Spira
+                        </h2>
                         {renderCards(zones, "zone", {
                             clickHandler: handleZoneClick,
                             onLongPress: showZoneDetails,

@@ -27,7 +27,7 @@ body.modal-open {
 /* Modal container */
 .modal-dialog {
     margin: 10% auto;
-    background: rgba(10, 32, 47, 0.6);
+    background: rgba(189, 226, 198, 0.25);
     border-radius: 12px;
     overflow: hidden;
     z-index: 1050; /* Ensures it stays above the overlay */
@@ -43,12 +43,7 @@ body.modal-open {
 .modal-header {
     padding: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgba(
-        20,
-        80,
-        40,
-        0.95
-    ); /* Darker shade of green for the header */
+    background-color: #2c513e; /* Darker shade of green for the header */
     color: #ffffff; /* White text to contrast the dark background */
 }
 
@@ -72,7 +67,7 @@ body.modal-open {
     padding: 20px;
     color: #ffffff;
     line-height: 1.5;
-    background: rgba(15, 50, 25, 0.85); /* Consistent dark green theme */
+    background: #58896a; /* Consistent dark green theme */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -83,7 +78,7 @@ body.modal-open {
 .modal-footer {
     padding: 10px 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgba(20, 80, 40, 0.95); /* Same shade as header */
+    background-color: #d4d5ab; /* Same shade as header */
     display: flex;
     justify-content: center;
 }

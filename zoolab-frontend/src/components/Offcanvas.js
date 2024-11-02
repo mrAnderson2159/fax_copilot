@@ -25,7 +25,7 @@ const Offcanvas = () => {
                 <ul className="navbar-nav">
                     <li className="nav-item">
                         <a className="nav-link" href="/zones">
-                            Cattura Mostri
+                            Mostri Catturati
                         </a>
                     </li>
                     {/* Aggiungi altri link qui */}

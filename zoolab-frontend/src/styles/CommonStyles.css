@@ -1,5 +1,5 @@
 /* src/styles/CommonStyles.css */
-.zoolab-image-wrapper {
+.background-wrapper {
     position: fixed;
     top: 0;
     left: 0;
@@ -9,15 +9,27 @@
     z-index: 0; /* Posizionato in fondo */
 }
 
-.zoolab-image {
-    position: absolute;
+.zoolab-bg,
+.fiends-bg,
+.homepage-bg {
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url("../assets/images/spira_map.jpg");
     background-size: cover;
     background-position: center;
+}
+
+.zoolab-bg {
+    background-image: url("../assets/images/spira_map.jpg");
+}
+
+.fiends-bg {
+    background-image: url("../assets/images/fiends_background.webp");
+}
+
+.homepage-bg {
+    background-image: url("../assets/images/homepage_background.webp");
 }
 
 /* Overlay che copre lo sfondo */

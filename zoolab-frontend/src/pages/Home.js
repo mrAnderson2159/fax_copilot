@@ -24,7 +24,7 @@ const Home = () => {
 
     return (
         <div className="transparent-background">
-            <h1>{message}</h1>
+            <h1 className="display-4">{message}</h1>
         </div>
     );
 };

@@ -12,4 +12,10 @@ def get_cors_origins():
     return ["http://localhost:3000"]  # Modalità locale con React
 
 
+def get_debug_mode():
+    mode = os.getenv("DEBUG_MODE", "false")
+    return mode == "true"
+
+
 CORS_ORIGINS = get_cors_origins()
+DEBUG_MODE = get_debug_mode()

@@ -6,8 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers import zones, fiends, area_conquests, original_creations, species_conquests
-from app.config import CORS_ORIGINS
-
+from app.config import CORS_ORIGINS, DEBUG_MODE
 
 # Definisce i colori per ciascuna parte del messaggio
 RESET = "\x1b[0m"
@@ -26,8 +25,6 @@ log_format = (
     f"{GREEN}%(levelname)s{RESET} - "
     f"{YELLOW}%(message)s{RESET}"
 )
-
-DEBUG_MODE = True
 
 if DEBUG_MODE:
     # Configura il logging con il formatter colorato
@@ -73,4 +70,4 @@ app.include_router(original_creations.router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Benvenuti sull'app Zoolab!"}
+    return {"message": "Final Fantasy X Copilot"}

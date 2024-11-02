@@ -10,18 +10,30 @@ import Offcanvas from "./Offcanvas";
 const MainLayout = ({ children, headerTitle }) => {
     const location = useLocation();
 
-    // Verifica se il percorso inizia con "/zones/"
-    const shouldShowBackground = location.pathname.startsWith("/zones");
+    // Mappa delle classi di background ai pattern di espressioni regolari
+    const backgroundMapping = {
+        "zoolab-bg": [/^\/zones$/],
+        "fiends-bg": [/^\/zones\/\d+\/fiends\/$/],
+        "homepage-bg": [/^\/$/],
+        // Aggiungi altre associazioni di pattern qui
+    };
+
+    // Trova la classe di background in base al percorso corrente utilizzando le espressioni regolari
+    const backgroundClass = Object.keys(backgroundMapping).find((bgClass) =>
+        backgroundMapping[bgClass].some((pattern) =>
+            pattern.test(location.pathname)
+        )
+    );
 
     return (
         <div className="main-layout">
             <Header headerTitle={headerTitle} />
             <Offcanvas />
-            {/* Background image e overlay mostrati solo se siamo in una pagina /zones/* */}
-            {shouldShowBackground && (
+            {/* Background image e overlay mostrati se viene trovata una classe di background per il percorso corrente */}
+            {backgroundClass && (
                 <>
-                    <div className="zoolab-image-wrapper">
-                        <div className="zoolab-image"></div>
+                    <div className="background-wrapper">
+                        <div className={backgroundClass}></div>
                     </div>
 
                     <div className="overlay"></div>

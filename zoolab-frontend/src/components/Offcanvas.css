@@ -2,7 +2,7 @@
 
 /* Stile generale dell'Offcanvas */
 .offcanvas {
-    background-color: rgba(30, 30, 46, 0.85); /* Colore di sfondo scuro */
+    background-color: rgba(55, 48, 91, 0.85); /* Colore di sfondo scuro */
     color: #e0e0e0; /* Colore del testo */
     width: 260px; /* Imposta una larghezza più stretta per l'offcanvas */
     max-width: 70%; /* Imposta una larghezza massima come percentuale della viewport */
@@ -33,7 +33,7 @@
 
 .nav-link {
     font-size: 1rem;
-    color: #c0c0ff; /* Cambiato per un viola più brillante per risaltare */
+    color: #d3d3ff; /* Cambiato per un viola più brillante per risaltare */
     text-decoration: none;
     transition: color 0.3s ease;
 }

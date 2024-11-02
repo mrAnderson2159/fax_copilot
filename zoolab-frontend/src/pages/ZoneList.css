@@ -38,3 +38,7 @@
         opacity: 0; /* Dissolvenza completa */
     }
 }
+
+.zonelist-title {
+    margin-bottom: 10%;
+}
