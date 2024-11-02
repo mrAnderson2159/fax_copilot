@@ -1,3 +1,4 @@
+// zoolab-frontend/src/pages/FiendList.js
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
@@ -18,9 +19,13 @@ const FiendList = () => {
     const [zone, setZone] = useState({});
     const [deltas, setDeltas] = useState({});
     const [selectedFiend, setSelectedFiend] = useState(null);
-    const [alert, setAlert] = useState({ show: false, action: null });
-    const [currentCreation, setCurrentCreation] = useState(null); // Creazione attualmente visualizzata
-    const [creationQueue, setCreationQueue] = useState([]); // Coda di creazioni da mostrare
+    const [alert, setAlert] = useState({
+        show: false,
+        action: null,
+        details: "",
+    });
+    const [currentCreation, setCurrentCreation] = useState(null);
+    const [creationQueue, setCreationQueue] = useState([]);
 
     // Funzione per ottenere i dati sui mostri con le informazioni sulle catture
     const fetchFiendsWithFound = useCallback(async () => {
@@ -86,11 +91,19 @@ const FiendList = () => {
     };
 
     const confirmSaveChanges = () => {
-        setAlert({ show: true, action: "save" });
+        const details = Object.entries(deltas)
+            .filter(([_, delta]) => delta !== 0)
+            .map(([fiend_id, delta]) => {
+                const fiend = fiends.find((f) => f.id === parseInt(fiend_id));
+                return `${titleCase(fiend.name)}: ${delta}`;
+            })
+            .join("\n");
+
+        setAlert({ show: true, action: "save", details });
     };
 
     const confirmResetChanges = () => {
-        setAlert({ show: true, action: "reset" });
+        setAlert({ show: true, action: "reset", details: "" });
     };
 
     const saveChanges = async () => {
@@ -111,14 +124,14 @@ const FiendList = () => {
         } catch (error) {
             console.error("Errore nell'aggiornamento delle catture:", error);
         }
-        setAlert({ show: false, action: null });
+        setAlert({ show: false, action: null, details: "" });
     };
 
     const resetChanges = () => {
         setDeltas((prev) =>
             Object.fromEntries(Object.entries(prev).map(([key]) => [key, 0]))
         );
-        setAlert({ show: false, action: null });
+        setAlert({ show: false, action: null, details: "" });
     };
 
     const enqueueConquests = ({
@@ -161,7 +174,7 @@ const FiendList = () => {
     };
 
     const handleAlertCancel = () => {
-        setAlert({ show: false, action: null });
+        setAlert({ show: false, action: null, details: "" });
     };
 
     const handleCreationAlertClose = () => {
@@ -224,6 +237,7 @@ const FiendList = () => {
                             ? "Sei sicuro di voler salvare le modifiche?"
                             : "Sei sicuro di voler annullare tutte le modifiche?"
                     }
+                    details={alert.details}
                 />
 
                 <CreationAlertModal

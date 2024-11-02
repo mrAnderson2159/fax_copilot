@@ -27,7 +27,7 @@ log_format = (
     f"{YELLOW}%(message)s{RESET}"
 )
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 if DEBUG_MODE:
     # Configura il logging con il formatter colorato

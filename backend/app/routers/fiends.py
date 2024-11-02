@@ -57,46 +57,66 @@ def update_fiend_captures(request: schemas.FiendCapturesUpdateRequest, db: Sessi
     """
     logger.info("Richiesta di aggiornamento ricevuta: updates=%s", request.updates)
 
-    captured_fiends: list[models.Fiend] = db.query(models.Fiend).filter(models.Fiend.id.in_([
-        update.fiend_id for update in request.updates
-    ])).all()
+    # Recupera tutti i mostri corrispondenti agli ID nella richiesta
+    fiend_ids = [update.fiend_id for update in request.updates]
+    captured_fiends: list[models.Fiend] = db.query(models.Fiend).filter(models.Fiend.id.in_(fiend_ids)).all()
+
+    # Crea un dizionario per associare facilmente i fiend ai loro ID
+    captured_fiends_dict = {fiend.id: fiend for fiend in captured_fiends}
+
+    # Controlla che ogni fiend richiesto sia stato trovato nel database
+    for update in request.updates:
+        if update.fiend_id not in captured_fiends_dict:
+            logger.error(f"Mostro con ID {update.fiend_id} non trovato.")
+            raise HTTPException(status_code=404, detail=f"Mostro con ID {update.fiend_id} non trovato.")
 
     logger.info("Mostri catturati trovati nel database: %s", [fiend.name for fiend in captured_fiends])
 
-    deltas = [update.delta for update in request.updates]
-    logger.info("Variazioni di cattura (deltas): %s", deltas)
-
-    for captured_fiend, delta in zip(captured_fiends, deltas):
-        new_capture_count = captured_fiend.was_captured + delta
-        logger.info(
-            "Controllo cattura per %s: catture attuali=%d, delta=%d, nuovo conteggio=%d",
-            captured_fiend.name, captured_fiend.was_captured, delta, new_capture_count
-        )
-
-        if new_capture_count < 0:
-            raise HTTPException(status_code=403,
-                                detail=f"{captured_fiend.name} non può avere un numero di catture minore di 0 ({new_capture_count})")
-        elif new_capture_count > 10:
-            raise HTTPException(status_code=403,
-                                detail=f"{captured_fiend.name} non può essere catturato più di 10 volte ({new_capture_count})")
-
     feedback = []
 
-    # Se tutti i controlli passano, esegui gli aggiornamenti effettivi
-    for captured_fiend, delta in zip(captured_fiends, deltas):
-        captured_fiend.was_captured += delta
-        db.add(captured_fiend)  # Aggiungi l'oggetto alla sessione per il commit successivo
-        feedback.append((captured_fiend.name, delta))
-        logger.info("Aggiornamento effettivo per %s: nuovo numero di catture=%d", captured_fiend.name, captured_fiend.was_captured)
+    # Cicla attraverso ogni update e aggiorna il conteggio delle catture
+    for update in request.updates:
+        fiend = captured_fiends_dict[update.fiend_id]
+        new_capture_count = fiend.was_captured + update.delta
+        logger.info(
+            "Controllo cattura per %s: catture attuali=%d, delta=%d, nuovo conteggio=%d",
+            fiend.name, fiend.was_captured, update.delta, new_capture_count
+        )
 
+        # Verifica che il nuovo conteggio delle catture sia valido
+        if new_capture_count < 0:
+            logger.error(f"{fiend.name} non può avere un numero di catture minore di 0 ({new_capture_count})")
+            raise HTTPException(
+                status_code=403,
+                detail=f"{fiend.name} non può avere un numero di catture minore di 0 ({new_capture_count})"
+            )
+        elif new_capture_count > 10:
+            logger.error(f"{fiend.name} non può essere catturato più di 10 volte ({new_capture_count})")
+            raise HTTPException(
+                status_code=403,
+                detail=f"{fiend.name} non può essere catturato più di 10 volte ({new_capture_count})"
+            )
+
+        # Aggiorna il conteggio delle catture
+        fiend.was_captured = new_capture_count
+        db.add(fiend)  # Aggiungi l'oggetto alla sessione per il commit successivo
+        feedback.append((fiend.name, update.delta))
+        logger.info("Aggiornamento effettivo per %s: nuovo numero di catture=%d", fiend.name, fiend.was_captured)
+
+    # Flush del database per rendere visibili le modifiche
     db.flush()
-    logging.info("Flash del database per controllare nuove creazioni")
+    logger.info("Flush del database eseguito con successo. Verifica delle nuove creazioni in corso...")
 
-    # Ora verificare le condizioni per campioni e prototipi
+    # Usa db.refresh() per assicurarsi che le modifiche siano visibili nelle query successive
+    for fiend in captured_fiends:
+        db.refresh(fiend)
+        logger.info(f"Stato aggiornato per {fiend.name}: catture attuali={fiend.was_captured}")
+
+    # Verifica le condizioni per le creazioni
     conquests = CreationConditions(
         db=db,
         captured_fiends=captured_fiends,
-        negative_check=any(delta < 0 for delta in deltas)
+        negative_check=any(update.delta < 0 for update in request.updates)
     ).check()
 
     logger.info("Conquiste verificate: %s", conquests)

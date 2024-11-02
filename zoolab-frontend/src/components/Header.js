@@ -1,7 +1,8 @@
 // src/components/Header.js
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigationStack } from '../context/NavigationStackContext';
+import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigationStack } from "../context/NavigationStackContext";
+import { Link } from "react-router-dom"; // Import per Link
 
 const Header = ({ headerTitle }) => {
     const { goBack, navigationStack } = useNavigationStack();
@@ -23,14 +24,20 @@ const Header = ({ headerTitle }) => {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     {isChildPath && (
-                        <button className="btn btn-link text-light me-2 ms-3" onClick={goBack}>
+                        <button
+                            className="btn btn-link text-light me-2 ms-3"
+                            onClick={goBack}
+                        >
                             <i className="bi bi-arrow-left"></i>
                         </button>
                     )}
                 </div>
                 <div className="d-flex align-items-center ms-auto">
                     <span className="navbar-text me-3">{headerTitle}</span>
-                    <span className="navbar-brand">FFX Copilot</span>
+                    <Link to="/" className="navbar-brand">
+                        FFX Copilot
+                    </Link>{" "}
+                    {/* Aggiunto Link per tornare alla homepage */}
                 </div>
             </div>
         </header>

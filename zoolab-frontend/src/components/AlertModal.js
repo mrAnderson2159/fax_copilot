@@ -1,8 +1,8 @@
-// zoolab-frontend/src/components/AlertModal.js
+// src/components/AlertModal.js
 import React from "react";
 import "./AlertModal.css";
 
-const AlertModal = ({ show, onConfirm, onCancel, message }) => {
+const AlertModal = ({ show, onConfirm, onCancel, message, details }) => {
     if (!show) {
         return null; // Non renderizzare il modal se `show` è false
     }
@@ -33,6 +33,9 @@ const AlertModal = ({ show, onConfirm, onCancel, message }) => {
                         </div>
                         <div className="alert-modal-body">
                             <p>{message}</p>
+                            {details && (
+                                <pre className="alert-details">{details}</pre>
+                            )}
                         </div>
                         <div className="alert-modal-footer">
                             <button

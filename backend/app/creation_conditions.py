@@ -97,13 +97,17 @@ class CreationConditions:
             models.OriginalCreation.name == original_creation_name
         ).first()
         if not original_creation.created and create_condition:
+            # Crea il prototipo se non è stato ancora creato e la condizione è soddisfatta
             original_creation.created = True
             logger.info(f"Prototipo creato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=True, image_url=original_creation.image_url)
-        elif self.negative_check and not create_condition:
+            return schemas.OriginalCreationResponse(name=original_creation.name, created=True,
+                                                    image_url=original_creation.image_url)
+        elif original_creation.created and self.negative_check and not create_condition:
+            # Annulla il prototipo se è stato creato, il negative_check è attivo e la condizione non è più valida
             original_creation.created = False
             logger.info(f"Prototipo annullato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=False, image_url=original_creation.image_url)
+            return schemas.OriginalCreationResponse(name=original_creation.name, created=False,
+                                                    image_url=original_creation.image_url)
 
     def __conquests_checker(
             self,
