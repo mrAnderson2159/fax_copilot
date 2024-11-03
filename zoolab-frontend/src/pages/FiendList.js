@@ -94,7 +94,9 @@ const FiendList = () => {
         const details = Object.entries(deltas)
             .filter(([_, delta]) => delta !== 0)
             .map(([fiend_id, delta]) => {
-                const fiend = fiends.find((f) => f.id === parseInt(fiend_id));
+                const fiend = fiends
+                    .concat(otherFiends)
+                    .find((f) => f.id === parseInt(fiend_id));
                 return `${titleCase(fiend.name)}: ${delta}`;
             })
             .join("\n");

@@ -17,13 +17,13 @@ def new_zone(zone_name: str) -> Zone:
 
 @lower_case
 def new_fiend(fiend_name: str, zone: Zone, species_conquest: SpeciesConquest = None) -> Fiend:
-    return Fiend(name=fiend_name, was_captured=0, zone=zone, species_conquest=species_conquest,
+    return Fiend(name=fiend_name, was_captured=0, zone_id=zone.id, species_conquest_id=species_conquest.id,
                  image_url=f"../images/fiends/{fiend_name}.png")
 
 
 @lower_case
 def new_area_conquest(fiend_name: str, zone: Zone) -> AreaConquest:
-    return AreaConquest(name=fiend_name, zone=zone,
+    return AreaConquest(name=fiend_name, zone_id=zone.id,
                         image_url=f"../images/area_conquests/{fiend_name}.png")
 
 
@@ -51,16 +51,16 @@ def new_can_be_found(fiend_name: str, zone_name: str, db: SessionLocal) -> CanBe
     :raises ValueError: Se il mostro o la zona non vengono trovati nel database.
     """
     # Cerca il mostro nel database
-    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
-    if not fiend:
+    fiend_id = db.query(Fiend).filter(Fiend.name == fiend_name).first().id
+    if not fiend_id:
         raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
 
     # Cerca la zona nel database
-    zone = db.query(Zone).filter(Zone.name == zone_name).first()
-    if not zone:
+    zone_id = db.query(Zone).filter(Zone.name == zone_name).first().id
+    if not zone_id:
         raise ValueError(f"La zona '{zone_name}' non è stata trovata nel database.")
 
-    return CanBeFound(fiend=fiend, zone=zone)
+    return CanBeFound(fiend_id=fiend_id, zone_id=zone_id)
 
 
 def populate_data():
@@ -257,6 +257,13 @@ def populate_data():
             new_fiend('Varna', zones['rovine di omega'])
         ]
 
+        # Aggiungi al database
+        db.add_all(area_conquests)
+        db.add_all(species_conquests.all())
+        db.add_all(zones.values())
+        db.add_all(fiends)
+        db.add_all(original_creations)
+
         can_be_found_relations = [
             new_can_be_found('budino di tuono', 'via mihen'),
 
@@ -281,12 +288,8 @@ def populate_data():
             new_can_be_found('Ultra Might (spada stella)', 'rovine di omega', db)
         ]
 
-        # Aggiungi al database
-        db.add_all(area_conquests)
-        db.add_all(species_conquests.all())
-        db.add_all(zones.values())
-        db.add_all(fiends)
-        db.add_all(original_creations)
+        db.flush()
+        db.refresh()
         db.add_all(can_be_found_relations)
         db.commit()
         print("Dati iniziali inseriti con successo.")
