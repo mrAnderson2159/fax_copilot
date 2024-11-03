@@ -10,22 +10,12 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
 
-class ItemType(Base):
-    __tablename__ = "item_types"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True, nullable=False)
-
-    items = relationship("Item", back_populates="item_type")
-
-
 class Item(Base):
     __tablename__ = "items"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False, unique=True)
     effect = Column(String, nullable=False)
-    type_id = Column(Integer, ForeignKey("item_types.id", onupdate="CASCADE"), nullable=False)
-
-    item_type = relationship("ItemType", back_populates="items")
+    type = Column(String, CheckConstraint("type IN ('common', 'offensive', 'support', 'special')"), nullable=False)
 
 
 class Zone(Base):
@@ -109,7 +99,6 @@ class Reward(Base):
                                                  name="valid_reward_type"
                                                  ), index=True, nullable=False)
     item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
-    quantity = Column(Integer, nullable=False)
 
     item = relationship("Item")
     reward_associations = relationship("RewardAssociation", back_populates="reward")
@@ -126,6 +115,7 @@ class RewardAssociation(Base):
                          ),
                          nullable=False)
     target_id = Column(Integer, nullable=False)
+    quantity = Column(Integer, nullable=False)
 
     reward = relationship("Reward", back_populates="reward_associations")
 

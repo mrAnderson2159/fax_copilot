@@ -1,6 +1,6 @@
 # backend/app/populate_data.py
 from app.database import SessionLocal
-from app.models import Zone, Fiend, AreaConquest, SpeciesConquest, OriginalCreation, CanBeFound
+from app.models import *
 
 
 def lower_case(function):
@@ -63,6 +63,42 @@ def new_can_be_found(fiend_name: str, zone_name: str, db: SessionLocal) -> CanBe
     return CanBeFound(fiend_id=fiend_id, zone_id=zone_id)
 
 
+@lower_case
+def new_item(item_name: str, effect: str, item_type: str) -> Item:
+    return Item(name=item_name, effect=effect, type=item_type)
+
+
+@lower_case
+def new_ability(ability_name: str, effect: str, equipment_type: str) -> Ability:
+    return Ability(name=ability_name, effect=effect, equipment_type=equipment_type)
+
+
+def new_reward(reward_type: str, item: Item, quantity: int) -> Reward:
+    return Reward(reward_type=reward_type, item_id=item.id, quantity=quantity)
+
+
+def new_reward_association(reward: Reward, target_type: str, target_id: int) -> RewardAssociation:
+    return RewardAssociation(reward_id=reward.id, target_type=target_type, target_id=target_id)
+
+
+def new_fiend_equipment_reward(fiend: Fiend, ability: Ability) -> FiendEquipmentReward:
+    return FiendEquipmentReward(fiend_id=fiend.id, ability_id=ability.id)
+
+
+def new_area_conquest_equipment_reward(area_conquest: AreaConquest, ability: Ability) -> AreaConquestEquipmentReward:
+    return AreaConquestEquipmentReward(area_conquest_id=area_conquest.id, ability_id=ability.id)
+
+
+def new_species_conquest_equipment_reward(species_conquest: SpeciesConquest,
+                                          ability: Ability) -> SpeciesConquestEquipmentReward:
+    return SpeciesConquestEquipmentReward(species_conquest_id=species_conquest.id, ability_id=ability.id)
+
+
+def new_original_creation_equipment_reward(original_creation: OriginalCreation,
+                                           ability: Ability) -> OriginalCreationEquipmentReward:
+    return OriginalCreationEquipmentReward(original_creations_id=original_creation.id, ability_id=ability.id)
+
+
 def populate_data():
     areas = [
         'besaid', 'kilika', 'via mihen', 'via micorocciosa', 'via djose',
@@ -72,6 +108,88 @@ def populate_data():
 
     db = SessionLocal()
     try:
+        items = [
+            new_item("Pozione", "Fa recuperare 200HP ad un alleato", "common"),
+            new_item("Granpozione", "Fa recuperare 1000HP ad un alleato", "common"),
+            new_item("Extrapozione", "Fa recuperare 9999HP ad un alleato", "common"),
+            new_item("Megapozione", "Fa recuperare 2000HP a tutto il party", "common"),
+            new_item("Etere", "Fa recuperare 100MP ad un alleato", "common"),
+            new_item("Megaetere", "Fa recuperare 500MP ad un alleato", "common"),
+            new_item("Elisir", "Fa recuperare 9999HP e 999MP ad un alleato", "common"),
+            new_item("Megaelisir", "Fa recuperare 9999HP e 999MP a tutto il party", "common"),
+            new_item("Coda di Fenice", "Cura lo status K.O. di un alleato", "common"),
+            new_item("Megafenice", "Cura lo status K.O. di tutto il party", "common"),
+            new_item("Antidoto", "Cura lo status Veleno di un alleato", "common"),
+            new_item("Ago Dorato", "Cura lo status Pietra di un alleato", "common"),
+            new_item("Collirio", "Cura lo status Blind di un alleato", "common"),
+            new_item("Erba dell'eco", "Cura lo status Mutismo di un alleato", "common"),
+            new_item("Acquasanta", "Cura lo status Zombie e Maledizione di un alleato", "common"),
+            new_item("Panacea", "Cura tutti gli status alterati di un alleato", "common"),
+            new_item("Protoenergia", "Infligge lo status Protoenergia ad un nemico", "offensive"),
+            new_item("Protomagia", "Infligge lo status Protomagia ad un nemico", "offensive"),
+            new_item("Protorapidità", "Infligge lo status Protorapidità ad un nemico", "offensive"),
+            new_item("Protoabilità", "Infligge lo status Protoabilità ad un nemico", "offensive"),
+            new_item("Scheggia di Piros", "Causa danni di elemento Fuoco ad un nemico", "offensive"),
+            new_item("Anima di Piros", "Causa danni di elemento Fuoco ad un nemico", "offensive"),
+            new_item("Magamagilite", "Causa danni di elemento Fuoco a tutti i nemici", "offensive"),
+            new_item("Razzo Elettrico", "Causa danni di elemento Tuono ad un nemico", "offensive"),
+            new_item("Razzo Fulminante", "Causa danni di elemento Tuono ad un nemico", "offensive"),
+            new_item("Elettromagilite", "Causa danni di elemento Tuono a tutti i nemici", "offensive"),
+            new_item("Squama di Pesce", "Causa danni di elemento Acqua ad un nemico", "offensive"),
+            new_item("Squama di Drago", "Causa danni di elemento Acqua ad un nemico", "offensive"),
+            new_item("Idromagilite", "Causa danni di elemento Acqua a tutti i nemici", "offensive"),
+            new_item("Vento Artico", "Causa danni di elemento Gelo ad un nemico", "offensive"),
+            new_item("Vento Antartico", "Causa danni di elemento Gelo ad un nemico", "offensive"),
+            new_item("Criomagilite", "Causa danni di elemento Gelo a tutti i nemici", "offensive"),
+            new_item("Granata", "Causa danni a tutti i nemici", "offensive"),
+            new_item("Blindogranata", "Causa danni e infligge lo status Antiscutum a tutti i nemici", "offensive"),
+            new_item("Melatonina", "Causa danni e infligge lo status Sonno a tutti i nemici", "offensive"),
+            new_item("Onirolina", "Causa danni e infligge lo status Sonno a tutti i nemici", "offensive"),
+            new_item("Mina Tacet", "Causa danni e infligge lo status Mutismo a tutti i nemici", "offensive"),
+            new_item("Lacrimogeno", "Causa danni e infligge lo status Blind a tutti i nemici", "offensive"),
+            new_item("Neromagilite", "Dimezza gli HP di tutti i nemici", "offensive"),
+            new_item("Eliomagilite", "Causa danni ad un nemico", "offensive"),
+            new_item("Sacromagilita", "Causa danni a tutti i nemici", "offensive"),
+            new_item("Examagilite", "Causa danni a tutti i nemici", "offensive"),
+            new_item("Zanna Velenosa", "Causa danni e infligge lo status Veleno ad un nemico", "offensive"),
+            new_item("Clessidra d'Argento", "Infligge lo status Lentezza a tutti i nemici", "offensive"),
+            new_item("Clessidra d'Oro", "Causa danni e infligge lo status Lentezza a tutti i nemici", "offensive"),
+            new_item("Candela della Vita", "Infligge lo status Sentenza ad un nemico", "offensive"),
+            new_item("Granata Fossile", "Infligge lo status Pietra a tutti i nemici", "offensive"),
+            new_item("Ombra d'Oltremondo", "Infligge lo status Morte ad un nemico", "offensive"),
+            new_item("Vento d'Oltremondo", "Infligge lo status Morte a tutti i nemici", "offensive"),
+            new_item("Materiaoscura", "Causa gravi danni a tutti i nemici", "offensive"),
+            new_item("Albhedina", "Cura Veleno, Mutismo, Pietra e recupera 1000HP a tutto il party", "support"),
+            new_item("Acqua Curativa", "Fa recuperare 9999HP a tutto il party", "support"),
+            new_item("Coda di Chocobo", "Attiva lo status Haste su un alleato", "support"),
+            new_item("Piuma di Chocobo", "Attiva lo status Haste su tutto il party", "support"),
+            new_item("Cortina Lunare", "Attiva lo status Shell su un alleato", "support"),
+            new_item("Cortina Luminosa", "Attiva lo status Protect su un alleato", "support"),
+            new_item("Cortina Stellare", "Attiva lo status Reflex su un alleato", "support"),
+            new_item("Fluido Rigenerante", "Attiva lo status Rigene su un alleato", "support"),
+            new_item("Fluido Magico", "Assorbe MP da un nemico", "support"),
+            new_item("Fluido Energetico", "Assorbe HP da un nemico", "support"),
+            new_item("Fluido Vitale", "Assorbe HP ed MP da un nemico", "support"),
+            new_item("Sale Purificatore", "Causa danni ed elimina la magia difensiva su un nemico", "support"),
+            new_item("Nettare Energetico", "Raddoppia gli HP massimi di un alleato", "support"),
+            new_item("Nettare Magico", "Raddoppia gli MP massimi di un alleato", "support"),
+            new_item("Filtro Energetico", "Raddoppia gli HP massimi di tutto il party", "support"),
+            new_item("Filtro Magico", "Raddoppia gli MP massimi di tutto il party", "support"),
+            new_item("Duostella", "Azzera il consumo di MP di un alleato", "support"),
+            new_item("Triostella", "Azzera il consumo di MP di tutto il party", "support"),
+            new_item("stricnina", "Potrebbe essere utile!", "special"),
+            new_item("hypellina", "Potrebbe essere utile!", "special"),
+            new_item("portafoglio gonfio", "Potrebbe essere utile!", "special"),
+            new_item("controchiave", "Potrebbe essere utile!", "special"),
+            new_item("ali x l'ignoto", "Potrebbe essere utile!", "special"),
+            new_item("spina iperica", "Potrebbe essere utile!", "special"),
+            new_item("pendulum", "Potrebbe essere utile!", "special"),
+            new_item("amuleto", "Potrebbe essere utile!", "special"),
+            new_item("porta sul domani", "Potrebbe essere utile!", "special"),
+            new_item("anima del baro", "Potrebbe essere utile!", "special"),
+            new_item("equazione cubica", "Potrebbe essere utile!", "special")
+        ]
+
         zones = {area: new_zone(area) for area in areas}
 
         area_conquests = [
@@ -258,6 +376,7 @@ def populate_data():
         ]
 
         # Aggiungi al database
+        db.add_all(items)
         db.add_all(area_conquests)
         db.add_all(species_conquests.all())
         db.add_all(zones.values())
