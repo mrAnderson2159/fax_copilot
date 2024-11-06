@@ -53,6 +53,7 @@ class ConquestResponseBase(BaseModel):
     name: str
     created: bool
     image_url: str
+    reward: Optional[tuple[str, int]] = None
 
 
 class AreaConquestBase(BaseModel):

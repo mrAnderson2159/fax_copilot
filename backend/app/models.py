@@ -15,7 +15,14 @@ class Item(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False, unique=True)
     effect = Column(String, nullable=False)
-    type = Column(String, CheckConstraint("type IN ('common', 'offensive', 'support', 'special')"), nullable=False)
+    type = Column(String,
+                  CheckConstraint("type IN ('common', 'offensive', 'support', 'special', 'curio', 'sphere_grid')"),
+                  nullable=False)
+
+    fiend_rewards = relationship("FiendReward", back_populates="item")
+    area_conquest_rewards = relationship("AreaConquestReward", back_populates="item")
+    species_conquest_rewards = relationship("SpeciesConquestReward", back_populates="item")
+    original_creation_rewards = relationship("OriginalCreationReward", back_populates="item")
 
 
 class Zone(Base):
@@ -26,6 +33,7 @@ class Zone(Base):
 
     fiends = relationship("Fiend", back_populates="zone")
     found_fiends = relationship("CanBeFound", back_populates="zone")
+    area_conquests = relationship("AreaConquest", back_populates="zone")
 
 
 class SpeciesConquest(Base):
@@ -38,6 +46,8 @@ class SpeciesConquest(Base):
     defeated = Column(Boolean, default=False, index=True)
 
     fiends = relationship("Fiend", back_populates="species_conquest")
+    rewards = relationship("SpeciesConquestReward", back_populates="species_conquest")
+    equipment_rewards = relationship("SpeciesConquestEquipmentReward", back_populates="species_conquest")
 
 
 class Fiend(Base):
@@ -52,10 +62,12 @@ class Fiend(Base):
     zone = relationship("Zone", back_populates="fiends")
     species_conquest = relationship("SpeciesConquest", back_populates="fiends")
     found_zones = relationship("CanBeFound", back_populates="fiend")
+    rewards = relationship("FiendReward", back_populates="fiend")
+    equipment_rewards = relationship("FiendEquipmentReward", back_populates="fiend")
 
 
-class SpecialFiend(Base):
-    __tablename__ = "special_fiends"
+class UniqueFiend(Base):
+    __tablename__ = "unique_fiends"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, unique=True, nullable=False)
     image_url = Column(String, unique=True)
@@ -70,7 +82,9 @@ class AreaConquest(Base):
     created = Column(Boolean, default=False, index=True)
     defeated = Column(Boolean, default=False, index=True)
 
-    zone = relationship("Zone")
+    zone = relationship("Zone", back_populates="area_conquests")
+    rewards = relationship("AreaConquestReward", back_populates="area_conquest")
+    equipment_rewards = relationship("AreaConquestEquipmentReward", back_populates="area_conquest")
 
 
 class OriginalCreation(Base):
@@ -82,6 +96,9 @@ class OriginalCreation(Base):
     creation_rule = Column(String)
     defeated = Column(Boolean, default=False, index=True)
 
+    rewards = relationship("OriginalCreationReward", back_populates="original_creation")
+    equipment_rewards = relationship("OriginalCreationEquipmentReward", back_populates="original_creation")
+
 
 class CanBeFound(Base):
     __tablename__ = "can_be_found"
@@ -92,32 +109,59 @@ class CanBeFound(Base):
     zone = relationship("Zone", back_populates="found_fiends")
 
 
-class Reward(Base):
-    __tablename__ = "rewards"
-    id = Column(Integer, primary_key=True, index=True)
-    reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
-                                                 name="valid_reward_type"
-                                                 ), index=True, nullable=False)
-    item_id = Column(Integer, ForeignKey("items.id"), nullable=False)
-
-    item = relationship("Item")
-    reward_associations = relationship("RewardAssociation", back_populates="reward")
-
-
-class RewardAssociation(Base):
-    __tablename__ = "reward_associations"
-    id = Column(Integer, primary_key=True, index=True)
-    reward_id = Column(Integer, ForeignKey("rewards.id", onupdate="CASCADE"), nullable=False)
-    target_type = Column(String,
-                         CheckConstraint(
-                             "target_type IN ('area_conquest', 'species_conquest', 'original_creation')",
-                             name="valid_target_type"
-                         ),
-                         nullable=False)
-    target_id = Column(Integer, nullable=False)
+class FiendReward(Base):
+    __tablename__ = "fiend_rewards"
+    reward_type = Column(String, CheckConstraint("reward_type IN ('battle', 'common_steal', 'rare_steal')",
+                                                 name="valid_reward_type"), index=True, nullable=False,
+                         primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    fiend_id = Column(Integer, ForeignKey("fiends.id", onupdate='CASCADE'), nullable=False, primary_key=True)
     quantity = Column(Integer, nullable=False)
 
-    reward = relationship("Reward", back_populates="reward_associations")
+    item = relationship("Item", back_populates="fiend_rewards")
+    fiend = relationship("Fiend", back_populates="rewards")
+
+
+class AreaConquestReward(Base):
+    __tablename__ = "area_conquest_rewards"
+    reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
+                                                 name="valid_reward_type"), index=True, nullable=False,
+                         primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    area_conquest_id = Column(Integer, ForeignKey("area_conquests.id", onupdate='CASCADE'), nullable=False,
+                              primary_key=True)
+    quantity = Column(Integer, nullable=False)
+
+    item = relationship("Item", back_populates="area_conquest_rewards")
+    area_conquest = relationship("AreaConquest", back_populates="rewards")
+
+
+class SpeciesConquestReward(Base):
+    __tablename__ = "species_conquest_rewards"
+    reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
+                                                 name="valid_reward_type"), index=True, nullable=False,
+                         primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    species_conquest_id = Column(Integer, ForeignKey("species_conquests.id", onupdate='CASCADE'), nullable=False,
+                                 primary_key=True)
+    quantity = Column(Integer, nullable=False)
+
+    item = relationship("Item", back_populates="species_conquest_rewards")
+    species_conquest = relationship("SpeciesConquest", back_populates="rewards")
+
+
+class OriginalCreationReward(Base):
+    __tablename__ = "original_creation_rewards"
+    reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
+                                                 name="valid_reward_type"), index=True, nullable=False,
+                         primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    original_creation_id = Column(Integer, ForeignKey("original_creations.id", onupdate='CASCADE'), nullable=False,
+                                  primary_key=True)
+    quantity = Column(Integer, nullable=False)
+
+    item = relationship("Item", back_populates="original_creation_rewards")
+    original_creation = relationship("OriginalCreation", back_populates="rewards")
 
 
 class Ability(Base):
@@ -125,14 +169,23 @@ class Ability(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
     effect = Column(String, nullable=False)
-    equipment_type = Column(String, CheckConstraint(
-        "equipment_type IN ('weapon', 'armor')", name="valid_equipment_type"), nullable=False)
+    equipment_type = Column(String,
+                            CheckConstraint("equipment_type IN ('weapon', 'armor')", name="valid_equipment_type"),
+                            nullable=False)
+
+    fiend_equipment_rewards = relationship("FiendEquipmentReward", back_populates="ability")
+    area_conquest_equipment_rewards = relationship("AreaConquestEquipmentReward", back_populates="ability")
+    species_conquest_equipment_rewards = relationship("SpeciesConquestEquipmentReward", back_populates="ability")
+    original_creation_equipment_rewards = relationship("OriginalCreationEquipmentReward", back_populates="ability")
 
 
 class FiendEquipmentReward(Base):
     __tablename__ = "fiend_equipment_rewards"
     fiend_id = Column(Integer, ForeignKey('fiends.id', onupdate="CASCADE"), primary_key=True, index=True)
     ability_id = Column(Integer, ForeignKey('abilities.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    fiend = relationship("Fiend", back_populates="equipment_rewards")
+    ability = relationship("Ability", back_populates="fiend_equipment_rewards")
 
 
 class AreaConquestEquipmentReward(Base):
@@ -141,6 +194,9 @@ class AreaConquestEquipmentReward(Base):
                               index=True)
     ability_id = Column(Integer, ForeignKey('abilities.id', onupdate="CASCADE"), primary_key=True, index=True)
 
+    area_conquest = relationship("AreaConquest", back_populates="equipment_rewards")
+    ability = relationship("Ability", back_populates="area_conquest_equipment_rewards")
+
 
 class SpeciesConquestEquipmentReward(Base):
     __tablename__ = "species_conquest_equipment_rewards"
@@ -148,9 +204,15 @@ class SpeciesConquestEquipmentReward(Base):
                                  index=True)
     ability_id = Column(Integer, ForeignKey('abilities.id', onupdate="CASCADE"), primary_key=True, index=True)
 
+    species_conquest = relationship("SpeciesConquest", back_populates="equipment_rewards")
+    ability = relationship("Ability", back_populates="species_conquest_equipment_rewards")
+
 
 class OriginalCreationEquipmentReward(Base):
     __tablename__ = "original_creation_equipment_rewards"
-    original_creations_id = Column(Integer, ForeignKey('original_creations.id', onupdate="CASCADE"), primary_key=True,
-                                   index=True)
+    original_creation_id = Column(Integer, ForeignKey('original_creations.id', onupdate="CASCADE"), primary_key=True,
+                                  index=True)
     ability_id = Column(Integer, ForeignKey('abilities.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    original_creation = relationship("OriginalCreation", back_populates="equipment_rewards")
+    ability = relationship("Ability", back_populates="original_creation_equipment_rewards")

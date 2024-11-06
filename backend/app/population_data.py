@@ -1,6 +1,11 @@
 # backend/app/populate_data.py
+import traceback
+from sqlalchemy.exc import SQLAlchemyError
 from app.database import SessionLocal
 from app.models import *
+
+# Inizializza la sessione di database come variabile globale
+db = SessionLocal()
 
 
 def lower_case(function):
@@ -10,103 +15,152 @@ def lower_case(function):
     return wrapper
 
 
+def all_lower_case(function):
+    def wrapper(*args):
+        return function(*[arg.lower() if isinstance(arg, str) else arg for arg in args])
+
+    return wrapper
+
+
+def get_or_create(model, **kwargs):
+    global db
+    instance = db.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.add(instance)
+        db.flush()  # Ottiene l'ID per l'istanza creata
+        db.refresh(instance)
+        return instance
+
+
 @lower_case
 def new_zone(zone_name: str) -> Zone:
-    return Zone(name=zone_name, image_url=f"../images/zones/{zone_name}.png")
+    return get_or_create(Zone, name=zone_name, image_url=f"../images/zones/{zone_name}.png")
 
 
 @lower_case
 def new_fiend(fiend_name: str, zone: Zone, species_conquest: SpeciesConquest = None) -> Fiend:
-    return Fiend(name=fiend_name, was_captured=0, zone_id=zone.id, species_conquest_id=species_conquest.id,
-                 image_url=f"../images/fiends/{fiend_name}.png")
+    return get_or_create(
+        Fiend,
+        name=fiend_name,
+        was_captured=0,
+        zone_id=zone.id,
+        species_conquest_id=(species_conquest.id if species_conquest else None),
+        image_url=f"../images/fiends/{fiend_name}.webp"
+    )
 
 
 @lower_case
 def new_area_conquest(fiend_name: str, zone: Zone) -> AreaConquest:
-    return AreaConquest(name=fiend_name, zone_id=zone.id,
-                        image_url=f"../images/area_conquests/{fiend_name}.png")
+    return get_or_create(
+        AreaConquest,
+        name=fiend_name,
+        zone_id=zone.id,
+        image_url=f"../images/area_conquests/{fiend_name}.webp"
+    )
 
 
 @lower_case
 def new_species_conquest(fiend_name: str, required_fiends: int) -> SpeciesConquest:
-    return SpeciesConquest(name=fiend_name, required_fiends=required_fiends,
-                           image_url=f"../images/species_conquests/{fiend_name}.png")
+    return get_or_create(
+        SpeciesConquest,
+        name=fiend_name,
+        required_fiends=required_fiends,
+        image_url=f"../images/species_conquests/{fiend_name}.webp"
+    )
 
 
 @lower_case
 def new_original_creation(fiend_name: str, creation_rule: str) -> OriginalCreation:
-    return OriginalCreation(name=fiend_name, creation_rule=creation_rule,
-                            image_url=f"../images/original_creations/{fiend_name}.png")
+    return get_or_create(
+        OriginalCreation,
+        name=fiend_name,
+        creation_rule=creation_rule,
+        image_url=f"../images/original_creations/{fiend_name}.webp"
+    )
 
 
-@lower_case
-def new_can_be_found(fiend_name: str, zone_name: str, db: SessionLocal) -> CanBeFound:
-    """
-    Crea una relazione CanBeFound per un mostro che può essere trovato in una zona aggiuntiva.
-
-    :param fiend_name: Nome del mostro che può essere trovato in una zona aggiuntiva.
-    :param zone_name: Nome della zona aggiuntiva in cui può essere trovato il mostro.
-    :param db: Sessione del database per cercare il mostro e la zona.
-    :return: Un'istanza di CanBeFound.
-    :raises ValueError: Se il mostro o la zona non vengono trovati nel database.
-    """
-    # Cerca il mostro nel database
-    fiend_id = db.query(Fiend).filter(Fiend.name == fiend_name).first().id
-    if not fiend_id:
+@all_lower_case
+def new_can_be_found(fiend_name: str, zone_name: str) -> CanBeFound:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    zone = db.query(Zone).filter(Zone.name == zone_name).first()
+    if not fiend:
         raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
-
-    # Cerca la zona nel database
-    zone_id = db.query(Zone).filter(Zone.name == zone_name).first().id
-    if not zone_id:
+    if not zone:
         raise ValueError(f"La zona '{zone_name}' non è stata trovata nel database.")
-
-    return CanBeFound(fiend_id=fiend_id, zone_id=zone_id)
+    return get_or_create(CanBeFound, fiend_id=fiend.id, zone_id=zone.id)
 
 
 @lower_case
 def new_item(item_name: str, effect: str, item_type: str) -> Item:
-    return Item(name=item_name, effect=effect, type=item_type)
+    return get_or_create(Item, name=item_name, effect=effect, type=item_type)
 
 
 @lower_case
 def new_ability(ability_name: str, effect: str, equipment_type: str) -> Ability:
-    return Ability(name=ability_name, effect=effect, equipment_type=equipment_type)
+    return get_or_create(Ability, name=ability_name, effect=effect, equipment_type=equipment_type)
 
 
-def new_reward(reward_type: str, item: Item, quantity: int) -> Reward:
-    return Reward(reward_type=reward_type, item_id=item.id, quantity=quantity)
+@all_lower_case
+def new_fiend_reward(fiend_name: str, reward_type: str, item_name: str, quantity: int) -> FiendReward:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    item = db.query(Item).filter(Item.name == item_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+    if not item:
+        raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
+    return get_or_create(FiendReward, fiend_id=fiend.id, reward_type=reward_type, item_id=item.id, quantity=quantity)
 
 
-def new_reward_association(reward: Reward, target_type: str, target_id: int) -> RewardAssociation:
-    return RewardAssociation(reward_id=reward.id, target_type=target_type, target_id=target_id)
+@all_lower_case
+def new_area_conquest_reward(area_conquest_name: str, reward_type: str, item_name: str,
+                             quantity: int) -> AreaConquestReward:
+    area_conquest = db.query(AreaConquest).filter(AreaConquest.name == area_conquest_name).first()
+    item = db.query(Item).filter(Item.name == item_name).first()
+    if not area_conquest:
+        raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
+    if not item:
+        raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
+    return get_or_create(AreaConquestReward, area_conquest_id=area_conquest.id, reward_type=reward_type,
+                         item_id=item.id, quantity=quantity)
 
 
-def new_fiend_equipment_reward(fiend: Fiend, ability: Ability) -> FiendEquipmentReward:
-    return FiendEquipmentReward(fiend_id=fiend.id, ability_id=ability.id)
+@all_lower_case
+def new_species_conquest_reward(species_conquest_name: str, reward_type: str, item_name: str,
+                                quantity: int) -> SpeciesConquestReward:
+    species_conquest = db.query(SpeciesConquest).filter(SpeciesConquest.name == species_conquest_name).first()
+    item = db.query(Item).filter(Item.name == item_name).first()
+    if not species_conquest:
+        raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
+    if not item:
+        raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
+    return get_or_create(SpeciesConquestReward, species_conquest_id=species_conquest.id, reward_type=reward_type,
+                         item_id=item.id, quantity=quantity)
 
 
-def new_area_conquest_equipment_reward(area_conquest: AreaConquest, ability: Ability) -> AreaConquestEquipmentReward:
-    return AreaConquestEquipmentReward(area_conquest_id=area_conquest.id, ability_id=ability.id)
-
-
-def new_species_conquest_equipment_reward(species_conquest: SpeciesConquest,
-                                          ability: Ability) -> SpeciesConquestEquipmentReward:
-    return SpeciesConquestEquipmentReward(species_conquest_id=species_conquest.id, ability_id=ability.id)
-
-
-def new_original_creation_equipment_reward(original_creation: OriginalCreation,
-                                           ability: Ability) -> OriginalCreationEquipmentReward:
-    return OriginalCreationEquipmentReward(original_creations_id=original_creation.id, ability_id=ability.id)
+@all_lower_case
+def new_original_creation_reward(original_creation_name: str, reward_type: str, item_name: str,
+                                 quantity: int) -> OriginalCreationReward:
+    original_creation = db.query(OriginalCreation).filter(OriginalCreation.name == original_creation_name).first()
+    item = db.query(Item).filter(Item.name == item_name).first()
+    if not original_creation:
+        raise ValueError(f"L'original creation '{original_creation_name}' non è stata trovata nel database.")
+    if not item:
+        raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
+    return get_or_create(OriginalCreationReward, original_creation_id=original_creation.id, reward_type=reward_type,
+                         item_id=item.id, quantity=quantity)
 
 
 def populate_data():
+    global db
     areas = [
         'besaid', 'kilika', 'via mihen', 'via micorocciosa', 'via djose',
         'piana dei lampi', 'macalania', 'bikanel', 'piana della bonaccia',
         'grotta del crepaccio', 'monte gagazet', 'dentro sin', 'rovine di omega'
     ]
 
-    db = SessionLocal()
     try:
         items = [
             new_item("Pozione", "Fa recuperare 200HP ad un alleato", "common"),
@@ -114,7 +168,7 @@ def populate_data():
             new_item("Extrapozione", "Fa recuperare 9999HP ad un alleato", "common"),
             new_item("Megapozione", "Fa recuperare 2000HP a tutto il party", "common"),
             new_item("Etere", "Fa recuperare 100MP ad un alleato", "common"),
-            new_item("Megaetere", "Fa recuperare 500MP ad un alleato", "common"),
+            new_item("Turboetere", "Fa recuperare 500MP ad un alleato", "common"),
             new_item("Elisir", "Fa recuperare 9999HP e 999MP ad un alleato", "common"),
             new_item("Megaelisir", "Fa recuperare 9999HP e 999MP a tutto il party", "common"),
             new_item("Coda di Fenice", "Cura lo status K.O. di un alleato", "common"),
@@ -131,7 +185,7 @@ def populate_data():
             new_item("Protoabilità", "Infligge lo status Protoabilità ad un nemico", "offensive"),
             new_item("Scheggia di Piros", "Causa danni di elemento Fuoco ad un nemico", "offensive"),
             new_item("Anima di Piros", "Causa danni di elemento Fuoco ad un nemico", "offensive"),
-            new_item("Magamagilite", "Causa danni di elemento Fuoco a tutti i nemici", "offensive"),
+            new_item("Magmagilite", "Causa danni di elemento Fuoco a tutti i nemici", "offensive"),
             new_item("Razzo Elettrico", "Causa danni di elemento Tuono ad un nemico", "offensive"),
             new_item("Razzo Fulminante", "Causa danni di elemento Tuono ad un nemico", "offensive"),
             new_item("Elettromagilite", "Causa danni di elemento Tuono a tutti i nemici", "offensive"),
@@ -149,7 +203,7 @@ def populate_data():
             new_item("Lacrimogeno", "Causa danni e infligge lo status Blind a tutti i nemici", "offensive"),
             new_item("Neromagilite", "Dimezza gli HP di tutti i nemici", "offensive"),
             new_item("Eliomagilite", "Causa danni ad un nemico", "offensive"),
-            new_item("Sacromagilita", "Causa danni a tutti i nemici", "offensive"),
+            new_item("Sacromagilite", "Causa danni a tutti i nemici", "offensive"),
             new_item("Examagilite", "Causa danni a tutti i nemici", "offensive"),
             new_item("Zanna Velenosa", "Causa danni e infligge lo status Veleno ad un nemico", "offensive"),
             new_item("Clessidra d'Argento", "Infligge lo status Lentezza a tutti i nemici", "offensive"),
@@ -158,7 +212,7 @@ def populate_data():
             new_item("Granata Fossile", "Infligge lo status Pietra a tutti i nemici", "offensive"),
             new_item("Ombra d'Oltremondo", "Infligge lo status Morte ad un nemico", "offensive"),
             new_item("Vento d'Oltremondo", "Infligge lo status Morte a tutti i nemici", "offensive"),
-            new_item("Materiaoscura", "Causa gravi danni a tutti i nemici", "offensive"),
+            new_item("Materioscura", "Causa gravi danni a tutti i nemici", "offensive"),
             new_item("Albhedina", "Cura Veleno, Mutismo, Pietra e recupera 1000HP a tutto il party", "support"),
             new_item("Acqua Curativa", "Fa recuperare 9999HP a tutto il party", "support"),
             new_item("Coda di Chocobo", "Attiva lo status Haste su un alleato", "support"),
@@ -187,10 +241,31 @@ def populate_data():
             new_item("amuleto", "Potrebbe essere utile!", "special"),
             new_item("porta sul domani", "Potrebbe essere utile!", "special"),
             new_item("anima del baro", "Potrebbe essere utile!", "special"),
-            new_item("equazione cubica", "Potrebbe essere utile!", "special")
+            new_item("equazione cubica", "Potrebbe essere utile!", "special"),
+
+            new_item("mappa", "Mostra la mappa di Spira", "special"),
+            new_item("carta d'identità", "Permette di cambiare il nome di un eone", "special"),
+
+            new_item("corona di boccioli", "Rarità", "curio"),
+            new_item("corona di fiori", "Rarità", "curio"),
+
+            new_item("mastersfera", "Attiva qualsiasi somatosfera nella sferografia", "sphere_grid"),
+            new_item("onnisfera", "Permette di spostarsi su qualsiasi somatosfera nella sferografia", "sphere_grid"),
+            new_item("gamberosfera",
+                     "Trasporta in una qualsiasi Somatosfera già attivata dal personaggio che ne fa uso",
+                     "sphere_grid"),
+            new_item("telesfera", "Trasporta in una qualsiasi Somatosfera già attivata da un altro personaggio",
+                     "sphere_grid"),
+            new_item("empatosfera", "Trasporta in una Somatosfera sulla quale si trova un alleato", "sphere_grid"),
+            new_item("passosfera lv 1", "Sblocca una passosfera lv 1 nella sferografia", "sphere_grid"),
+            new_item("passosfera lv 2", "Sblocca una passosfera lv 2 nella sferografia", "sphere_grid"),
+            new_item("passosfera lv 3", "Sblocca una passosfera lv 3 nella sferografia", "sphere_grid"),
+            new_item("passosfera lv 4", "Sblocca una passosfera lv 4 nella sferografia", "sphere_grid"),
         ]
 
         zones = {area: new_zone(area) for area in areas}
+
+        db.flush()
 
         area_conquests = [
             new_area_conquest("Trusthevis", zones["besaid"]),
@@ -375,46 +450,181 @@ def populate_data():
             new_fiend('Varna', zones['rovine di omega'])
         ]
 
-        # Aggiungi al database
-        db.add_all(items)
-        db.add_all(area_conquests)
-        db.add_all(species_conquests.all())
-        db.add_all(zones.values())
-        db.add_all(fiends)
-        db.add_all(original_creations)
-
         can_be_found_relations = [
             new_can_be_found('budino di tuono', 'via mihen'),
 
-            new_can_be_found('raptor', 'via djose', db),
-            new_can_be_found('gandharva', 'via djose', db),
-            new_can_be_found('ramashut', 'via djose', db),
-            new_can_be_found('fungongo', 'via djose', db),
+            new_can_be_found('raptor', 'via djose'),
+            new_can_be_found('gandharva', 'via djose'),
+            new_can_be_found('ramashut', 'via djose'),
+            new_can_be_found('fungongo', 'via djose'),
 
-            new_can_be_found('molboro', 'grotta del crepaccio', db),
-            new_can_be_found('iaguaro', 'grotta del crepaccio', db),
+            new_can_be_found('molboro', 'grotta del crepaccio'),
+            new_can_be_found('iaguaro', 'grotta del crepaccio'),
 
-            new_can_be_found('galkimasela', 'monte gagazet', db),
-            new_can_be_found('heg', 'monte gagazet', db),
+            new_can_be_found('galkimasela', 'monte gagazet'),
+            new_can_be_found('heg', 'monte gagazet'),
 
-            new_can_be_found('alyman', 'dentro sin', db),
+            new_can_be_found('alyman', 'dentro sin'),
 
-            new_can_be_found('molboro il grande', 'rovine di omega', db),
-            new_can_be_found('demomonolix', 'rovine di omega', db),
-            new_can_be_found('adamanthart', 'rovine di omega', db),
-            new_can_be_found('alyadin', 'rovine di omega', db),
-            new_can_be_found('Ultra Might (spada normale)', 'rovine di omega', db),
-            new_can_be_found('Ultra Might (spada stella)', 'rovine di omega', db)
+            new_can_be_found('molboro il grande', 'rovine di omega'),
+            new_can_be_found('demomonolix', 'rovine di omega'),
+            new_can_be_found('adamanthart', 'rovine di omega'),
+            new_can_be_found('alyadin', 'rovine di omega'),
+            new_can_be_found('Ultra Might (spada normale)', 'rovine di omega'),
+            new_can_be_found('Ultra Might (spada stella)', 'rovine di omega')
         ]
 
-        db.flush()
-        db.refresh()
-        db.add_all(can_be_found_relations)
+        creation_rewards = [
+            new_area_conquest_reward('trusthevis', 'creation', 'filtro energetico', 99),
+            new_area_conquest_reward('molboro beta', 'creation', 'zanna velenosa', 99),
+            new_area_conquest_reward('kolossos', 'creation', 'fluido vitale', 99),
+            new_area_conquest_reward('iaguaro regina', 'creation', 'candela della vita', 99),
+            new_area_conquest_reward('yormungand', 'creation', 'granata fossile', 99),
+            new_area_conquest_reward('kyactus', 'creation', 'piuma di chocobo', 99),
+            new_area_conquest_reward('espada', 'creation', 'eliomagilite', 99),
+            new_area_conquest_reward('abyss worm', 'creation', 'neromagilite', 99),
+            new_area_conquest_reward('chimera x', 'creation', 'vento d\'oltremondo', 60),
+            new_area_conquest_reward('don tomberry', 'creation', 'clessidra d\'argento', 40),
+            new_area_conquest_reward('catoblepas', 'creation', 'corona di boccioli', 1),
+            new_area_conquest_reward('abadon', 'creation', 'cortina lunare', 99),
+            new_area_conquest_reward('vorban', 'creation', 'portafoglio gonfio', 60),
+
+            new_species_conquest_reward('fenril', 'creation', 'coda di chocobo', 99),
+            new_species_conquest_reward('ornitorestes', 'creation', 'fluido energetico', 99),
+            new_species_conquest_reward('pterix', 'creation', 'megafenice', 99),
+            new_species_conquest_reward('honet', 'creation', 'filtro magico', 60),
+            new_species_conquest_reward('vizalsha', 'creation', 'fluido magico', 99),
+            new_species_conquest_reward('unioculum', 'creation', 'nettare energetico', 60),
+            new_species_conquest_reward('budino jumbo', 'creation', 'duostella', 60),
+            new_species_conquest_reward('elemento nega', 'creation', 'cortina stellare', 99),
+            new_species_conquest_reward('tanket', 'creation', 'clessidra d\'oro', 99),
+            new_species_conquest_reward('fefnil', 'creation', 'sale purificatore', 99),
+            new_species_conquest_reward('sonnellino', 'creation', 'fluido rigenerante', 99),
+            new_species_conquest_reward('re piros', 'creation', 'turboetere', 60),
+            new_species_conquest_reward('juggernaut', 'creation', 'cortina luminosa', 99),
+            new_species_conquest_reward('clod d\'acciaio', 'creation', 'nettare magico', 90),
+
+            new_original_creation_reward('mangiaterra', 'creation', 'triostella', 60),
+            new_original_creation_reward('titanosfera', 'creation', 'examagilite', 60),
+            new_original_creation_reward('catastrophe', 'creation', 'porta sul domani', 99),
+            new_original_creation_reward('vlakorados', 'creation', 'anima del baro', 99),
+            new_original_creation_reward('gasteropodos', 'creation', 'equazione cubica', 99),
+            new_original_creation_reward('ultima x', 'creation', 'materioscura', 99),
+            new_original_creation_reward('shinryu', 'creation', 'megaelisir', 30),
+            new_original_creation_reward('il supremo', 'creation', 'mastersfera', 10)
+        ]
+
+        steal_rewards = [
+            new_area_conquest_reward('trusthevis', 'common_steal', 'lacrimogeno', 3),
+            new_area_conquest_reward('trusthevis', 'rare_steal', 'filtro energetico', 2),
+
+            new_area_conquest_reward('molboro beta', 'common_steal', 'panacea', 4),
+            new_area_conquest_reward('molboro beta', 'rare_steal', 'fluido magico', 2),
+
+            new_area_conquest_reward('kolossos', 'common_steal', 'fluido energetico', 4),
+            new_area_conquest_reward('kolossos', 'rare_steal', 'fluido vitale', 2),
+
+            new_area_conquest_reward('iaguaro regina', 'common_steal', 'vento d\'oltremondo', 2),
+            new_area_conquest_reward('iaguaro regina', 'rare_steal', 'sacromagilite', 1),
+
+            new_area_conquest_reward('yormungand', 'common_steal', 'granata fossile', 4),
+            new_area_conquest_reward('yormungand', 'rare_steal', 'triostella', 1),
+
+            new_area_conquest_reward('kyactus', 'common_steal', 'piuma di chocobo', 2),
+            new_area_conquest_reward('kyactus', 'rare_steal', 'portafoglio gonfio', 1),
+
+            new_area_conquest_reward('espada', 'common_steal', 'ombra d\'oltremondo', 4),
+            new_area_conquest_reward('espada', 'rare_steal', 'vento d\'oltremondo', 1),
+
+            new_area_conquest_reward('abyss worm', 'common_steal', 'neromagilite', 4),
+            new_area_conquest_reward('abyss worm', 'rare_steal', 'nettare energetico', 1),
+
+            new_area_conquest_reward('chimera x', 'common_steal', 'filtro magico', 2),
+            new_area_conquest_reward('chimera x', 'rare_steal', 'fluido energetico', 2),
+
+            new_area_conquest_reward('don tomberry', 'common_steal', 'candela della vita', 2),
+            new_area_conquest_reward('don tomberry', 'rare_steal', 'portafoglio gonfio', 1),
+
+            new_area_conquest_reward('catoblepas', 'common_steal', 'fluido rigenerante', 3),
+            new_area_conquest_reward('catoblepas', 'rare_steal', 'filtro energetico', 1),
+
+            new_area_conquest_reward('abadon', 'common_steal', 'sale purificatore', 3),
+            new_area_conquest_reward('abadon', 'rare_steal', 'eliomagilite', 1),
+
+            new_area_conquest_reward('vorban', 'common_steal', 'fluido rigenerante', 2),
+            new_area_conquest_reward('vorban', 'rare_steal', 'nettare energetico', 1),
+
+            new_species_conquest_reward('fenril', 'common_steal', 'coda di chocobo', 2),
+            new_species_conquest_reward('fenril', 'rare_steal', 'piuma di chocobo', 1),
+
+            new_species_conquest_reward('ornitorestes', 'common_steal', 'carta d\'identità', 1),
+            new_species_conquest_reward('ornitorestes', 'rare_steal', 'piuma di chocobo', 1),
+
+            new_species_conquest_reward('pterix', 'common_steal', 'lacrimogeno', 4),
+            new_species_conquest_reward('pterix', 'rare_steal', 'candela della vita', 1),
+
+            new_species_conquest_reward('honet', 'common_steal', 'zanna velenosa', 4),
+            new_species_conquest_reward('honet', 'rare_steal', 'sale purificatore', 2),
+
+            new_species_conquest_reward('vizalsha', 'common_steal', 'elettromagilite', 4),
+            new_species_conquest_reward('vizalsha', 'rare_steal', 'filtro magico', 1),
+
+            new_species_conquest_reward('unioculum', 'common_steal', 'cortina lunare', 3),
+            new_species_conquest_reward('unioculum', 'rare_steal', 'sacromagilite', 1),
+
+            new_species_conquest_reward('budino jumbo', 'common_steal', 'cortina lunare', 4),
+            new_species_conquest_reward('budino jumbo', 'rare_steal', 'nettare magico', 1),
+
+            new_species_conquest_reward('elemento nega', 'common_steal', 'cortina lunare', 4),
+            new_species_conquest_reward('elemento nega', 'rare_steal', 'duostella', 1),
+
+            new_species_conquest_reward('tanket', 'common_steal', 'cortina luminosa', 4),
+            new_species_conquest_reward('tanket', 'rare_steal', 'cortina lunare', 4),
+
+            new_species_conquest_reward('fefnil', 'common_steal', 'clessidra d\'oro', 2),
+            new_species_conquest_reward('fefnil', 'rare_steal', 'fluido energetico', 2),
+
+            new_species_conquest_reward('sonnellino', 'common_steal', 'zanna velenosa', 4),
+            new_species_conquest_reward('sonnellino', 'rare_steal', 'vento d\'oltremondo', 1),
+
+            new_species_conquest_reward('re piros', 'common_steal', 'magmagilite', 4),
+            new_species_conquest_reward('re piros', 'rare_steal', 'eliomagilite', 1),
+
+            new_species_conquest_reward('juggernaut', 'common_steal', 'cortina lunare', 4),
+            new_species_conquest_reward('juggernaut', 'rare_steal', 'eliomagilite', 1),
+
+            new_species_conquest_reward('clod d\'acciaio', 'common_steal', 'cortina luminosa', 4),
+            new_species_conquest_reward('clod d\'acciaio', 'rare_steal', 'nettare energetico', 1),
+
+            new_original_creation_reward('mangiaterra', 'rare_steal', 'passosfera lv 1', 1),
+            new_original_creation_reward('titanosfera', 'rare_steal', 'gamberosfera', 1),
+            new_original_creation_reward('catastrophe', 'rare_steal', 'passosfera lv 2', 1),
+            new_original_creation_reward('vlakorados', 'rare_steal', 'telesfera', 1),
+            new_original_creation_reward('gasteropodos', 'rare_steal', 'empatosfera', 1),
+            new_original_creation_reward('ultima x', 'rare_steal', 'passosfera lv 3', 1),
+            new_original_creation_reward('shinryu', 'rare_steal', 'triostella', 1),
+            new_original_creation_reward('il supremo', 'common_steal', 'passosfera lv 4', 1),
+            new_original_creation_reward('il supremo', 'rare_steal', 'onnisfera', 1)
+
+        ]
+
         db.commit()
         print("Dati iniziali inseriti con successo.")
+
+    except SQLAlchemyError as e:
+        # Effettua un rollback della sessione
+        db.rollback()
+
+        # Stampa il traceback completo
+        print("Errore durante l'inserimento dei dati: ")
+        print(traceback.format_exc())
+
+        # Messaggio specifico sull'errore catturato
+        print(f"Errore SQLAlchemy: {str(e)}")
     except Exception as e:
         db.rollback()
-        print(f"Errore durante l'inserimento dei dati: {e}")
+        print(f"Errore generico durante l'inserimento dei dati: {e}")
+        print(traceback.format_exc())
     finally:
         db.close()
 

@@ -1,13 +1,15 @@
 import React from "react";
 import "./CreationAlertModal.css";
 import Card from "./Card";
+import { titleCase } from "../utils";
 
 const CreationAlertModal = ({ show, onClose, creation }) => {
     if (!show || !creation) {
         return null; // Non renderizzare se `show` è false o `creation` non è presente
     }
 
-    const { name, created, type, image_url } = creation;
+    const { name, created, type, image_url, reward } = creation;
+    const [rewardItem, rewardQuantity] = reward;
 
     const handleOverlayClick = (e) => {
         if (e.target.classList.contains("creation-alert-modal-overlay")) {
@@ -46,6 +48,12 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                                     : `È stato rimosso il ${type}`}
                             </p>
                             <Card name={name} imageUrl={image_url} />
+                            <h3 className="section-title mt-5">Ricompensa</h3>
+                            <div className="divider"></div>
+                            <p>
+                                {rewardQuantity > 1 ? rewardQuantity : ""}{" "}
+                                {titleCase(rewardItem)}
+                            </p>
                         </div>
                     </div>
                 </div>

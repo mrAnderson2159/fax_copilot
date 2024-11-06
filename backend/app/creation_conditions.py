@@ -90,24 +90,42 @@ class CreationConditions:
             create_condition (bool): Condizione per la creazione.
 
         Returns:
-            Un oggetto OriginalCreationResponse con lo stato di creazione aggiornato.
+            Un oggetto OriginalCreationResponse con lo stato di creazione aggiornato e la ricompensa, se presente.
         """
         logger.info(f"Verifica creazione prototipo: {original_creation_name}, condizione: {create_condition}")
+
+        # Cerca l'original creation nel database
         original_creation = self.db.query(models.OriginalCreation).filter(
             models.OriginalCreation.name == original_creation_name
         ).first()
+
         if not original_creation.created and create_condition:
             # Crea il prototipo se non è stato ancora creato e la condizione è soddisfatta
             original_creation.created = True
+
+            # Recupera la ricompensa associata alla creazione
+            reward = self.db.query(models.OriginalCreationReward).filter(
+                models.OriginalCreationReward.original_creation_id == original_creation.id,
+                models.OriginalCreationReward.reward_type == 'creation'
+            ).first()
+
             logger.info(f"Prototipo creato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=True,
-                                                    image_url=original_creation.image_url)
+            return schemas.OriginalCreationResponse(
+                name=original_creation.name,
+                created=True,
+                image_url=original_creation.image_url,
+                reward=(reward.item.name, reward.quantity)
+            )
+
         elif original_creation.created and self.negative_check and not create_condition:
             # Annulla il prototipo se è stato creato, il negative_check è attivo e la condizione non è più valida
             original_creation.created = False
             logger.info(f"Prototipo annullato: {original_creation_name}")
-            return schemas.OriginalCreationResponse(name=original_creation.name, created=False,
-                                                    image_url=original_creation.image_url)
+            return schemas.OriginalCreationResponse(
+                name=original_creation.name,
+                created=False,
+                image_url=original_creation.image_url
+            )
 
     def __conquests_checker(
             self,
@@ -116,29 +134,42 @@ class CreationConditions:
             conquest_model: Optional[Type[models.Base]],
             conquest_filter: Callable[[Any], BinaryExpression],
             missing_captures_target: Type[models.Base],
-            missing_captures_filter: Callable[[Any, Union[models.AreaConquest, models.SpeciesConquest]], BinaryExpression],
+            missing_captures_filter: Callable[
+                [Any, Union[models.AreaConquest, models.SpeciesConquest]], BinaryExpression],
             schema_class: Type[schemas.ConquestResponseBase],
-    ) -> Optional[list[schemas.BaseModel]]:
+    ) -> Optional[list[schemas.ConquestResponseBase]]:
         """
         Metodo generico per verificare e gestire la creazione o l'annullamento dei campioni di area e specie.
 
+        Questo metodo viene utilizzato per controllare se le condizioni per una determinata conquista
+        (come campioni di area o di specie) sono soddisfatte o devono essere annullate. Il metodo utilizza
+        filtri dinamici per verificare la creazione di ogni elemento, rendendolo flessibile per vari tipi di
+        conquiste. In caso di successo, restituisce una lista di risposte con lo stato di creazione o annullamento.
+
         Args:
-            elements_to_check (Any): Elementi da verificare per la creazione.
-            conquest_model (Optional[Type[models.Base]]): Modello di conquista da verificare.
-            conquest_filter (Callable[[Any], BinaryExpression]): Filtro per verificare la conquista.
-            missing_captures_target (Type[models.Base]): Modello di mostri da verificare per mancanza di catture.
-            missing_captures_filter (Callable[[Any, Type[models.Base]], BinaryExpression]): Filtro per le catture mancanti.
-            schema_class (Type[schemas.BaseModel]): Classe dello schema di risposta.
+            elements_to_check (Any): Elementi da verificare per la creazione, come un ID di zona o mostri catturati.
+            conquest_model (Optional[Type[models.Base]]): Il modello di database per il tipo di conquista da verificare.
+            conquest_filter (Callable[[Any], BinaryExpression]): Filtro per verificare la conquista specifica nell'elemento.
+            missing_captures_target (Type[models.Base]): Modello di riferimento per verificare catture mancanti di mostri.
+            missing_captures_filter (Callable[[Any, Union[models.AreaConquest, models.SpeciesConquest]], BinaryExpression]):
+                Filtro per identificare i mostri mancanti che devono essere catturati per soddisfare la condizione.
+            schema_class (Type[schemas.ConquestResponseBase]): Classe dello schema di risposta da restituire per la conquista.
 
         Returns:
-            Una lista di conquiste con il loro stato aggiornato.
+            Optional[list[schemas.ConquestResponseBase]]: Una lista di oggetti schema con il loro stato aggiornato,
+            se ci sono conquiste create o annullate.
         """
         results = []
 
         for element in elements_to_check:
             logger.info(f"Verifica conquista per elemento: {element}")
-            # Controlla se la conquista è già stata creata
-            conquest: Union[models.AreaConquest, models.SpeciesConquest] = self.db.query(conquest_model).filter(conquest_filter(element)).first()
+
+            # Recupera l'istanza della conquista (per esempio, AreaConquest o SpeciesConquest) corrispondente all'elemento.
+            conquest: Union[models.AreaConquest, models.SpeciesConquest] = (
+                self.db.query(conquest_model)
+                .filter(conquest_filter(element))
+                .first()
+            )
 
             if not conquest:
                 logger.info(f"Conquista non trovata per elemento: {element}")
@@ -146,7 +177,8 @@ class CreationConditions:
 
             # Verifica se ci sono mostri che non soddisfano la condizione richiesta
             missing_count = self.db.query(missing_captures_target).filter(
-                missing_captures_filter(element, conquest)).count()
+                missing_captures_filter(element, conquest)
+            ).count()
             logger.info(f"Numero di mostri mancanti per la conquista {conquest.name}: {missing_count}")
 
             # Crea o annulla la creazione del campione in base alla condizione e al valore di negative_check
@@ -154,12 +186,44 @@ class CreationConditions:
                 if not conquest.created:
                     conquest.created = True
                     logger.info(f"Conquista creata: {conquest.name}")
-                    results.append(schema_class(name=conquest.name, created=True, image_url=conquest.image_url))
+
+                    # Determina il nome della classe del modello di conquista
+                    c_m_name = conquest_model.__name__
+                    # Determina il nome della tabella del modello di conquista
+                    c_m_tablename = conquest_model.__tablename__
+
+                    # Costruisce il nome del modello di reward dinamicamente, utilizzando la convenzione di denominazione
+                    r_m_name = getattr(models, f'{c_m_name}Reward')
+
+                    # Recupera la ricompensa di tipo 'creation' per l'elemento di conquista creato
+                    reward = (
+                        self.db.query(r_m_name)
+                        .filter(
+                            getattr(r_m_name, f'{c_m_tablename[:-1]}_id') == conquest.id,
+                            r_m_name.reward_type == 'creation'
+                        )
+                        .first()
+                    )
+
+                    # Aggiunge la conquista alla lista dei risultati, includendo la ricompensa
+                    results.append(schema_class(
+                        name=conquest.name,
+                        created=True,
+                        image_url=conquest.image_url,
+                        reward=(reward.item.name, reward.quantity)
+                    ))
+
+            # Annulla la conquista se il `negative_check` è attivo e la condizione non è più valida
             elif self.negative_check and conquest.created:
                 conquest.created = False
                 logger.info(f"Conquista annullata: {conquest.name}")
-                results.append(schema_class(name=conquest.name, created=False, image_url=conquest.image_url))
+                results.append(schema_class(
+                    name=conquest.name,
+                    created=False,
+                    image_url=conquest.image_url
+                ))
 
+        # Restituisce i risultati se ci sono conquiste create o annullate
         if results:
             return results
 
