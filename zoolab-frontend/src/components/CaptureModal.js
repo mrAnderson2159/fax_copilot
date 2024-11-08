@@ -5,7 +5,7 @@ import Card from "./Card";
 import { MAX_CAPTURES } from "../utils";
 import { signed, debug } from "../utils";
 
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
     const [activeButton, setActiveButton] = useState(null);

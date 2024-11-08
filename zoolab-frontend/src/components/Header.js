@@ -25,7 +25,7 @@ const Header = ({ headerTitle }) => {
                     </button>
                     {isChildPath && (
                         <button
-                            className="btn btn-link text-light me-2 ms-3"
+                            className="btn btn-link text-light ms-2"
                             onClick={goBack}
                         >
                             <i className="bi bi-arrow-left"></i>

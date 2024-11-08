@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.routers import zones, fiends, area_conquests, original_creations, species_conquests
 from app.config import CORS_ORIGINS, DEBUG_MODE
+from app.database import DATABASE_URL
 
 # Definisce i colori per ciascuna parte del messaggio
 RESET = "\x1b[0m"
@@ -59,7 +60,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print(CORS_ORIGINS)
+print(f'\n%8s : {", ".join(CORS_ORIGINS)}\n%8s : {DATABASE_URL}\n' % ('CORS', 'DATABASE'))
 
 app.include_router(zones.router)
 app.include_router(fiends.router)

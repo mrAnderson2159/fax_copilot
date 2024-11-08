@@ -53,8 +53,8 @@
 .full-capture {
     background: linear-gradient(
         135deg,
-        #005073,
-        #0073a4
+        #291818,
+        #691820
     ); /* Darker gradient for full captures */
     height: 100%;
     transition: width 0.4s ease;

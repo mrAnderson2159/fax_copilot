@@ -9,7 +9,12 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
     }
 
     const { name, created, type, image_url, reward } = creation;
-    const [rewardItem, rewardQuantity] = reward;
+
+    let rewardItem, rewardQuantity;
+
+    if (reward) {
+        [rewardItem, rewardQuantity] = reward;
+    }
 
     const handleOverlayClick = (e) => {
         if (e.target.classList.contains("creation-alert-modal-overlay")) {
@@ -24,7 +29,7 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                 onClick={handleOverlayClick}
             ></div>
             <div
-                className="creation-alert-modal fade show"
+                className="creation-alert-modal fade show mt-4"
                 tabIndex="-1"
                 style={{ display: "block" }}
             >
@@ -48,12 +53,20 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                                     : `È stato rimosso il ${type}`}
                             </p>
                             <Card name={name} imageUrl={image_url} />
-                            <h3 className="section-title mt-5">Ricompensa</h3>
-                            <div className="divider"></div>
-                            <p>
-                                {rewardQuantity > 1 ? rewardQuantity : ""}{" "}
-                                {titleCase(rewardItem)}
-                            </p>
+                            {reward && (
+                                <div className="reward-container">
+                                    <h3 className="section-title mt-3">
+                                        Ricompensa
+                                    </h3>
+                                    <div className="divider"></div>
+                                    <p className="no-mt">
+                                        {rewardQuantity > 1
+                                            ? rewardQuantity
+                                            : ""}{" "}
+                                        {titleCase(rewardItem)}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

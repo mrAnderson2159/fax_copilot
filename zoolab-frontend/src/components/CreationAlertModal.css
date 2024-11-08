@@ -17,7 +17,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(80, 0, 140, 0.8); /* Dark purple, slightly transparent */
+    background: linear-gradient(to bottom right, #4b0082, #b481b4);
     border-radius: 12px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
     z-index: 1050; /* To ensure it stays above the overlay */
@@ -64,4 +64,13 @@
     opacity: 0.8;
     font-size: 1.2rem;
     transition: opacity 0.3s ease;
+}
+
+div.creation-alert-modal-body .card {
+    width: 70%;
+    margin: 0 auto;
+}
+
+.no-margin {
+    margin: 0 !important;
 }

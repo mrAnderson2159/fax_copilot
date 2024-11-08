@@ -127,7 +127,7 @@ class AreaConquestReward(Base):
     reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
                                                  name="valid_reward_type"), index=True, nullable=False,
                          primary_key=True)
-    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False)
     area_conquest_id = Column(Integer, ForeignKey("area_conquests.id", onupdate='CASCADE'), nullable=False,
                               primary_key=True)
     quantity = Column(Integer, nullable=False)
@@ -141,7 +141,7 @@ class SpeciesConquestReward(Base):
     reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
                                                  name="valid_reward_type"), index=True, nullable=False,
                          primary_key=True)
-    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False)
     species_conquest_id = Column(Integer, ForeignKey("species_conquests.id", onupdate='CASCADE'), nullable=False,
                                  primary_key=True)
     quantity = Column(Integer, nullable=False)
@@ -155,7 +155,7 @@ class OriginalCreationReward(Base):
     reward_type = Column(String, CheckConstraint("reward_type IN ('creation', 'battle', 'common_steal', 'rare_steal')",
                                                  name="valid_reward_type"), index=True, nullable=False,
                          primary_key=True)
-    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False, primary_key=True)
+    item_id = Column(Integer, ForeignKey("items.id", onupdate='CASCADE'), nullable=False)
     original_creation_id = Column(Integer, ForeignKey("original_creations.id", onupdate='CASCADE'), nullable=False,
                                   primary_key=True)
     quantity = Column(Integer, nullable=False)
