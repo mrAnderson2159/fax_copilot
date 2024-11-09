@@ -1,7 +1,7 @@
 // zoolab-frontend/src/components/Card.js
 import { useState } from "react";
 import { resolveImagePath, titleCase } from "../utils";
-import "./Card.css";
+import "./Card.scss";
 import { debug } from "../utils";
 import { useClickHandlers } from "../utils/useClickHandlers";
 

@@ -4,11 +4,13 @@ import "./CaptureModal.css";
 import Card from "./Card";
 import { MAX_CAPTURES, modalShow } from "../utils";
 import { signed, debug } from "../utils";
+import { useSound } from "../context/SoundContext";
 
 const DEBUG_MODE = false;
 
 const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
     const [activeButton, setActiveButton] = useState(null);
+    const { clickSound, backSound } = useSound();
     const localDebug = (functionName, ...stuff) =>
         debug(DEBUG_MODE, "CaptureModal.js", functionName, ...stuff);
 
@@ -33,6 +35,7 @@ const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
 
     const handleButtonClick = (value) => {
         setActiveButton(value);
+        clickSound();
         // Eventualmente, aggiorna anche il delta delle catture se necessario
         setDeltas((prevDeltas) => ({
             ...prevDeltas,

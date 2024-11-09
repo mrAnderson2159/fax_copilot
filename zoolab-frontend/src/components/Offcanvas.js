@@ -1,8 +1,19 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./Offcanvas.css";
+import "./Offcanvas.scss";
+import { useSound } from "../context/SoundContext";
 
 const Offcanvas = () => {
+    const { clickSound, backSound } = useSound();
+
+    const handleLinkClick = (e) => {
+        e.preventDefault();
+        clickSound();
+        setTimeout(() => {
+            window.location.href = e.target.href;
+        }, 200);
+    };
+
     return (
         <div
             className="offcanvas offcanvas-start"
@@ -19,12 +30,17 @@ const Offcanvas = () => {
                     className="btn-close text-reset"
                     data-bs-dismiss="offcanvas"
                     aria-label="Close"
+                    onClick={backSound}
                 ></button>
             </div>
             <div className="offcanvas-body">
                 <ul className="navbar-nav">
                     <li className="nav-item">
-                        <a className="nav-link" href="/zones">
+                        <a
+                            className="nav-link"
+                            href="/zones"
+                            onClick={handleLinkClick}
+                        >
                             Mostri Catturati
                         </a>
                     </li>

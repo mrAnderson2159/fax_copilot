@@ -1,5 +1,5 @@
 // zoolab-frontend/src/components/Badge.js
-import "./Badge.css";
+import "./Badge.scss";
 import { signed } from "../utils";
 
 const Badge = ({ delta }) => {

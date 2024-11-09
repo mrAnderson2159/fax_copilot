@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
-import "../styles/CommonStyles.css";
-import "./ZoneList.css";
+import "../styles/CommonStyles.scss";
+import "./ZoneList.scss";
 import renderCards from "../utils/renderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
+import { useSound } from "../context/SoundContext";
 
 const DEBUG_MODE = false;
 
@@ -14,6 +15,7 @@ const ZoneList = () => {
     const [zones, setZones] = useState([]);
     const [clickedZoneId, setClickedZoneId] = useState(null); // Stato per tracciare la zona cliccata
     const navigate = useNavigate();
+    const { clickSound } = useSound();
     const localDebug = (functionName, ...stuff) =>
         debug(DEBUG_MODE, "ZoneList.js", functionName, ...stuff);
 
@@ -32,6 +34,7 @@ const ZoneList = () => {
 
     const handleZoneClick = ({ id }) => {
         localDebug("handleZoneClick", `setting setClickedZoneId(${id})`);
+        clickSound();
         setClickedZoneId(id); // Imposta l'ID della zona cliccata per attivare l'animazione
         localDebug(
             "handleZoneClick",

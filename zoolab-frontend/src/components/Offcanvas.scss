@@ -1,0 +1,60 @@
+// src/components/Offcanvas.scss
+@import "../styles/variables";
+
+/* Stile generale dell'Offcanvas */
+.offcanvas {
+    background-color: rgba(55, 48, 91, 0.85); // Colore di sfondo scuro
+    color: #e0e0e0; // Colore del testo
+    width: 260px; // Imposta una larghezza più stretta per l'offcanvas
+    max-width: 70%; // Imposta una larghezza massima come percentuale della viewport
+    top: $header-height !important; // Usa la variabile per abbassare il canvas
+}
+
+/* Abbassa l'overlay nero */
+.offcanvas-backdrop {
+    top: $header-height !important;
+}
+
+/* Header dell'Offcanvas */
+.offcanvas-header {
+    border-bottom: 1px solid #444;
+    padding: 15px; // Riduce il padding per rendere l'header più compatto
+}
+
+/* Corpo dell'Offcanvas */
+.offcanvas-body {
+    padding: 15px; // Riduce il padding per rendere l'offcanvas più stretto
+}
+
+/* Titolo dell'Offcanvas */
+.offcanvas-title {
+    font-size: 1.5rem; // Riduce la dimensione del titolo per un layout più compatto
+    font-weight: bold;
+    color: #f0f0ff;
+}
+
+/* Elementi di navigazione */
+.nav-item {
+    margin-bottom: 10px; // Riduce il margine per comprimere i link
+}
+
+.nav-link {
+    font-size: 1rem;
+    color: #d3d3ff; // Cambiato per un viola più brillante per risaltare
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff; // Rende il link completamente bianco al passaggio del mouse
+}
+
+/* Bottone di chiusura */
+.btn-close {
+    color: #ffffff;
+    filter: brightness(0.8);
+}
+
+.btn-close:hover {
+    filter: brightness(1);
+}

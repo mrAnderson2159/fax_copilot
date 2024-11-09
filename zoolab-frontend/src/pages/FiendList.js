@@ -3,14 +3,15 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
 import { titleCase, MAX_CAPTURES } from "../utils";
-import "../styles/CommonStyles.css";
-import "./FiendList.css";
+import "../styles/CommonStyles.scss";
+import "./FiendList.scss";
 import renderCards from "../utils/renderCards";
 import CaptureBar from "../components/CaptureBar";
 import Badge from "../components/Badge";
 import CaptureModal from "../components/CaptureModal";
 import AlertModal from "../components/AlertModal";
 import CreationAlertModal from "../components/CreationAlertModal";
+import { useSound } from "../context/SoundContext";
 
 const FiendList = () => {
     const { zoneId } = useParams();
@@ -26,6 +27,13 @@ const FiendList = () => {
     });
     const [currentCreation, setCurrentCreation] = useState(null);
     const [creationQueue, setCreationQueue] = useState([]);
+    const {
+        errorSound,
+        clickSound,
+        backSound,
+        highConfirmSound,
+        lowConfirmSound,
+    } = useSound();
 
     // Funzione per ottenere i dati sui mostri con le informazioni sulle catture
     const fetchFiendsWithFound = useCallback(async () => {
@@ -73,6 +81,7 @@ const FiendList = () => {
                 (prevDeltas[fiend.id] || 0) + 1,
                 MAX_CAPTURES - fiend.was_captured
             );
+            newDelta ? clickSound() : errorSound();
             return {
                 ...prevDeltas,
                 [fiend.id]: newDelta,
@@ -82,15 +91,18 @@ const FiendList = () => {
 
     // Funzione per il click prolungato
     const funzioneCattura2 = useCallback((fiend) => {
+        clickSound();
         setSelectedFiend(fiend);
     }, []);
 
     // Funzione per chiudere il modal
     const handleCloseModal = () => {
+        backSound();
         setSelectedFiend(null);
     };
 
     const confirmSaveChanges = () => {
+        clickSound();
         const details = Object.entries(deltas)
             .filter(([_, delta]) => delta !== 0)
             .map(([fiend_id, delta]) => {
@@ -105,6 +117,7 @@ const FiendList = () => {
     };
 
     const confirmResetChanges = () => {
+        clickSound();
         setAlert({ show: true, action: "reset", details: "" });
     };
 
@@ -121,6 +134,7 @@ const FiendList = () => {
                     Object.entries(prev).map(([key]) => [key, 0])
                 )
             );
+            highConfirmSound();
             fetchFiendsWithFound(); // Aggiorna i mostri dopo aver salvato
             enqueueConquests(response.data);
         } catch (error) {
@@ -133,6 +147,7 @@ const FiendList = () => {
         setDeltas((prev) =>
             Object.fromEntries(Object.entries(prev).map(([key]) => [key, 0]))
         );
+        lowConfirmSound();
         setAlert({ show: false, action: null, details: "" });
     };
 
@@ -176,6 +191,7 @@ const FiendList = () => {
     };
 
     const handleAlertCancel = () => {
+        backSound();
         setAlert({ show: false, action: null, details: "" });
     };
 

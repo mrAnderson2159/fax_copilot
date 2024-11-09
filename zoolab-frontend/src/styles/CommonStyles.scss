@@ -1,0 +1,89 @@
+// src/styles/CommonStyles.scss
+@import "./variables";
+@import "./mixins.scss";
+
+.background-wrapper {
+    position: fixed;
+    @include full-size;
+    overflow: hidden;
+    z-index: 0; // Posizionato in fondo
+}
+
+.zoolab-bg,
+.fiends-bg,
+.homepage-bg {
+    @include full-size;
+    background-size: cover;
+    background-position: center;
+}
+
+.zoolab-bg {
+    background-image: url($spira-map-bg);
+}
+
+.fiends-bg {
+    background-image: url($fiends-bg);
+}
+
+.homepage-bg {
+    background-image: url($homepage-bg);
+}
+
+.overlay {
+    position: fixed;
+    @include full-size;
+    background-color: $black-transparent-40;
+    z-index: 1; // Sopra il background
+    pointer-events: none;
+}
+
+.fiend-list-content,
+.zone-list-content {
+    position: relative;
+    z-index: 2; // Sopra l'overlay
+    padding: $section-padding;
+    color: $white;
+}
+
+.transparent-background {
+    background-color: transparent;
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        @include full-size;
+        background: $black-transparent-30;
+        filter: blur(3px) saturate(50%);
+        z-index: -1; // Manda lo sfondo dietro agli altri elementi
+    }
+}
+
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+img {
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+.display-4 {
+    background: $black-transparent-50;
+    padding: 10px;
+    border-radius: $border-radius;
+    color: $white;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.divider {
+    height: 2px;
+    width: 80%;
+    margin: 20px auto;
+    background: $white-transparent-30;
+}

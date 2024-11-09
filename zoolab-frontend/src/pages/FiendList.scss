@@ -1,0 +1,85 @@
+// src/pages/FiendList.scss
+
+@import "../styles/variables"; // Importa variabili di colore e altre utili
+@import "../styles/mixins"; // Importa mixin comuni se presenti
+
+.section-title {
+    font-size: 1.5rem;
+    color: $gold; // Usa una variabile per il colore oro se definita
+    font-weight: bold;
+    margin: 1rem 0 0.5rem;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); // Ombra per evidenziare
+}
+
+.divider {
+    height: 2px;
+    background-color: $dark-gray; // Usa una variabile per il colore grigio se definita
+    margin: 0.5rem 0 1rem;
+    opacity: 0.8;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 1px;
+}
+
+.fiend-cards {
+    margin-bottom: 2rem;
+}
+
+.floating-btn {
+    position: fixed;
+    width: 45px;
+    height: 45px;
+    border-radius: 50% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    opacity: 0.75;
+    color: $white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+
+    &:hover {
+        opacity: 0.9;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &.save-btn {
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        background-color: rgba(
+            40,
+            167,
+            69,
+            0.75
+        ); // Usa variabili per il verde se definito
+    }
+
+    &.reset-btn {
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        background-color: rgba(
+            220,
+            53,
+            69,
+            0.75
+        ); // Usa variabili per il rosso se definito
+    }
+}
+
+.fiendlist-title {
+    margin-bottom: 10%;
+}
+
+.capturebar-title {
+    margin-top: 30%;
+}

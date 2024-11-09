@@ -1,0 +1,25 @@
+// src/components/MainLayout.scss
+@import "../styles/variables";
+
+.main-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    min-height: calc(
+        100vh - #{$header-height}
+    ); // Altezza viewport meno l'header
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    height: $header-height;
+}
+
+.overflow-trap {
+    height: 1px;
+    overflow: hidden;
+    background: #212529; // Colore dell'header
+}

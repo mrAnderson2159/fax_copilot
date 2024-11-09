@@ -2,7 +2,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
-import "./MainLayout.css";
+import "./MainLayout.scss";
 import "./Offcanvas";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Offcanvas from "./Offcanvas";

@@ -1,0 +1,92 @@
+// src/components/Card.scss
+@import "../styles/variables";
+@import "../styles/mixins.scss";
+
+// Variabili per valori comuni
+$card-radius: 20px;
+$card-shadow: 0 4px 6px rgba(0, 0, 0, 1);
+
+.card {
+    border-radius: $card-radius;
+    box-shadow: $card-shadow;
+    border: none;
+    position: relative;
+    transition: transform 0.2s ease, opacity 0.4s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+
+    &.pressed {
+        transform: scale(1.08);
+        z-index: 10;
+    }
+
+    &.unclickable.pressed {
+        transform: none;
+        z-index: auto;
+    }
+
+    &.zone.explode {
+        animation: explode 0.4s forwards;
+    }
+}
+
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    80% {
+        transform: scale(1.3);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.card-body {
+    background: linear-gradient(
+        to top,
+        $black-transparent-70,
+        rgba(0, 0, 0, 0)
+    );
+    color: $white;
+    padding: 0.5rem;
+    border-radius: $card-radius;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+
+    &::before {
+        content: "";
+        position: absolute;
+        @include full-size;
+        background-color: $black-transparent-40;
+        z-index: 0;
+        border-bottom-left-radius: $card-radius;
+        border-bottom-right-radius: $card-radius;
+    }
+}
+
+.card-text {
+    font-family: "Cinzel", serif;
+    font-size: 0.9rem;
+    padding-left: 0.5rem;
+    color: #f0e6d2;
+    text-shadow: 1px 1px 2px $black-transparent-90;
+    letter-spacing: 0.05em;
+    position: relative;
+    z-index: 2;
+    font-weight: bold;
+}
+
+.card-img-top {
+    border-radius: $card-radius;
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+}
