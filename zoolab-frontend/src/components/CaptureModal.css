@@ -1,14 +1,16 @@
 /* zoolab-frontend/src/components/CaptureModal.css */
 
 .modal {
-    z-index: 1050;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    z-index: 1050; /* Assicurati che sia sopra l'overlay */
+    max-width: 500px;
+    width: 90%;
+    height: auto;
+    /* border: 1px solid red; */
 }
-
-body.modal-open {
-    overflow: hidden;
-}
-
-/* zoolab-frontend/src/components/CaptureModal.css */
 
 .modal-overlay {
     position: fixed;
@@ -16,7 +18,12 @@ body.modal-open {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dark, semi-transparent overlay */
+    background-color: rgba(
+        189,
+        226,
+        198,
+        0.25
+    ); /* Dark, semi-transparent overlay */
     backdrop-filter: blur(
         4px
     ); /* Adds a slight blur for a more elegant effect */
@@ -26,17 +33,13 @@ body.modal-open {
 
 /* Modal container */
 .modal-dialog {
-    margin: 10% auto;
-    background: rgba(189, 226, 198, 0.25);
+    margin: 5% auto;
+    /* border: 1px solid red; */
     border-radius: 12px;
     overflow: hidden;
     z-index: 1050; /* Ensures it stays above the overlay */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-}
-
-.modal-content {
-    width: 90%;
-    margin: 5% auto;
+    width: 95%;
 }
 
 /* Modal header styling */
@@ -93,9 +96,9 @@ body.modal-open {
 
 /* Button select styling */
 .btn-select {
-    width: 45px; /* Leggermente ridotta per adattare meglio il contenuto */
-    height: 45px; /* Altezza uniforme */
-    margin: 4px; /* Spazio uniforme tra tutti i pulsanti */
+    width: 40px; /* Leggermente ridotta per adattare meglio il contenuto */
+    height: 40px; /* Altezza uniforme */
+    margin: 5px; /* Spazio uniforme tra tutti i pulsanti */
     font-size: 0.75rem; /* Font più piccolo per uniformare meglio il contenuto */
     padding: 0; /* Eliminato il padding interno */
     display: inline-flex;

@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from "react";
 import "./CaptureModal.css";
 import Card from "./Card";
-import { MAX_CAPTURES } from "../utils";
+import { MAX_CAPTURES, modalShow } from "../utils";
 import { signed, debug } from "../utils";
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
     const [activeButton, setActiveButton] = useState(null);
@@ -13,17 +13,12 @@ const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
         debug(DEBUG_MODE, "CaptureModal.js", functionName, ...stuff);
 
     useEffect(() => {
-        if (show) {
-            document.body.classList.add("modal-open");
-        } else {
-            document.body.classList.remove("modal-open");
-            setActiveButton(null); // Resetta il bottone attivo quando il modal viene chiuso
-        }
-
-        // Cleanup function to ensure class is removed when the component unmounts
-        return () => {
-            document.body.classList.remove("modal-open");
-        };
+        modalShow({
+            show,
+            onClose: () => {
+                setActiveButton(null);
+            },
+        });
     }, [show]);
 
     useEffect(() => {

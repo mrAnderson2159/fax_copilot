@@ -34,6 +34,7 @@ python3 -m app.populate_data
 
 echo "Applicazione delle correzioni al database..."
 psql -U postgres -d zoolab -f backend/sql_scripts/correzione_ordinamento_zone.sql
+psql -U postres -d zoolab -f backend/sql_scripts/correzione_id_mostri.sql
 
 # Configura il PYTHONPATH
 export PYTHONPATH="$PYTHONPATH:/path/to/zoolab"

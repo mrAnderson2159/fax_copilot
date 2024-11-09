@@ -336,7 +336,7 @@ def populate_data():
         fiends = [
             new_fiend('dingo', zones['besaid'], species_conquests['fenril']),
             new_fiend('condor', zones['besaid'], species_conquests['pterix']),
-            new_fiend('budino d\'acqua', zones['besaid'], species_conquests['budino Jumbo']),
+            new_fiend("budino d'acqua", zones['besaid'], species_conquests['budino Jumbo']),
 
             new_fiend('Deinonychus', zones['kilika'], species_conquests['ornitorestes']),
             new_fiend('Ape Killer', zones['kilika'], species_conquests['honet']),
