@@ -1,6 +1,6 @@
 // src/components/AlertModal.js
 import React from "react";
-import "./AlertModal.css";
+import "./AlertModal.scss";
 
 const AlertModal = ({ show, onConfirm, onCancel, message, details }) => {
     if (!show) {

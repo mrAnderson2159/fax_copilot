@@ -1,0 +1,128 @@
+// zoolab-frontend/src/components/CaptureModal.scss
+
+@import "../styles/variables";
+@import "../styles/mixins";
+
+.modal {
+    @include modal-container;
+    transform: translate(-50%, -40%);
+    height: auto;
+    box-shadow: none;
+}
+
+.modal-overlay {
+    @include modal-overlay;
+    background-color: rgba(
+        189,
+        226,
+        198,
+        0.25
+    ); // Specific overlay color for CaptureModal
+    cursor: pointer;
+}
+
+/* Modal container styling */
+.modal-dialog {
+    margin: 5% auto;
+    border-radius: $modal-border-radius;
+    overflow: hidden;
+    z-index: 1050; // Ensures it stays above the overlay
+    box-shadow: $modal-shadow;
+    width: 95%;
+}
+
+/* Modal header styling */
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid $white-transparent-30;
+    background-color: $modal-header-bg; // Darker shade for header
+    color: $modal-text-color; // White text color
+}
+
+/* Modal title styling */
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* Close button styling */
+.btn-close {
+    color: $btn-close-color;
+    opacity: 0.8;
+    font-size: 1.2rem;
+    transition: opacity 0.3s ease;
+}
+
+/* Modal body styling */
+.modal-body {
+    padding: $modal-padding;
+    color: $modal-text-color;
+    line-height: 1.5;
+    background: #58896a; // Consistent dark green theme
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal footer styling */
+.modal-footer {
+    padding: 10px 20px;
+    border-top: 1px solid $white-transparent-30;
+    background-color: #d4d5ab;
+    display: flex;
+    justify-content: center;
+}
+
+/* Button styling for the modal actions */
+.btn {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Button select styling */
+.btn-select {
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    font-size: 0.75rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: $border-radius;
+    box-shadow: 0 2px 4px $black-transparent-20; // Slight shadow
+}
+
+/* Active state for button select */
+.btn-select:active {
+    background-color: $black-transparent-10; // Slight darkening effect
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Disabled button styling */
+.btn-select:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Reduced spacing between rows */
+.modal-body .row {
+    margin-bottom: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Flexible layout for buttons */
+.modal-body .row .col-3,
+.modal-body .row .col-4 {
+    flex: 0 0 auto;
+    max-width: 25%;
+    padding: 0;
+}

@@ -11,12 +11,12 @@ $background-dark: rgba(
     0.85
 ); // Colore di sfondo scuro per l'offcanvas
 $text-light: #e0e0e0; // Colore del testo chiaro
-
-// Colori per i pulsanti
-$button-green: rgba(40, 167, 69, 0.75);
-$button-red: rgba(220, 53, 69, 0.75);
+$title-color: #f0f0ff;
+$header-border-color: #444;
 
 // Trasparenze comuni
+$black-transparent-10: rgba(0, 0, 0, 0.1);
+$black-transparent-20: rgba(0, 0, 0, 0.2);
 $black-transparent-30: rgba(0, 0, 0, 0.3);
 $black-transparent-40: rgba(0, 0, 0, 0.4);
 $black-transparent-50: rgba(0, 0, 0, 0.5);
@@ -27,21 +27,42 @@ $black-transparent-90: rgba(0, 0, 0, 0.9);
 
 $white-transparent-30: rgba(255, 255, 255, 0.3);
 
-// Colori per i link e bottoni di chiusura
+// Colori per i link e bottoni
 $link-color: #d3d3ff;
-$link-hover-color: #ffffff;
-$btn-close-color: #ffffff;
+$link-hover-color: $white;
+$btn-close-color: $white;
+
+// Colori per i pulsanti
+$button-green: rgba(40, 167, 69, 0.75);
+$button-red: rgba(220, 53, 69, 0.75);
+
+// Colori per i modali
+$overlay-bg-color: rgba(0, 0, 0, 0.5);
+$modal-bg-color: rgba(10, 32, 47, 0.8);
+$modal-header-bg: #2c513e;
+$modal-text-color: $white;
+$creation-modal-gradient: linear-gradient(to bottom right, #4b0082, #b481b4);
+$creation-modal-title-color: #d4b0ff;
 
 // Dimensioni comuni
 $border-radius: 8px;
 $section-padding: 20px;
 $offcanvas-width: 260px;
 $offcanvas-max-width: 70%;
-$header-border-color: #444;
-$title-color: #f0f0ff;
 $header-height: 56px;
+$modal-border-radius: 12px;
+$modal-padding: 20px;
+$btn-padding: 8px 16px;
+$btn-border-radius: 50px;
 
-// Immagini di sfondo (puoi usare queste variabili nei componenti)
+// Opacità dei bottoni
+$btn-hover-opacity: 1;
+$btn-default-opacity: 0.85;
+
+// Ombre
+$modal-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+
+// Immagini di sfondo
 $spira-map-bg: "../assets/images/spira_map.jpg";
 $fiends-bg: "../assets/images/fiends_background.webp";
 $homepage-bg: "../assets/images/homepage_background.webp";

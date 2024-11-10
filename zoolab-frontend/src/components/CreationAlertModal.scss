@@ -1,0 +1,68 @@
+/* zoolab-frontend/src/components/CreationAlertModal.scss */
+@import "../styles/variables.scss";
+@import "../styles/mixins.scss";
+
+.creation-alert-modal-overlay {
+    @include modal-overlay;
+    background-color: $overlay-bg-color; /* Usando variabile per il colore */
+    cursor: pointer;
+}
+
+.creation-alert-modal {
+    @include modal-container;
+    background: $creation-modal-gradient; /* Usando gradiente definito */
+}
+
+.creation-alert-modal-content {
+    padding: $modal-padding;
+    color: $modal-text-color;
+}
+
+.creation-alert-modal-content p {
+    margin: 20px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.creation-alert-modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: $creation-modal-title-color; /* Usando colore del titolo */
+}
+
+.creation-alert-modal-header {
+    padding: 15px;
+    border-bottom: 1px solid $white-transparent-30; /* Usando trasparenza */
+    color: $modal-text-color; /* Colore del testo */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.creation-alert-modal-body {
+    padding: 16px;
+    color: $modal-text-color;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.btn-close {
+    color: $btn-close-color;
+    opacity: $btn-default-opacity;
+    font-size: 1.2rem;
+    transition: opacity 0.3s ease;
+
+    &:hover {
+        opacity: $btn-hover-opacity;
+    }
+}
+
+div.creation-alert-modal-body .card {
+    width: 70%;
+    margin: 0 auto;
+}
+
+.no-margin {
+    margin: 0 !important;
+}

@@ -1,0 +1,55 @@
+// src/components/AlertModal.scss
+@import "../styles/variables";
+@import "../styles/mixins";
+
+.alert-modal-overlay {
+    @include modal-overlay;
+    background-color: $overlay-bg-color;
+    cursor: pointer;
+}
+
+.alert-modal {
+    @include modal-container;
+    background: $modal-bg-color;
+    z-index: 1050; // Sopra l'overlay
+}
+
+.alert-modal-content {
+    padding: $modal-padding;
+    color: $modal-text-color;
+}
+
+.alert-modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.alert-modal-header {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    color: $modal-text-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.alert-modal-body {
+    padding: 16px;
+    color: $modal-text-color;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.alert-modal-footer {
+    padding: 10px 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn {
+    @include btn-default;
+}

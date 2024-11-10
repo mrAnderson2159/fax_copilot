@@ -1,5 +1,5 @@
 import React from "react";
-import "./CreationAlertModal.css";
+import "./CreationAlertModal.scss";
 import Card from "./Card";
 import { titleCase } from "../utils";
 

@@ -196,6 +196,7 @@ const FiendList = () => {
     };
 
     const handleCreationAlertClose = () => {
+        backSound();
         setCurrentCreation(null);
     };
 
