@@ -31,6 +31,17 @@ def get_created_species_conquests(db: Session = Depends(get_db)):
     return db.query(models.SpeciesConquest).filter(models.SpeciesConquest.created).order_by(models.SpeciesConquest.id).all()
 
 
+@router.get("/repr")
+def get_species_conquest_repr(db: Session = Depends(get_db)):
+    name = 'unioculum'
+    conquest = db.query(models.SpeciesConquest).filter(models.SpeciesConquest.name == name).first()
+
+    if not conquest:
+        raise HTTPException(status_code=404, detail=f"{name} non trovato")
+
+    return schemas.ConquestRepr(id=conquest.id, name="Campioni di Specie", image_url=conquest.image_url, destination='species_conquests')
+
+
 
 @router.get("/{species_conquest_id}", response_model=schemas.SpeciesConquest)
 def get_species_conquest(species_conquest_id: int, db: Session = Depends(get_db)):

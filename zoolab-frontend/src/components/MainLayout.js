@@ -2,20 +2,20 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import Header from "./Header";
+import Offcanvas from "./Offcanvas";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./MainLayout.scss";
 import "./Offcanvas";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Offcanvas from "./Offcanvas";
 
 const MainLayout = ({ children, headerTitle }) => {
     const location = useLocation();
 
     // Mappa delle classi di background ai pattern di espressioni regolari
     const backgroundMapping = {
-        "zoolab-bg": [/^\/zones$/],
+        "zones-bg": [/^\/zones$/, /^\/zoolab$/],
         "fiends-bg": [/^\/zones\/\d+\/fiends\/$/],
         "homepage-bg": [/^\/$/],
-        // Aggiungi altre associazioni di pattern qui
+        "zoolab-bg": [/^\/zoolab\/[a-z_]+$/],
     };
 
     // Trova la classe di background in base al percorso corrente utilizzando le espressioni regolari

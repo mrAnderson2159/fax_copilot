@@ -1,0 +1,33 @@
+// CommonModal.scss
+
+@import "./variables.scss";
+@import "./mixins.scss";
+
+.modal-overlay {
+    @include modal-overlay;
+}
+
+.modal-container {
+    @include modal-container;
+}
+
+.modal-content {
+    padding: 20px;
+    color: $white;
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid $white-transparent-20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: $white;
+}
+
+.btn-close {
+    color: $white;
+    opacity: 0.8;
+    font-size: 1.2rem;
+    transition: opacity 0.3s ease;
+}

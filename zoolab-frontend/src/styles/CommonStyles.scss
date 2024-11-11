@@ -9,26 +9,6 @@
     z-index: 0; // Posizionato in fondo
 }
 
-.zoolab-bg,
-.fiends-bg,
-.homepage-bg {
-    @include full-size;
-    background-size: cover;
-    background-position: center;
-}
-
-.zoolab-bg {
-    background-image: url($spira-map-bg);
-}
-
-.fiends-bg {
-    background-image: url($fiends-bg);
-}
-
-.homepage-bg {
-    background-image: url($homepage-bg);
-}
-
 .overlay {
     position: fixed;
     @include full-size;
@@ -70,6 +50,10 @@ img {
     -webkit-user-drag: none;
     user-select: none;
     pointer-events: none;
+}
+
+.list-title {
+    margin-bottom: 10%;
 }
 
 .display-4 {

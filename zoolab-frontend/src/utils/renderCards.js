@@ -1,6 +1,9 @@
 // src/utils/renderCards.js
 import React from "react";
 import Card from "../components/Card";
+import { debug } from "../utils";
+
+const DEBUG_MODE = false;
 
 const renderCards = (
     items,
@@ -10,11 +13,14 @@ const renderCards = (
         onLongPress = () => {},
         transitionOnCard = () => "",
         onAnimationEnd = () => {},
+        transitionClass = "",
         children = () => null,
         props = null,
     }
 ) => {
     const rows = [];
+    const localDebug = (functionName, ...stuff) =>
+        debug(DEBUG_MODE, "renderCards.js", functionName, ...stuff);
 
     for (let i = 0; i < items.length; i += 2) {
         rows.push(
@@ -25,16 +31,13 @@ const renderCards = (
 
                     return (
                         <div
-                            className={`col-5 mx-2 ${transitionOnCard(
-                                item.id
-                            )}`}
+                            className={`col-5 mx-2 ${transitionOnCard(item)}`}
                             key={item.id}
                             onAnimationEnd={() => {
                                 if (
-                                    transitionOnCard(item.id) ===
-                                    "zone-card-clicked"
+                                    transitionOnCard(item) === transitionClass
                                 ) {
-                                    onAnimationEnd(item.id);
+                                    onAnimationEnd(item);
                                 }
                             }}
                         >

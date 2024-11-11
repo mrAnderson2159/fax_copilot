@@ -1,47 +1,12 @@
-// src/pages/ZoneList.scss
+@import "../styles/variables";
+@import "../styles/mixins";
+@import "../styles/animations"; // Import delle animazioni centralizzate
 
-@import "../styles/variables"; // Importa variabili se necessarie
-@import "../styles/mixins"; // Importa mixin se necessari
-
-// Transizioni di opacità per l'entrata e uscita delle zone
-.fade-enter {
-    opacity: 0;
-}
-.fade-enter-active {
-    opacity: 1;
-    transition: opacity 100ms;
-}
-.fade-exit {
-    opacity: 1;
-}
-.fade-exit-active {
-    opacity: 0;
-    transition: opacity 500ms;
-}
-
-// Classe di base per le carte delle zone
 .zone-card {
-    transition: transform 150ms ease; // Ridotto il tempo per dare feedback immediato
-    cursor: pointer; // Evidenzia che l'elemento è cliccabile
+    transition: transform 150ms ease;
+    cursor: pointer;
 }
 
-// Animazione al click singolo: gonfiamento e poi esplosione
-.zone-card-clicked {
-    animation: explode 300ms ease-out forwards;
-}
-
-@keyframes explode {
-    0% {
-        transform: scale(1); // Stato iniziale
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(20); // Esplosione maggiore ma meno esagerata
-        opacity: 0; // Dissolvenza completa
-    }
-}
-
-.zonelist-title {
-    margin-bottom: 10%;
+.zone-card-clicked div.card {
+    @extend .lift-and-fade; // Usa il nome generico
 }

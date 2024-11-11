@@ -35,7 +35,7 @@ const Card = ({
         <div
             className={`card ml-3 mb-4 ${type} ${isPressed ? "pressed" : ""} ${
                 className || ""
-            }`} // Aggiungi `className` qui
+            }`} // Aggiunge la classe "pressed" quando l'utente preme il tasto
             onMouseDown={handlePressStart}
             onMouseUp={handlePressEnd}
             onTouchStart={handlePressStart}

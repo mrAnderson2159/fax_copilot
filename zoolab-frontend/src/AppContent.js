@@ -1,11 +1,12 @@
 // zoolab-frontend/src/AppContent.js
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+import { useNavigationStack } from "./context/NavigationStackContext";
 import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
 import ZoneList from "./pages/ZoneList";
 import FiendList from "./pages/FiendList";
-import { useNavigationStack } from "./context/NavigationStackContext";
+import Zoolab from "./pages/Zoolab";
 
 const AppContent = () => {
     const location = useLocation();
@@ -21,6 +22,7 @@ const AppContent = () => {
 
     return (
         <Routes>
+            <Route path="/" element={layout("", <Home />)} />
             <Route
                 path="/zones"
                 element={layout("Mostri Catturati", <ZoneList />)}
@@ -29,8 +31,7 @@ const AppContent = () => {
                 path="/zones/:zoneId/fiends"
                 element={layout("Mostri Catturati", <FiendList />)}
             />
-            <Route path="/" element={layout("", <Home />)} />
-            {/* Aggiungi altre rotte usando la funzione `layout` */}
+            <Route path="/zoolab" element={layout("Zoolab", <Zoolab />)} />
         </Routes>
     );
 };

@@ -1,5 +1,6 @@
 // src/components/MainLayout.scss
 @import "../styles/variables";
+@import "../styles/mixins";
 
 .main-layout {
     display: flex;
@@ -22,4 +23,29 @@ header {
     height: 1px;
     overflow: hidden;
     background: #212529; // Colore dell'header
+}
+
+.zones-bg,
+.fiends-bg,
+.homepage-bg,
+.zoolab-bg {
+    @include full-size;
+    background-size: cover;
+    background-position: center;
+}
+
+.zones-bg {
+    background-image: url($spira-map-bg);
+}
+
+.fiends-bg {
+    background-image: url($fiends-bg);
+}
+
+.homepage-bg {
+    background-image: url($homepage-bg);
+}
+
+.zoolab-bg {
+    background-image: url($zoolab-bg);
 }

@@ -47,6 +47,21 @@ def get_created_area_conquests(db: Session = Depends(get_db)):
     return db.query(models.AreaConquest).filter(models.AreaConquest.created).order_by(models.AreaConquest.id).all()
 
 
+@router.get("/repr", response_model=schemas.ConquestRepr)
+def get_area_conquest_repr(db: Session = Depends(get_db)):
+    name = 'don tomberry'
+    conquest = db.query(models.AreaConquest).filter(models.AreaConquest.name == name).first()
+
+    if not conquest:
+        raise HTTPException(status_code=404, detail=f"{name} non trovato")
+
+    return schemas.ConquestRepr(
+        id=conquest.id,
+        name="Campioni di Zona",
+        image_url=conquest.image_url,
+        destination='area_conquests'
+    )
+
 @router.get("/{area_conquest_id}", response_model=schemas.AreaConquest)
 def get_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     """

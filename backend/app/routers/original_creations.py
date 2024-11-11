@@ -47,6 +47,22 @@ def get_created_original_creations(db: Session = Depends(get_db)):
     return db.query(models.OriginalCreation).filter(models.OriginalCreation.created).order_by(models.OriginalCreation.id).all()
 
 
+@router.get("/repr", response_model=schemas.ConquestRepr)
+def get_original_creation_repr(db: Session = Depends(get_db)):
+    name = 'gasteropodos'
+    conquest = db.query(models.OriginalCreation).filter(models.OriginalCreation.name == name).first()
+
+    if not conquest:
+        raise HTTPException(status_code=404, detail=f"{name} non trovato")
+
+    return schemas.ConquestRepr(
+        id=conquest.id,
+        name="Prototipi Zoolab",
+        image_url=conquest.image_url,
+        destination='original_creations'
+    )
+
+
 
 @router.get("/{original_creation_id}", response_model=schemas.OriginalCreation)
 def get_original_creation(original_creation_id: int, db: Session = Depends(get_db)):

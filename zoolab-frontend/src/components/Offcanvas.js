@@ -7,11 +7,35 @@ const Offcanvas = () => {
     const { clickSound, backSound } = useSound();
 
     const handleLinkClick = (e) => {
+        const href = e.currentTarget.href;
+
         e.preventDefault();
         clickSound();
+
         setTimeout(() => {
-            window.location.href = e.target.href;
+            window.location.href = href;
         }, 200);
+    };
+
+    const li_a = (href, body, icon) => {
+        return (
+            <li className="nav-item" key={icon}>
+                <div className="container-fluid">
+                    <a
+                        className="nav-link"
+                        href={href}
+                        onClick={handleLinkClick}
+                    >
+                        <div className="row">
+                            <div className="col-1 me-3">
+                                <i className={`bi bi-${icon}`}></i>
+                            </div>
+                            <div className="col">{body}</div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+        );
     };
 
     return (
@@ -35,16 +59,10 @@ const Offcanvas = () => {
             </div>
             <div className="offcanvas-body">
                 <ul className="navbar-nav">
-                    <li className="nav-item">
-                        <a
-                            className="nav-link"
-                            href="/zones"
-                            onClick={handleLinkClick}
-                        >
-                            Mostri Catturati
-                        </a>
-                    </li>
-                    {/* Aggiungi altri link qui */}
+                    {[
+                        li_a("/zones", "Mostri Catturati", "feather"),
+                        li_a("/zoolab", "Zoolab", "trophy-fill"),
+                    ]}
                 </ul>
             </div>
         </div>

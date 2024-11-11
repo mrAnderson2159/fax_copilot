@@ -122,3 +122,11 @@ class OriginalCreation(OriginalCreationBase):
 
     class Config:
         orm_mode = True
+
+
+class ConquestRepr(BaseModel):
+    id: int
+    name: str
+    image_url: str
+    destination: str
+
