@@ -12,16 +12,16 @@ const MainLayout = ({ children, headerTitle }) => {
 
     // Mappa delle classi di background ai pattern di espressioni regolari
     const backgroundMapping = {
-        "zones-bg": [/^\/zones$/, /^\/zoolab$/],
-        "fiends-bg": [/^\/zones\/\d+\/fiends\/$/],
+        "zones-bg": [/^\/zones\/?$/, /^\/zoolab\/?$/],
+        "fiends-bg": [/^\/zones\/\d+\/fiends\/?$/],
         "homepage-bg": [/^\/$/],
-        "zoolab-bg": [/^\/zoolab\/[a-z_]+$/],
+        "zoolab-bg": [/^\/zoolab\/[a-z_]+\/[a-zA-Z\s]+\/?$/],
     };
 
     // Trova la classe di background in base al percorso corrente utilizzando le espressioni regolari
     const backgroundClass = Object.keys(backgroundMapping).find((bgClass) =>
         backgroundMapping[bgClass].some((pattern) =>
-            pattern.test(location.pathname)
+            pattern.test(decodeURIComponent(location.pathname))
         )
     );
 

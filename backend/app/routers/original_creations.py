@@ -34,7 +34,7 @@ def get_all_original_creations(db: Session = Depends(get_db)):
     :param db: Sessione del database.
     :return: Lista di creazioni originali.
     """
-    return db.query(models.OriginalCreation).all()
+    return db.query(models.OriginalCreation).order_by(models.OriginalCreation.id).all()
 
 @router.get("/created", response_model=list[schemas.OriginalCreation])
 def get_created_original_creations(db: Session = Depends(get_db)):

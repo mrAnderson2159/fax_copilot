@@ -18,7 +18,8 @@
 }
 
 .fiend-list-content,
-.zone-list-content {
+.zone-list-content,
+.zoolab-content {
     position: relative;
     z-index: 2; // Sopra l'overlay
     padding: $section-padding;

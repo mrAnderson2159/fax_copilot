@@ -43,7 +43,7 @@ const Zoolab = () => {
     }, []);
 
     const handleCategoryClick = (category) => {
-        const name = category.name;
+        const { name } = category;
         clickSound();
         localDebug(
             "handleCategoryClick",
@@ -53,12 +53,12 @@ const Zoolab = () => {
     };
 
     const handleAnimationEnd = (category) => {
-        const destination = category.destination;
+        const { destination, name } = category;
         localDebug(
             "handleAnimationEnd",
-            `Navigating to /zoolab/${destination}/`
+            `Navigating to /zoolab/${destination}/${name}`
         );
-        navigate(`/zoolab/${destination}/`);
+        navigate(`/zoolab/${destination}/${name}`);
     };
 
     // Funzione per aggiungere la classe di transizione se l'ID è quello cliccato
@@ -82,6 +82,7 @@ const Zoolab = () => {
                             onLongPress: () => {}, // Puoi implementare azioni extra se necessarie
                             transitionOnCard: transitionOnCard,
                             onAnimationEnd: handleAnimationEnd,
+                            transitionClass: "category-card-clicked",
                         })}
                     </div>
                 </CSSTransition>

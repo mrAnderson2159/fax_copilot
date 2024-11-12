@@ -1,20 +1,19 @@
+// Offcanvas.js
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Offcanvas.scss";
 import { useSound } from "../context/SoundContext";
 
 const Offcanvas = () => {
     const { clickSound, backSound } = useSound();
+    const navigate = useNavigate(); // Usa il navigate hook
 
-    const handleLinkClick = (e) => {
-        const href = e.currentTarget.href;
-
+    const handleLinkClick = (e, href) => {
         e.preventDefault();
         clickSound();
 
-        setTimeout(() => {
-            window.location.href = href;
-        }, 200);
+        navigate(href); // Usa navigate invece di window.location.href
     };
 
     const li_a = (href, body, icon) => {
@@ -22,9 +21,11 @@ const Offcanvas = () => {
             <li className="nav-item" key={icon}>
                 <div className="container-fluid">
                     <a
-                        className="nav-link"
                         href={href}
-                        onClick={handleLinkClick}
+                        className="nav-link"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close"
+                        onClick={(e) => handleLinkClick(e, href)} // Passa href come argomento
                     >
                         <div className="row">
                             <div className="col-1 me-3">

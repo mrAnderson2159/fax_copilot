@@ -18,7 +18,7 @@ def _get_species_conquest(species_conquest_id: int, db: Session) -> models.Speci
 
 @router.get("/", response_model=list[schemas.SpeciesConquest])
 def get_all_species_conquests(db: Session = Depends(get_db)):
-    return db.query(models.SpeciesConquest).all()
+    return db.query(models.SpeciesConquest).order_by(models.SpeciesConquest.id).all()
 
 @router.get("/created", response_model=list[schemas.SpeciesConquest])
 def get_created_species_conquests(db: Session = Depends(get_db)):
