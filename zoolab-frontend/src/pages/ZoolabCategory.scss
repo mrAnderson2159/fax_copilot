@@ -1,0 +1,20 @@
+@import "../styles/variables";
+@import "../styles/mixins";
+@import "../styles/animations.scss";
+
+.creation-card {
+    transition: transform 150ms ease;
+    cursor: pointer;
+}
+
+.creation-card-clicked div.card {
+    @extend .lift-and-fade; // Usa il nome generico
+}
+
+.creation-created {
+    @include cyan-aura;
+}
+
+.creation-defeated {
+    @include bordeaux-aura;
+}

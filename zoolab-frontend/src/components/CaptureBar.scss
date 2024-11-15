@@ -37,13 +37,21 @@
 }
 
 .progress-bar {
-    background: linear-gradient(135deg, #1e90ff, #00bfff); // Gradient specifico
+    background: linear-gradient(
+        135deg,
+        $bar-cyan,
+        $bar-light-cyan
+    ); // Gradient specifico
     height: 100%;
     transition: width 0.4s ease;
 }
 
 .full-capture {
-    background: linear-gradient(135deg, #291818, #691820);
+    background: linear-gradient(
+        135deg,
+        $bar-dark-bordeaux,
+        $bar-bordeaux
+    ); // Gradient specifico
     height: 100%;
     transition: width 0.4s ease;
 }

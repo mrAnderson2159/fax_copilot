@@ -48,6 +48,9 @@ class SpeciesConquest(Base):
     fiends = relationship("Fiend", back_populates="species_conquest")
     rewards = relationship("SpeciesConquestReward", back_populates="species_conquest")
     equipment_rewards = relationship("SpeciesConquestEquipmentReward", back_populates="species_conquest")
+    weaknesses = relationship("SpeciesConquestWeakness", back_populates="species_conquest")
+    resistances = relationship("SpeciesConquestResistance", back_populates="species_conquest")
+    stats = relationship("SpeciesConquestStats", back_populates="species_conquest")
 
 
 class Fiend(Base):
@@ -64,6 +67,9 @@ class Fiend(Base):
     found_zones = relationship("CanBeFound", back_populates="fiend")
     rewards = relationship("FiendReward", back_populates="fiend")
     equipment_rewards = relationship("FiendEquipmentReward", back_populates="fiend")
+    weaknesses = relationship("FiendWeakness", back_populates="fiend")
+    resistances = relationship("FiendResistance", back_populates="fiend")
+    stats = relationship("FiendStats", back_populates="fiend")
 
 
 class UniqueFiend(Base):
@@ -85,6 +91,9 @@ class AreaConquest(Base):
     zone = relationship("Zone", back_populates="area_conquests")
     rewards = relationship("AreaConquestReward", back_populates="area_conquest")
     equipment_rewards = relationship("AreaConquestEquipmentReward", back_populates="area_conquest")
+    weaknesses = relationship("AreaConquestWeakness", back_populates="area_conquest")
+    resistances = relationship("AreaConquestResistance", back_populates="area_conquest")
+    stats = relationship("AreaConquestStats", back_populates="area_conquest")
 
 
 class OriginalCreation(Base):
@@ -98,6 +107,9 @@ class OriginalCreation(Base):
 
     rewards = relationship("OriginalCreationReward", back_populates="original_creation")
     equipment_rewards = relationship("OriginalCreationEquipmentReward", back_populates="original_creation")
+    weaknesses = relationship("OriginalCreationWeakness", back_populates="original_creation")
+    resistances = relationship("OriginalCreationResistance", back_populates="original_creation")
+    stats = relationship("OriginalCreationStats", back_populates="original_creation")
 
 
 class CanBeFound(Base):
@@ -216,3 +228,152 @@ class OriginalCreationEquipmentReward(Base):
 
     original_creation = relationship("OriginalCreation", back_populates="equipment_rewards")
     ability = relationship("Ability", back_populates="original_creation_equipment_rewards")
+
+
+class WeaknessOrResistance(Base):
+    __tablename__ = "weakness_or_resistance"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+
+    fiend_weaknesses = relationship("FiendWeakness", back_populates="weakness")
+    fiend_resistances = relationship("FiendResistance", back_populates="resistance")
+    area_conquest_weaknesses = relationship("AreaConquestWeakness", back_populates="weakness")
+    area_conquest_resistances = relationship("AreaConquestResistance", back_populates="resistance")
+    species_conquest_weaknesses = relationship("SpeciesConquestWeakness", back_populates="weakness")
+    species_conquest_resistances = relationship("SpeciesConquestResistance", back_populates="resistance")
+    original_creation_weaknesses = relationship("OriginalCreationWeakness", back_populates="weakness")
+    original_creation_resistances = relationship("OriginalCreationResistance", back_populates="resistance")
+
+
+class FiendWeakness(Base):
+    __tablename__ = "fiend_weakness"
+    fiend_id = Column(Integer, ForeignKey('fiends.id', onupdate="CASCADE"), primary_key=True, index=True)
+    weakness_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+    percentage = Column(Integer, nullable=False)
+
+    fiend = relationship("Fiend", back_populates="weaknesses")
+    weakness = relationship("WeaknessOrResistance", back_populates="fiend_weaknesses")
+
+
+class FiendResistance(Base):
+    __tablename__ = "fiend_resistance"
+    fiend_id = Column(Integer, ForeignKey('fiends.id', onupdate="CASCADE"), primary_key=True, index=True)
+    resistance_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    fiend = relationship("Fiend", back_populates="resistances")
+    resistance = relationship("WeaknessOrResistance", back_populates="fiend_resistances")
+
+
+class AreaConquestWeakness(Base):
+    __tablename__ = "area_conquest_weakness"
+    area_conquest_id = Column(Integer, ForeignKey('area_conquests.id', onupdate="CASCADE"), primary_key=True, index=True)
+    weakness_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+    percentage = Column(Integer, nullable=False)
+
+    area_conquest = relationship("AreaConquest", back_populates="weaknesses")
+    weakness = relationship("WeaknessOrResistance", back_populates="area_conquest_weaknesses")
+
+
+class AreaConquestResistance(Base):
+    __tablename__ = "area_conquest_resistance"
+    area_conquest_id = Column(Integer, ForeignKey('area_conquests.id', onupdate="CASCADE"), primary_key=True, index=True)
+    resistance_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    area_conquest = relationship("AreaConquest", back_populates="resistances")
+    resistance = relationship("WeaknessOrResistance", back_populates="area_conquest_resistances")
+
+
+class SpeciesConquestWeakness(Base):
+    __tablename__ = "species_conquest_weakness"
+    species_conquest_id = Column(Integer, ForeignKey('species_conquests.id', onupdate="CASCADE"), primary_key=True,
+                                 index=True)
+    weakness_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+    percentage = Column(Integer, nullable=False)
+
+    species_conquest = relationship("SpeciesConquest", back_populates="weaknesses")
+    weakness = relationship("WeaknessOrResistance", back_populates="species_conquest_weaknesses")
+
+
+class SpeciesConquestResistance(Base):
+    __tablename__ = "species_conquest_resistance"
+    species_conquest_id = Column(Integer, ForeignKey('species_conquests.id', onupdate="CASCADE"), primary_key=True,
+                                 index=True)
+    resistance_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    species_conquest = relationship("SpeciesConquest", back_populates="resistances")
+    resistance = relationship("WeaknessOrResistance", back_populates="species_conquest_resistances")
+
+
+class OriginalCreationWeakness(Base):
+    __tablename__ = "original_creation_weakness"
+    original_creation_id = Column(Integer, ForeignKey('original_creations.id', onupdate="CASCADE"), primary_key=True,
+                                  index=True)
+    weakness_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+    percentage = Column(Integer, nullable=False)
+
+    original_creation = relationship("OriginalCreation", back_populates="weaknesses")
+    weakness = relationship("WeaknessOrResistance", back_populates="original_creation_weaknesses")
+
+
+class OriginalCreationResistance(Base):
+    __tablename__ = "original_creation_resistance"
+    original_creation_id = Column(Integer, ForeignKey('original_creations.id', onupdate="CASCADE"), primary_key=True,
+                                  index=True)
+    resistance_id = Column(Integer, ForeignKey('weakness_or_resistance.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    original_creation = relationship("OriginalCreation", back_populates="resistances")
+    resistance = relationship("WeaknessOrResistance", back_populates="original_creation_resistances")
+
+
+class Stats(Base):
+    __tablename__ = "stats"
+    id = Column(Integer, primary_key=True, index=True)
+    for_fiend = Column(String, nullable=False)
+    hp = Column(Integer)
+    mp = Column(Integer)
+    overkill = Column(Integer)
+    guil = Column(Integer)
+    ap = Column(Integer)
+    ap_overkill = Column(Integer)
+
+    fiends = relationship("FiendStats", back_populates="stats")
+    area_conquests = relationship("AreaConquestStats", back_populates="stats")
+    species_conquests = relationship("SpeciesConquestStats", back_populates="stats")
+    original_creations = relationship("OriginalCreationStats", back_populates="stats")
+
+
+class FiendStats(Base):
+    __tablename__ = "fiend_stats"
+    fiend_id = Column(Integer, ForeignKey('fiends.id', onupdate="CASCADE"), primary_key=True, index=True)
+    stats_id = Column(Integer, ForeignKey('stats.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    fiend = relationship("Fiend", back_populates="stats")
+    stats = relationship("Stats", back_populates="fiends")
+
+
+class AreaConquestStats(Base):
+    __tablename__ = "area_conquest_stats"
+    area_conquest_id = Column(Integer, ForeignKey('area_conquests.id', onupdate="CASCADE"), primary_key=True, index=True)
+    stats_id = Column(Integer, ForeignKey('stats.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    area_conquest = relationship("AreaConquest", back_populates="stats")
+    stats = relationship("Stats", back_populates="area_conquests")
+
+
+class SpeciesConquestStats(Base):
+    __tablename__ = "species_conquest_stats"
+    species_conquest_id = Column(Integer, ForeignKey('species_conquests.id', onupdate="CASCADE"), primary_key=True, index=True)
+    stats_id = Column(Integer, ForeignKey('stats.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    species_conquest = relationship("SpeciesConquest", back_populates="stats")
+    stats = relationship("Stats", back_populates="species_conquests")
+
+
+class OriginalCreationStats(Base):
+    __tablename__ = "original_creation_stats"
+    original_creation_id = Column(Integer, ForeignKey('original_creations.id', onupdate="CASCADE"), primary_key=True,
+                                  index=True)
+    stats_id = Column(Integer, ForeignKey('stats.id', onupdate="CASCADE"), primary_key=True, index=True)
+
+    original_creation = relationship("OriginalCreation", back_populates="stats")
+    stats = relationship("Stats", back_populates="original_creations")

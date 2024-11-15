@@ -16,6 +16,8 @@ const renderCards = (
         transitionClass = "",
         children = () => null,
         props = null,
+        className = "",
+        classNameFunction = (item) => "",
     }
 ) => {
     const rows = [];
@@ -48,6 +50,9 @@ const renderCards = (
                                 onLongPress={() => onLongPress(item, props)}
                                 type={type} // Passa il tipo alla Card per gestire l'animazione
                                 props={props}
+                                className={
+                                    className + " " + classNameFunction(item)
+                                }
                             >
                                 {children(item, props)}
                             </Card>

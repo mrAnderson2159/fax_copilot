@@ -10,7 +10,7 @@ const DEBUG_MODE = false;
 
 const CaptureModal = ({ show, onClose, fiend, deltas, setDeltas, badge }) => {
     const [activeButton, setActiveButton] = useState(null);
-    const { clickSound, backSound } = useSound();
+    const { clickSound } = useSound();
     const localDebug = (functionName, ...stuff) =>
         debug(DEBUG_MODE, "CaptureModal.js", functionName, ...stuff);
 

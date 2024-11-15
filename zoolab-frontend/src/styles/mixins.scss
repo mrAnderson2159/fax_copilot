@@ -42,3 +42,11 @@
         opacity: $btn-hover-opacity;
     }
 }
+
+@mixin cyan-aura {
+    box-shadow: 0 0 10px 1px $bar-cyan;
+}
+
+@mixin bordeaux-aura {
+    box-shadow: 0 0 10px 1px $bar-bordeaux;
+}

@@ -80,3 +80,40 @@ def undefeated_species_conquest(species_conquest_id: int, db: Session = Depends(
         raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento: {str(e)}")
 
     return species_conquest
+
+
+@router.get("/{species_conquest_id}/full_details")
+def get_species_conquest_full_details(species_conquest_id: int, db: Session = Depends(get_db)):
+    """
+    Recupera i dettagli completi di un campione di specie.
+    """
+    species_conquest = _get_species_conquest(species_conquest_id, db)
+
+    rewards_dict = {reward.reward_type: reward for reward in species_conquest.rewards}
+    creation_reward = rewards_dict.get('creation')
+    battle_reward = rewards_dict.get('battle')
+    common_steal = rewards_dict.get('common_steal')
+    rare_steal = rewards_dict.get('rare_steal')
+    species_conquest_stats = next(stats for stats in species_conquest.stats)
+    required_fiends = [(fiend.id, fiend.name) for fiend in species_conquest.fiends]
+    required_fiends = sorted(required_fiends, key=lambda x: x[0])
+
+    return schemas.FullDetailsResponse(
+        id=species_conquest.id,
+        name=species_conquest.name,
+        image_url=species_conquest.image_url,
+        created=species_conquest.created,
+        defeated=species_conquest.defeated,
+        required_fiends_amount=species_conquest.required_fiends,
+        required_fiends=required_fiends,
+        hp=species_conquest_stats.stats.hp,
+        mp=species_conquest_stats.stats.mp,
+        overkill=species_conquest_stats.stats.overkill,
+        ap=species_conquest_stats.stats.ap,
+        ap_overkill=species_conquest_stats.stats.ap_overkill,
+        guil=species_conquest_stats.stats.guil,
+        creation_reward=(creation_reward.item.name, creation_reward.quantity),
+        battle_reward=(battle_reward.item.name, battle_reward.quantity),
+        common_steal=(common_steal.item.name, common_steal.quantity),
+        rare_steal=(rare_steal.item.name, rare_steal.quantity),
+    )

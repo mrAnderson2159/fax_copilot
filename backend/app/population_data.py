@@ -22,9 +22,19 @@ def all_lower_case(function):
     return wrapper
 
 
-def get_or_create(model, **kwargs):
+def get_or_create(model, filter_key: str, **kwargs):
     global db
-    instance = db.query(model).filter_by(**kwargs).first()
+
+    # Se filter_key è '*', utilizza tutti i campi in kwargs per il filtro
+    if filter_key == '*':
+        filter_condition = kwargs
+    else:
+        # Gestisci più chiavi separate da virgole
+        keys = [key.strip() for key in filter_key.split(',')]
+        filter_condition = {key: kwargs[key] for key in keys if key in kwargs}
+
+    instance = db.query(model).filter_by(**filter_condition).first()
+
     if instance:
         return instance
     else:
@@ -37,13 +47,14 @@ def get_or_create(model, **kwargs):
 
 @lower_case
 def new_zone(zone_name: str) -> Zone:
-    return get_or_create(Zone, name=zone_name, image_url=f"../images/zones/{zone_name}.png")
+    return get_or_create(Zone, 'name', name=zone_name, image_url=f"../images/zones/{zone_name}.png")
 
 
 @lower_case
 def new_fiend(fiend_name: str, zone: Zone, species_conquest: SpeciesConquest = None) -> Fiend:
     return get_or_create(
         Fiend,
+        'name',
         name=fiend_name,
         was_captured=0,
         zone_id=zone.id,
@@ -56,6 +67,7 @@ def new_fiend(fiend_name: str, zone: Zone, species_conquest: SpeciesConquest = N
 def new_area_conquest(fiend_name: str, zone: Zone) -> AreaConquest:
     return get_or_create(
         AreaConquest,
+        'name',
         name=fiend_name,
         zone_id=zone.id,
         image_url=f"../images/area_conquests/{fiend_name}.webp"
@@ -66,6 +78,7 @@ def new_area_conquest(fiend_name: str, zone: Zone) -> AreaConquest:
 def new_species_conquest(fiend_name: str, required_fiends: int) -> SpeciesConquest:
     return get_or_create(
         SpeciesConquest,
+        'name',
         name=fiend_name,
         required_fiends=required_fiends,
         image_url=f"../images/species_conquests/{fiend_name}.webp"
@@ -76,6 +89,7 @@ def new_species_conquest(fiend_name: str, required_fiends: int) -> SpeciesConque
 def new_original_creation(fiend_name: str, creation_rule: str) -> OriginalCreation:
     return get_or_create(
         OriginalCreation,
+        'name',
         name=fiend_name,
         creation_rule=creation_rule,
         image_url=f"../images/original_creations/{fiend_name}.webp"
@@ -90,17 +104,17 @@ def new_can_be_found(fiend_name: str, zone_name: str) -> CanBeFound:
         raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
     if not zone:
         raise ValueError(f"La zona '{zone_name}' non è stata trovata nel database.")
-    return get_or_create(CanBeFound, fiend_id=fiend.id, zone_id=zone.id)
+    return get_or_create(CanBeFound, '*', fiend_id=fiend.id, zone_id=zone.id)
 
 
 @lower_case
 def new_item(item_name: str, effect: str, item_type: str) -> Item:
-    return get_or_create(Item, name=item_name, effect=effect, type=item_type)
+    return get_or_create(Item, 'name', name=item_name, effect=effect, type=item_type)
 
 
 @lower_case
 def new_ability(ability_name: str, effect: str, equipment_type: str) -> Ability:
-    return get_or_create(Ability, name=ability_name, effect=effect, equipment_type=equipment_type)
+    return get_or_create(Ability, 'name', name=ability_name, effect=effect, equipment_type=equipment_type)
 
 
 @all_lower_case
@@ -111,7 +125,8 @@ def new_fiend_reward(fiend_name: str, reward_type: str, item_name: str, quantity
         raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
     if not item:
         raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
-    return get_or_create(FiendReward, fiend_id=fiend.id, reward_type=reward_type, item_id=item.id, quantity=quantity)
+    return get_or_create(FiendReward, '*', fiend_id=fiend.id, reward_type=reward_type, item_id=item.id,
+                         quantity=quantity)
 
 
 @all_lower_case
@@ -123,7 +138,7 @@ def new_area_conquest_reward(area_conquest_name: str, reward_type: str, item_nam
         raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
     if not item:
         raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
-    return get_or_create(AreaConquestReward, area_conquest_id=area_conquest.id, reward_type=reward_type,
+    return get_or_create(AreaConquestReward, '*', area_conquest_id=area_conquest.id, reward_type=reward_type,
                          item_id=item.id, quantity=quantity)
 
 
@@ -136,7 +151,7 @@ def new_species_conquest_reward(species_conquest_name: str, reward_type: str, it
         raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
     if not item:
         raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
-    return get_or_create(SpeciesConquestReward, species_conquest_id=species_conquest.id, reward_type=reward_type,
+    return get_or_create(SpeciesConquestReward, '*', species_conquest_id=species_conquest.id, reward_type=reward_type,
                          item_id=item.id, quantity=quantity)
 
 
@@ -149,8 +164,246 @@ def new_original_creation_reward(original_creation_name: str, reward_type: str, 
         raise ValueError(f"L'original creation '{original_creation_name}' non è stata trovata nel database.")
     if not item:
         raise ValueError(f"L'item '{item_name}' non è stato trovato nel database.")
-    return get_or_create(OriginalCreationReward, original_creation_id=original_creation.id, reward_type=reward_type,
+    return get_or_create(OriginalCreationReward, '*', original_creation_id=original_creation.id, reward_type=reward_type,
                          item_id=item.id, quantity=quantity)
+
+
+@all_lower_case
+def new_fiend_equipment_reward(fiend_name: str, ability_name: str) -> FiendEquipmentReward:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    ability = db.query(Ability).filter(Ability.name == ability_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+    if not ability:
+        raise ValueError(f"L'abilità '{ability_name}' non è stata trovata nel database.")
+    return get_or_create(FiendEquipmentReward, '*', fiend_id=fiend.id, ability_id=ability.id)
+
+
+@all_lower_case
+def new_area_conquest_equipment_reward(area_conquest_name: str, ability_name: str) -> AreaConquestEquipmentReward:
+    area_conquest = db.query(AreaConquest).filter(AreaConquest.name == area_conquest_name).first()
+    ability = db.query(Ability).filter(Ability.name == ability_name).first()
+    if not area_conquest:
+        raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
+    if not ability:
+        raise ValueError(f"L'abilità '{ability_name}' non è stata trovata nel database.")
+    return get_or_create(AreaConquestEquipmentReward, '*', area_conquest_id=area_conquest.id, ability_id=ability.id)
+
+
+@all_lower_case
+def new_species_conquest_equipment_reward(species_conquest_name: str, ability_name: str) -> SpeciesConquestEquipmentReward:
+    species_conquest = db.query(SpeciesConquest).filter(SpeciesConquest.name == species_conquest_name).first()
+    ability = db.query(Ability).filter(Ability.name == ability_name).first()
+    if not species_conquest:
+        raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
+    if not ability:
+        raise ValueError(f"L'abilità '{ability_name}' non è stata trovata nel database.")
+    return get_or_create(SpeciesConquestEquipmentReward, '*', species_conquest_id=species_conquest.id, ability_id=ability.id)
+
+
+@all_lower_case
+def new_original_creation_equipment_reward(
+        original_creation_name: str,
+        ability_name: str
+) -> OriginalCreationEquipmentReward:
+    original_creation = db.query(OriginalCreation).filter(OriginalCreation.name == original_creation_name).first()
+    ability = db.query(Ability).filter(Ability.name == ability_name).first()
+    if not original_creation:
+        raise ValueError(f"L'original creation '{original_creation_name}' non è stata trovata nel database.")
+    if not ability:
+        raise ValueError(f"L'abilità '{ability_name}' non è stata trovata nel database.")
+    return get_or_create(OriginalCreationEquipmentReward,
+                         '*',
+                         original_creation_id=original_creation.id,
+                         ability_id=ability.id)
+
+
+@lower_case
+def new_weakness_or_resistance(name: str) -> WeaknessOrResistance:
+    return get_or_create(WeaknessOrResistance, 'name', name=name)
+
+
+@all_lower_case
+def new_fiend_weakness(fiend_name: str, weakness_or_resistance_name: str, percentage: int) -> FiendWeakness:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    weakness = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+    if not weakness:
+        raise ValueError(f"La debolezza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(FiendWeakness, '*', fiend_id=fiend.id, weakness_id=weakness.id, percentage=percentage)
+
+
+@all_lower_case
+def new_fiend_resistance(fiend_name: str, weakness_or_resistance_name: str) -> FiendResistance:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    resistance = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+    if not resistance:
+        raise ValueError(f"La resistenza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(FiendResistance, '*', fiend_id=fiend.id, resistance_id=resistance.id)
+
+
+@all_lower_case
+def new_area_conquest_weakness(
+        area_conquest_name: str,
+        weakness_or_resistance_name: str,
+        percentage: int
+) -> AreaConquestWeakness:
+    area_conquest = db.query(AreaConquest).filter(AreaConquest.name == area_conquest_name).first()
+    weakness = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not area_conquest:
+        raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
+    if not weakness:
+        raise ValueError(f"La debolezza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(AreaConquestWeakness,
+                         '*',
+                         area_conquest_id=area_conquest.id,
+                         weakness_id=weakness.id,
+                         percentage=percentage)
+
+
+@all_lower_case
+def new_area_conquest_resistance(area_conquest_name: str, weakness_or_resistance_name: str) -> AreaConquestResistance:
+    area_conquest = db.query(AreaConquest).filter(AreaConquest.name == area_conquest_name).first()
+    resistance = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not area_conquest:
+        raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
+    if not resistance:
+        raise ValueError(f"La resistenza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(AreaConquestResistance,
+                         '*',
+                         area_conquest_id=area_conquest.id,
+                         resistance_id=resistance.id)
+
+
+@all_lower_case
+def new_species_conquest_weakness(
+        species_conquest_name: str,
+        weakness_or_resistance_name: str,
+        percentage: int
+) -> SpeciesConquestWeakness:
+    species_conquest = db.query(SpeciesConquest).filter(SpeciesConquest.name == species_conquest_name).first()
+    weakness = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not species_conquest:
+        raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
+    if not weakness:
+        raise ValueError(f"La debolezza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(SpeciesConquestWeakness,
+                         '*',
+                         species_conquest_id=species_conquest.id,
+                         weakness_id=weakness.id,
+                         percentage=percentage)
+
+
+@all_lower_case
+def new_species_conquest_resistance(species_conquest_name: str, weakness_or_resistance_name: str) -> SpeciesConquestResistance:
+    species_conquest = db.query(SpeciesConquest).filter(SpeciesConquest.name == species_conquest_name).first()
+    resistance = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not species_conquest:
+        raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
+    if not resistance:
+        raise ValueError(f"La resistenza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(SpeciesConquestResistance,
+                         '*',
+                         species_conquest_id=species_conquest.id,
+                         resistance_id=resistance.id)
+
+
+@all_lower_case
+def new_original_creation_weakness(
+        original_creation_name: str,
+        weakness_or_resistance_name: str,
+        percentage: int
+) -> OriginalCreationWeakness:
+    original_creation = db.query(OriginalCreation).filter(OriginalCreation.name == original_creation_name).first()
+    weakness = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not original_creation:
+        raise ValueError(f"L'original creation '{original_creation_name}' non è stata trovata nel database.")
+    if not weakness:
+        raise ValueError(f"La debolezza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(OriginalCreationWeakness,
+                         '*',
+                         original_creation_id=original_creation.id,
+                         weakness_id=weakness.id,
+                         percentage=percentage)
+
+
+@all_lower_case
+def new_original_creation_resistance(original_creation_name: str, weakness_or_resistance_name: str) -> OriginalCreationResistance:
+    original_creation = db.query(OriginalCreation).filter(OriginalCreation.name == original_creation_name).first()
+    resistance = db.query(WeaknessOrResistance).filter(WeaknessOrResistance.name == weakness_or_resistance_name).first()
+    if not original_creation:
+        raise ValueError(f"L'original creation '{original_creation_name}' non è stata trovata nel database.")
+    if not resistance:
+        raise ValueError(f"La resistenza '{weakness_or_resistance_name}' non è stata trovata nel database.")
+    return get_or_create(OriginalCreationResistance,
+                         '*',
+                         original_creation_id=original_creation.id,
+                         resistance_id=resistance.id)
+
+
+@lower_case
+def new_stat(for_fiend: str, *, hp: int = None, mp: int = None, overkill: int = None, guil: int = None, ap: int = None,
+              ap_overkill: int = None) -> Stats:
+    return get_or_create(
+        Stats,
+        '*',
+        for_fiend=for_fiend,
+        hp=hp,
+        mp=mp,
+        overkill=overkill,
+        guil=guil,
+        ap=ap,
+        ap_overkill=ap_overkill
+    )
+
+
+@lower_case
+def new_fiend_stats(fiend_name: str) -> FiendStats:
+    fiend = db.query(Fiend).filter(Fiend.name == fiend_name).first()
+    stat = db.query(Stats).filter(Stats.for_fiend == fiend_name).first()
+    if not fiend:
+        raise ValueError(f"Il mostro '{fiend_name}' non è stato trovato nel database.")
+    if not stat:
+        raise ValueError(f"Le statistiche per '{fiend_name}' non sono state trovate nel database.")
+    return get_or_create(FiendStats, '*', fiend_id=fiend.id, stats_id=stat.id)
+
+
+@lower_case
+def new_area_conquest_stats(area_conquest_name: str) -> AreaConquestStats:
+    area_conquest = db.query(AreaConquest).filter(AreaConquest.name == area_conquest_name).first()
+    stat = db.query(Stats).filter(Stats.for_fiend == area_conquest_name).first()
+    if not area_conquest:
+        raise ValueError(f"L'area conquest '{area_conquest_name}' non è stata trovata nel database.")
+    if not stat:
+        raise ValueError(f"Le statistiche per '{area_conquest_name}' non sono state trovate nel database.")
+    return get_or_create(AreaConquestStats, '*', area_conquest_id=area_conquest.id, stats_id=stat.id)
+
+
+@lower_case
+def new_species_conquest_stats(species_conquest_name: str) -> SpeciesConquestStats:
+    species_conquest = db.query(SpeciesConquest).filter(SpeciesConquest.name == species_conquest_name).first()
+    stat = db.query(Stats).filter(Stats.for_fiend == species_conquest_name).first()
+    if not species_conquest:
+        raise ValueError(f"Il species conquest '{species_conquest_name}' non è stato trovato nel database.")
+    if not stat:
+        raise ValueError(f"Le statistiche per '{species_conquest_name}' non sono state trovate nel database.")
+    return get_or_create(SpeciesConquestStats, '*', species_conquest_id=species_conquest.id, stats_id=stat.id)
+
+
+@lower_case
+def new_original_creation_stats(original_creation_name: str) -> OriginalCreationStats:
+    original_creation = db.query(OriginalCreation).filter(OriginalCreation.name == original_creation_name).first()
+    stat = db.query(Stats).filter(Stats.for_fiend == original_creation_name).first()
+    if not original_creation:
+        raise ValueError(f"L'original creation '{original_creation_name}' non è stato trovato nel database.")
+    if not stat:
+        raise ValueError(f"Le statistiche per '{original_creation_name}' non sono state trovate nel database.")
+    return get_or_create(OriginalCreationStats, '*', original_creation_id=original_creation.id, stats_id=stat.id)
+
+
 
 
 def populate_data():
@@ -162,6 +415,8 @@ def populate_data():
     ]
 
     try:
+        print("Popolamento del database in corso...")
+        print("Creazione degli Item...", end=' ')
         items = [
             new_item("Pozione", "Fa recuperare 200HP ad un alleato", "common"),
             new_item("Granpozione", "Fa recuperare 1000HP ad un alleato", "common"),
@@ -249,6 +504,23 @@ def populate_data():
             new_item("corona di boccioli", "Rarità", "curio"),
             new_item("corona di fiori", "Rarità", "curio"),
 
+            new_item("abilitosfera", "Permette di imparare un'abilità", "sphere_grid"),
+            new_item("energosfera", "Attiva una somatosfera di HP, POT fisica e DIF fisica", "sphere_grid"),
+            new_item("magicosfera", "Attiva una somatosfera di MP, POT magica e DIF magica", "sphere_grid"),
+            new_item("velocisfera", "Attiva una somatosfera di Rapidità, Destrezza e Mira", "sphere_grid"),
+            new_item("fatosfera", "Attiva una somatosfera di Fortuna", "sphere_grid"),
+
+            new_item("accapisfera", "Converte una somatosfera vuota in HP +300", "sphere_grid"),
+            new_item("emmepisfera", "Converte una somatosfera vuota in MP +40", "sphere_grid"),
+            new_item("destrosfera", "Converte una somatosfera vuota in Destrezza +4", "sphere_grid"),
+            new_item("difesfera fis", "Converte una somatosfera vuota in DIF Fisica +4", "sphere_grid"),
+            new_item("difesfera mag", "Converte una somatosfera vuota in DIF Magica +4", "sphere_grid"),
+            new_item("potesfera fis", "Converte una somatosfera vuota in POT Fisica +4", "sphere_grid"),
+            new_item("potesfera mag", "Converte una somatosfera vuota in POT Magica +4", "sphere_grid"),
+            new_item("fortunosfera", "Converte una somatosfera vuota in Fortuna +4", "sphere_grid"),
+            new_item("mirasfera", "Converte una somatosfera vuota in Mira +4", "sphere_grid"),
+            new_item("rapidosfera", "Converte una somatosfera vuota in Rapidità +4", "sphere_grid"),
+
             new_item("mastersfera", "Attiva qualsiasi somatosfera nella sferografia", "sphere_grid"),
             new_item("onnisfera", "Permette di spostarsi su qualsiasi somatosfera nella sferografia", "sphere_grid"),
             new_item("gamberosfera",
@@ -263,10 +535,13 @@ def populate_data():
             new_item("passosfera lv 4", "Sblocca una passosfera lv 4 nella sferografia", "sphere_grid"),
         ]
 
+        print('OK')
+
+        print("Creazione delle Zone...", end=' ')
         zones = {area: new_zone(area) for area in areas}
+        print('OK')
 
-        db.flush()
-
+        print("Creazione delle AreaConquests...", end=' ')
         area_conquests = [
             new_area_conquest("Trusthevis", zones["besaid"]),
             new_area_conquest("Molboro Beta", zones["kilika"]),
@@ -282,7 +557,9 @@ def populate_data():
             new_area_conquest("Abadon", zones["dentro sin"]),
             new_area_conquest("Vorban", zones["rovine di omega"])
         ]
+        print('OK')
 
+        print("Creazione delle SpeciesConquests...", end=' ')
         class SpeciesConquestsData:
             def __init__(self):
                 # Definiamo i dati dei conquest
@@ -318,7 +595,9 @@ def populate_data():
                 return list(self.species_conquests.values())
 
         species_conquests = SpeciesConquestsData()
+        print('OK')
 
+        print("Creazione degli OriginalCreations...", end=' ')
         original_creations = [
             new_original_creation('Mangiaterra', 'Generare 2 creature della categoria campioni di zona'),
             new_original_creation('Titanosfera', 'Generare 2 creature della categoria campioni di specie'),
@@ -332,7 +611,9 @@ def populate_data():
                                   'Catturare 10 esemplari di ogni mostro e sconfiggere tutti i '
                                   'campioni di zona, campioni di specie e prototipi zoolab almeno una volta')
         ]
+        print('OK')
 
+        print("Creazione dei Fiend...", end=' ')
         fiends = [
             new_fiend('dingo', zones['besaid'], species_conquests['fenril']),
             new_fiend('condor', zones['besaid'], species_conquests['pterix']),
@@ -449,7 +730,9 @@ def populate_data():
             new_fiend('Mastro Tomberry', zones['rovine di omega']),
             new_fiend('Varna', zones['rovine di omega'])
         ]
+        print('OK')
 
+        print("Creazione delle CanBeFound...", end=' ')
         can_be_found_relations = [
             new_can_be_found('budino di tuono', 'via mihen'),
 
@@ -473,7 +756,9 @@ def populate_data():
             new_can_be_found('Ultra Might (spada normale)', 'rovine di omega'),
             new_can_be_found('Ultra Might (spada stella)', 'rovine di omega')
         ]
+        print('OK')
 
+        print("Creazione delle Conquest Rewards...", end=' ')
         creation_rewards = [
             new_area_conquest_reward('trusthevis', 'creation', 'filtro energetico', 99),
             new_area_conquest_reward('molboro beta', 'creation', 'zanna velenosa', 99),
@@ -513,7 +798,9 @@ def populate_data():
             new_original_creation_reward('shinryu', 'creation', 'megaelisir', 30),
             new_original_creation_reward('il supremo', 'creation', 'mastersfera', 10)
         ]
+        print('OK')
 
+        print("Creazione delle Steal Rewards...", end=' ')
         steal_rewards = [
             new_area_conquest_reward('trusthevis', 'common_steal', 'lacrimogeno', 3),
             new_area_conquest_reward('trusthevis', 'rare_steal', 'filtro energetico', 2),
@@ -605,11 +892,140 @@ def populate_data():
             new_original_creation_reward('shinryu', 'rare_steal', 'triostella', 1),
             new_original_creation_reward('il supremo', 'common_steal', 'passosfera lv 4', 1),
             new_original_creation_reward('il supremo', 'rare_steal', 'onnisfera', 1)
-
         ]
+        print('OK')
+
+        print("Creazione delle Battle Rewards...", end=' ')
+        battle_rewards = [
+            # Area Conquests
+            new_area_conquest_reward('trusthevis', 'battle', 'amuleto', 2),
+            new_area_conquest_reward('molboro beta', 'battle', 'filtro magico', 2),
+            new_area_conquest_reward('kolossos', 'battle', 'fluido rigenerante', 20),
+            new_area_conquest_reward('iaguaro regina', 'battle', 'eliomagilite', 3),
+            new_area_conquest_reward('yormungand', 'battle', 'examagilite', 2),
+            new_area_conquest_reward('kyactus', 'battle', 'sacromagilite', 3),
+            new_area_conquest_reward('espada', 'battle', 'carta d\'identità', 1),
+            new_area_conquest_reward('abyss worm', 'battle', 'filtro energetico', 1),
+            new_area_conquest_reward('chimera x', 'battle', 'gamberosfera', 1),
+            new_area_conquest_reward('don tomberry', 'battle', 'vento d\'oltremondo', 3),
+            new_area_conquest_reward('catoblepas', 'battle', 'triostella', 1),
+            new_area_conquest_reward('abadon', 'battle', 'nettare magico', 1),
+            new_area_conquest_reward('vorban', 'battle', 'empatosfera', 1),
+
+            # Species Conquests
+            new_species_conquest_reward('fenril', 'battle', 'rapidosfera', 1),
+            new_species_conquest_reward('ornitorestes', 'battle', 'anima del baro', 2),
+            new_species_conquest_reward('pterix', 'battle', 'destrosfera', 1),
+            new_species_conquest_reward('honet', 'battle', 'mirasfera', 1),
+            new_species_conquest_reward('vizalsha', 'battle', 'emmepisfera', 1),
+            new_species_conquest_reward('unioculum', 'battle', 'difesfera mag', 1),
+            new_species_conquest_reward('budino jumbo', 'battle', 'potesfera mag', 1),
+            new_species_conquest_reward('elemento nega', 'battle', 'duostella', 2),
+            new_species_conquest_reward('tanket', 'battle', 'difesfera fis', 1),
+            new_species_conquest_reward('fefnil', 'battle', 'cortina luminosa', 20),
+            new_species_conquest_reward('sonnellino', 'battle', 'telesfera', 1),
+            new_species_conquest_reward('re piros', 'battle', 'porta sul domani', 1),
+            new_species_conquest_reward('juggernaut', 'battle', 'potesfera fis', 1),
+            new_species_conquest_reward('clod d\'acciaio', 'battle', 'accapisfera', 1),
+
+            # Original Creations (Prototipi Zoolab)
+            new_original_creation_reward('mangiaterra', 'battle', 'fatosfera', 1),
+            new_original_creation_reward('titanosfera', 'battle', 'fortunosfera', 1),
+            new_original_creation_reward('catastrophe', 'battle', 'portafoglio gonfio', 1),
+            new_original_creation_reward('vlakorados', 'battle', 'controchiave', 1),
+            new_original_creation_reward('gasteropodos', 'battle', 'pendulum', 1),
+            new_original_creation_reward('ultima x', 'battle', 'equazione cubica', 1),
+            new_original_creation_reward('shinryu', 'battle', 'ali x l\'ignoto', 1),
+            new_original_creation_reward('il supremo', 'battle', 'onnisfera', 1)
+        ]
+        print('OK')
+
+        print("Creazione delle Stats...", end=' ')
+        stats = [
+            new_stat("trusthevis", hp=320_000, mp=115, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("molboro beta", hp=640_000, mp=200, guil=0, ap=8_000, ap_overkill=8_000, overkill=12_000),
+            new_stat("kolossos", hp=440_000, mp=20, guil=0, ap=8_000, ap_overkill=8_000, overkill=15_000),
+            new_stat("iaguaro regina", hp=380_000, mp=80, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("yormungand", hp=520_000, mp=63, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("kyactus", hp=100_000, mp=0, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("espada", hp=280_000, mp=120, guil=0, ap=8_000, ap_overkill=8_000, overkill=15_000),
+            new_stat("abyss worm", hp=480_000, mp=200, guil=0, ap=8_000, ap_overkill=8_000, overkill=12_000),
+            new_stat("chimera x", hp=120_000, mp=30, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("don tomberry", hp=480_000, mp=120, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("catoblepas", hp=550_000, mp=160, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+            new_stat("abadon", hp=380_000, mp=780, guil=0, ap=8_000, ap_overkill=16_000, overkill=10_000),
+            new_stat("vorban", hp=630_000, mp=120, guil=0, ap=8_000, ap_overkill=8_000, overkill=10_000),
+
+            new_stat("fenril", hp=850_000, mp=300, guil=0, ap=10_000, ap_overkill=10_000, overkill=99_999),
+            new_stat("ornitorestes", hp=800_000, mp=300, guil=0, ap=10_000, ap_overkill=10_000, overkill=99_999),
+            new_stat("pterix", hp=100_000, mp=0, guil=0, ap=10_000, ap_overkill=10_000, overkill=99_999),
+            new_stat("honet", hp=620_000, mp=180, guil=0, ap=10_000, ap_overkill=10_000, overkill=50_000),
+            new_stat("vizalsha", hp=95_000, mp=840, guil=0, ap=10_000, ap_overkill=10_000, overkill=10_000),
+            new_stat("unioculum", hp=150_000, mp=270, guil=0, ap=10_000, ap_overkill=10_000, overkill=15_000),
+            new_stat("budino jumbo", hp=1_300_000, mp=999, guil=0, ap=10_000, ap_overkill=10_000, overkill=99_999),
+            new_stat("elemento nega", hp=1_300_000, mp=999, guil=0, ap=10_000, ap_overkill=10_000, overkill=15_000),
+            new_stat("tanket", hp=900_000, mp=0, guil=0, ap=10_000, ap_overkill=10_000, overkill=10_000),
+            new_stat("fefnil", hp=1_100_000, mp=30, guil=0, ap=10_000, ap_overkill=10_000, overkill=13_000),
+            new_stat("sonnellino", hp=98_000, mp=820, guil=0, ap=10_000, ap_overkill=10_000, overkill=10_000),
+            new_stat("re piros", hp=480_000, mp=780, guil=0, ap=10_000, ap_overkill=10_000, overkill=10_000),
+            new_stat("juggernaut", hp=1_200_000, mp=20, guil=0, ap=8_000, ap_overkill=10_000, overkill=15_000),
+            new_stat("clod d'acciaio", hp=2_000_000, mp=0, guil=0, ap=10_000, ap_overkill=10_000, overkill=99_999),
+
+            new_stat("mangiaterra", hp=1_300_000, mp=30, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("titanosfera", hp=1_500_000, mp=999, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("catastrophe", hp=2_200_000, mp=380, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("vlakorados", hp=3_000_000, mp=85, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("gasteropodos", hp=4_000_000, mp=999, guil=0, ap=50_000, ap_overkill=50_000, overkill=12_000),
+            new_stat("ultima x", hp=5_000_000, mp=140, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("shinryu", hp=2_000_000, mp=72, guil=0, ap=50_000, ap_overkill=50_000, overkill=99_999),
+            new_stat("il supremo", hp=10_000_000, mp=9_999, guil=0, ap=55_000, ap_overkill=55_000, overkill=99_999)
+        ]
+        print('OK')
+
+        print("Creazione delle associazioni delle stats...", end=' ')
+        stats_associations = [
+            new_area_conquest_stats('trusthevis'),
+            new_area_conquest_stats('molboro beta'),
+            new_area_conquest_stats('kolossos'),
+            new_area_conquest_stats('iaguaro regina'),
+            new_area_conquest_stats('yormungand'),
+            new_area_conquest_stats('kyactus'),
+            new_area_conquest_stats('espada'),
+            new_area_conquest_stats('abyss worm'),
+            new_area_conquest_stats('chimera x'),
+            new_area_conquest_stats('don tomberry'),
+            new_area_conquest_stats('catoblepas'),
+            new_area_conquest_stats('abadon'),
+            new_area_conquest_stats('vorban'),
+
+            new_species_conquest_stats('fenril'),
+            new_species_conquest_stats('ornitorestes'),
+            new_species_conquest_stats('pterix'),
+            new_species_conquest_stats('honet'),
+            new_species_conquest_stats('vizalsha'),
+            new_species_conquest_stats('unioculum'),
+            new_species_conquest_stats('budino jumbo'),
+            new_species_conquest_stats('elemento nega'),
+            new_species_conquest_stats('tanket'),
+            new_species_conquest_stats('fefnil'),
+            new_species_conquest_stats('sonnellino'),
+            new_species_conquest_stats('re piros'),
+            new_species_conquest_stats('juggernaut'),
+            new_species_conquest_stats('clod d\'acciaio'),
+
+            new_original_creation_stats('mangiaterra'),
+            new_original_creation_stats('titanosfera'),
+            new_original_creation_stats('catastrophe'),
+            new_original_creation_stats('vlakorados'),
+            new_original_creation_stats('gasteropodos'),
+            new_original_creation_stats('ultima x'),
+            new_original_creation_stats('shinryu'),
+            new_original_creation_stats('il supremo')
+        ]
+        print('OK')
 
         db.commit()
-        print("Dati iniziali inseriti con successo.")
+        print("\nDati inseriti con successo.\n")
 
     except SQLAlchemyError as e:
         # Effettua un rollback della sessione

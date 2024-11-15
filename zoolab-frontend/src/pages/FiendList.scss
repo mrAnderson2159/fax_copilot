@@ -83,3 +83,11 @@
 .capturebar-title {
     margin-top: 30%;
 }
+
+.not-max-captured {
+    @include cyan-aura; // Usa un mixin per l'ombra ciano
+}
+
+.max-captured {
+    @include bordeaux-aura; // Usa un mixin per l'ombra bordeaux
+}

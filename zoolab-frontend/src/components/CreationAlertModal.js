@@ -52,7 +52,11 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                                     ? `È stato creato il ${type}`
                                     : `È stato rimosso il ${type}`}
                             </p>
-                            <Card name={name} imageUrl={image_url} />
+                            <Card
+                                name={name}
+                                imageUrl={image_url}
+                                className="unclickable"
+                            />
                             {reward && (
                                 <div className="reward-container">
                                     <h3 className="section-title mt-3">

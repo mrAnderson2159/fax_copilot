@@ -13,7 +13,7 @@ class Zone(ZoneBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FiendBase(BaseModel):
@@ -29,7 +29,7 @@ class Fiend(FiendBase):
     zone_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class FiendCaptureUpdate(BaseModel):
@@ -61,13 +61,14 @@ class AreaConquestBase(BaseModel):
     name: str
     image_url: Optional[str] = None
     created: Optional[bool] = False
+    defeated: Optional[bool] = False
 
 
 class AreaConquestResponse(ConquestResponseBase):
     """Risposta per una conquista di zona."""
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class AreaConquest(AreaConquestBase):
@@ -75,7 +76,7 @@ class AreaConquest(AreaConquestBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SpeciesConquestBase(BaseModel):
@@ -84,13 +85,14 @@ class SpeciesConquestBase(BaseModel):
     image_url: Optional[str] = None
     required_fiends: int
     created: Optional[bool] = False
+    defeated: Optional[bool] = False
 
 
 class SpeciesConquestResponse(ConquestResponseBase):
     """Risposta per una conquista di specie."""
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class SpeciesConquest(SpeciesConquestBase):
@@ -98,7 +100,7 @@ class SpeciesConquest(SpeciesConquestBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class OriginalCreationBase(BaseModel):
@@ -106,6 +108,7 @@ class OriginalCreationBase(BaseModel):
     name: str
     image_url: Optional[str] = None
     created: Optional[bool] = False
+    defeated: Optional[bool] = False
     creation_rule: Optional[str] = None
 
 
@@ -113,7 +116,7 @@ class OriginalCreationResponse(ConquestResponseBase):
     """Risposta per una creazione originale."""
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class OriginalCreation(OriginalCreationBase):
@@ -121,7 +124,7 @@ class OriginalCreation(OriginalCreationBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ConquestRepr(BaseModel):
@@ -129,4 +132,29 @@ class ConquestRepr(BaseModel):
     name: str
     image_url: str
     destination: str
+
+
+class FullDetailsResponse(BaseModel):
+    id: int
+    name: str
+    image_url: str
+    created: Optional[bool] = False
+    defeated: Optional[bool] = False
+    creation_reward: Optional[tuple[str, int]] = None
+    zone_id: Optional[int] = None
+    zone_name: Optional[str] = None
+    required_fiends: Optional[list[tuple[int, str]]] = None
+    required_fiends_amount: Optional[int] = None
+    creation_rule: Optional[str] = None
+    hp: Optional[int] = None
+    mp: Optional[int] = None
+    overkill: Optional[int] = None
+    ap: Optional[int] = None
+    ap_overkill: Optional[int] = None
+    guil: Optional[int] = None
+    battle_reward: Optional[tuple[str, int]] = None
+    weakness: Optional[list[tuple[str, int]]] = None
+    resistance: Optional[list[str]] = None
+    common_steal: Optional[tuple[str, int]] = None
+    rare_steal: Optional[tuple[str, int]] = None
 

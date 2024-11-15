@@ -44,15 +44,15 @@ const ZoneList = () => {
     };
 
     const handleAnimationEnd = (zone) => {
-        const id = zone.id;
+        const { id, name } = zone;
         localDebug(
             "handleAnimationEnd",
-            `about to navigate to ${`/zones/${id}/fiends/`}`
+            `about to navigate to ${`/zones/${id}/${name}/`}`
         );
-        navigate(`/zones/${id}/fiends/`);
+        navigate(`/zones/${id}/${name}/`);
         localDebug(
             "handleAnimationEnd",
-            `navigated to ${`/zones/${id}/fiends/`}`
+            `navigated to ${`/zones/${id}/${name}/`}`
         );
     };
 
@@ -73,60 +73,6 @@ const ZoneList = () => {
         );
         return clickedZoneId === id ? "zone-card-clicked" : "";
     };
-
-    // Transitiom DEBUG
-    useEffect(() => {
-        const targetDiv = document.querySelector(".zone-list-content");
-        if (!targetDiv) {
-            localDebug(
-                "useEffect",
-                "Elemento target non trovato per l'event listener di debug"
-            );
-            return;
-        }
-
-        const handleTransitionStart = (event) => {
-            localDebug("handleTransitionStart", "Transizione iniziata:", event);
-        };
-
-        const handleTransitionEnd = (event) => {
-            localDebug("handleTransitionEnd", "Transizione terminata:", event);
-        };
-
-        const handleClassAddition = (event) => {
-            if (event.animationName === "explode") {
-                localDebug(
-                    "handleClassAddition",
-                    "Classe 'explode' aggiunta:",
-                    event
-                );
-            }
-        };
-
-        const handleClassRemoval = (event) => {
-            localDebug("handleClassRemoval", "Classe rimossa:", event);
-        };
-
-        // Event listeners per il debug
-        targetDiv.addEventListener("transitionstart", handleTransitionStart);
-        targetDiv.addEventListener("transitionend", handleTransitionEnd);
-        targetDiv.addEventListener("animationstart", handleClassAddition);
-        targetDiv.addEventListener("animationend", handleClassRemoval);
-
-        // Cleanup function per rimuovere i listener
-        return () => {
-            targetDiv.removeEventListener(
-                "transitionstart",
-                handleTransitionStart
-            );
-            targetDiv.removeEventListener("transitionend", handleTransitionEnd);
-            targetDiv.removeEventListener(
-                "animationstart",
-                handleClassAddition
-            );
-            targetDiv.removeEventListener("animationend", handleClassRemoval);
-        };
-    }, []);
 
     return (
         <div className="transparent-background">

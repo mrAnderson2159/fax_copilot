@@ -1,7 +1,10 @@
 // src/utils.js
 import { API_BASE_URL } from "./config";
 
-// zoolab-frontend/src/utils/debug.js
+export function boolToItalian(bool) {
+    return bool ? "Sì" : "No";
+}
+
 export function debug(flag, fileName, functionName, ...stuff) {
     if (flag) {
         console.log(`[DEBUG - ${fileName} - ${functionName}]`, ...stuff);
@@ -25,7 +28,7 @@ export function modalShow({ show, onShow = () => {}, onClose = () => {} }) {
 
 export function resolveImagePath(relativePath) {
     // Costruisce il percorso assoluto delle immagini
-    return `${API_BASE_URL}/${relativePath}`;
+    return relativePath ? `${API_BASE_URL}/${relativePath}` : relativePath;
 }
 
 export function signed(value) {

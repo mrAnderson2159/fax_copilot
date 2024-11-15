@@ -62,6 +62,7 @@ def get_area_conquest_repr(db: Session = Depends(get_db)):
         destination='area_conquests'
     )
 
+
 @router.get("/{area_conquest_id}", response_model=schemas.AreaConquest)
 def get_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     """
@@ -117,3 +118,46 @@ def undefeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db
         raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento: {str(e)}")
 
     return area_conquest
+
+
+@router.get("/{area_conquest_id}/full_details")
+def get_area_conquest_full_details(area_conquest_id: int, db: Session = Depends(get_db)):
+    """
+    Recupera i dettagli completi di un campione di zona.
+
+    :param area_conquest_id: ID del campione di zona.
+    :param db: Sessione del database.
+    :raises HTTPException: Se il campione di zona non viene trovato.
+    :return: Oggetto FullDetailsResponse.
+    """
+    area_conquest = _get_area_conquest(area_conquest_id, db)
+
+    rewards_dict = {reward.reward_type: reward for reward in area_conquest.rewards}
+    creation_reward = rewards_dict.get('creation')
+    battle_reward = rewards_dict.get('battle')
+    common_steal = rewards_dict.get('common_steal')
+    rare_steal = rewards_dict.get('rare_steal')
+    area_conquest_stats = next(stats for stats in area_conquest.stats)
+    required_fiends = [(fiend.id, fiend.name) for fiend in area_conquest.zone.fiends]
+    required_fiends = sorted(required_fiends, key=lambda x: x[0])
+
+    return schemas.FullDetailsResponse(
+        id=area_conquest.id,
+        name=area_conquest.name,
+        image_url=area_conquest.image_url,
+        created=area_conquest.created,
+        defeated=area_conquest.defeated,
+        creation_reward=(creation_reward.item.name, creation_reward.quantity),
+        battle_reward=(battle_reward.item.name, battle_reward.quantity),
+        common_steal=(common_steal.item.name, common_steal.quantity),
+        rare_steal=(rare_steal.item.name, rare_steal.quantity),
+        zone_id=area_conquest.zone.id,
+        zone_name=area_conquest.zone.name,
+        required_fiends=required_fiends,
+        hp=area_conquest_stats.stats.hp,
+        mp=area_conquest_stats.stats.mp,
+        overkill=area_conquest_stats.stats.overkill,
+        ap=area_conquest_stats.stats.ap,
+        ap_overkill=area_conquest_stats.stats.ap_overkill,
+        guil=area_conquest_stats.stats.guil,
+    )

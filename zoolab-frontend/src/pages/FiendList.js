@@ -14,7 +14,7 @@ import CreationAlertModal from "../components/CreationAlertModal";
 import { useSound } from "../context/SoundContext";
 
 const FiendList = () => {
-    const { zoneId } = useParams();
+    const { zoneId, zoneName } = useParams();
     const [fiends, setFiends] = useState([]);
     const [otherFiends, setOtherFiends] = useState([]);
     const [zone, setZone] = useState({});
@@ -61,18 +61,7 @@ const FiendList = () => {
     // Recupera i dati all'inizio e ogni volta che zoneId cambia
     useEffect(() => {
         fetchFiendsWithFound();
-
-        const fetchZone = async () => {
-            try {
-                const zoneResponse = await axios.get(`/zones/${zoneId}`);
-                setZone(zoneResponse.data);
-            } catch (error) {
-                console.error("Errore nel recupero della zona:", error);
-            }
-        };
-
-        fetchZone();
-    }, [zoneId, fetchFiendsWithFound]);
+    }, [zoneName, fetchFiendsWithFound]);
 
     // Funzione per il click normale
     const funzioneCattura1 = useCallback((fiend) => {
@@ -205,6 +194,12 @@ const FiendList = () => {
         [deltas]
     );
 
+    const maxCaptured = (fiend) => {
+        return fiend.was_captured === MAX_CAPTURES
+            ? "max-captured"
+            : "not-max-captured";
+    };
+
     const renderCardsKeywords = {
         clickHandler: funzioneCattura1,
         onLongPress: funzioneCattura2,
@@ -212,13 +207,14 @@ const FiendList = () => {
         props: {
             deltas,
         },
+        classNameFunction: maxCaptured,
     };
 
     return (
         <div className="transparent-background">
             <div className="fiend-list-content container-fluid pt-5">
                 <h2 className="display-4 fiendlist-title">
-                    {titleCase(zone.name || "")}
+                    {titleCase(zoneName || "")}
                 </h2>
                 <div className="fiend-cards fiend-cards-native">
                     {renderCards(fiends, "fiend", renderCardsKeywords)}

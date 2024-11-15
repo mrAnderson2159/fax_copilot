@@ -1,5 +1,5 @@
 // zoolab-frontend/src/components/Card.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { resolveImagePath, titleCase } from "../utils";
 import "./Card.scss";
 import { debug } from "../utils";
@@ -15,10 +15,15 @@ const Card = ({
     onLongPress = () => {},
     type = "",
     className = "",
+    showName = true,
 }) => {
     const DEBUG = false;
     const localDebug = (...stuff) => debug(DEBUG, "Card.js", ...stuff);
     const [imgSrc, setImgSrc] = useState(resolveImagePath(imageUrl));
+
+    useEffect(() => {
+        setImgSrc(resolveImagePath(imageUrl));
+    }, [imageUrl]);
 
     // Uso del nostro hook personalizzato per gestire i click e lo stato
     const { handlePressStart, handlePressEnd, isPressed } = useClickHandlers({
@@ -52,9 +57,14 @@ const Card = ({
                 style={{ userSelect: "none", WebkitUserDrag: "none" }} // Stili per disabilitare selezione e drag
             />
             {children}
-            <div className="card-body">
-                <p className="card-text">{titleCase(name)}</p>
-            </div>
+            {
+                // Mostra il nome solo se showName è true
+                showName && (
+                    <div className="card-body">
+                        <p className="card-text">{titleCase(name)}</p>
+                    </div>
+                )
+            }
         </div>
     );
 };

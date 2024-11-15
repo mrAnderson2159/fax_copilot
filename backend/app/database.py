@@ -1,9 +1,10 @@
 # backend/app/database.py
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.config import DATABASE_NAME
 
 # Configura l'URL del database
-DATABASE_URL = "postgresql://mr.anderson2159@localhost/zoolab_test"
+DATABASE_URL = f"postgresql://mr.anderson2159@localhost/{DATABASE_NAME}"
 
 # Crea l'engine per la connessione al database
 engine = create_engine(DATABASE_URL)

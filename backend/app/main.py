@@ -60,7 +60,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-print(f'\n%8s : {", ".join(CORS_ORIGINS)}\n%8s : {DATABASE_URL}\n' % ('CORS', 'DATABASE'))
+# Stampa le informazioni di configurazione
+info = [', '.join(CORS_ORIGINS), DEBUG_MODE, DATABASE_URL]
+info = [f'{GREEN}%-9s{RESET} {i}\n' for i in info]
+
+print(f"\n{GREEN}SERVER CONFIGURATION:{RESET}\n")
+print(''.join(info) % ('CORS:', 'DEBUG:', 'DATABASE:'))
 
 app.include_router(zones.router)
 app.include_router(fiends.router)

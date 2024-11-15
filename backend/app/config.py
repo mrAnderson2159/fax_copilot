@@ -1,3 +1,4 @@
+# backend/app/config.py
 import os
 
 
@@ -17,5 +18,10 @@ def get_debug_mode():
     return mode == "true"
 
 
+def get_db_name():
+    return os.getenv("DATABASE", "zoolab")
+
+
 CORS_ORIGINS = get_cors_origins()
 DEBUG_MODE = get_debug_mode()
+DATABASE_NAME = get_db_name()
