@@ -50,10 +50,12 @@ class FiendWithFound(BaseModel):
 
 class ConquestResponseBase(BaseModel):
     """Base per la risposta delle conquiste, contenente il nome e lo stato di creazione."""
+    id: int
     name: str
     created: bool
     image_url: str
     reward: Optional[tuple[str, int]] = None
+    # destination: str
 
 
 class AreaConquestBase(BaseModel):
@@ -66,6 +68,7 @@ class AreaConquestBase(BaseModel):
 
 class AreaConquestResponse(ConquestResponseBase):
     """Risposta per una conquista di zona."""
+    destination: str = 'area_conquests'
 
     class Config:
         from_attributes = True
@@ -90,6 +93,7 @@ class SpeciesConquestBase(BaseModel):
 
 class SpeciesConquestResponse(ConquestResponseBase):
     """Risposta per una conquista di specie."""
+    destination: str = 'species_conquests'
 
     class Config:
         from_attributes = True
@@ -114,6 +118,7 @@ class OriginalCreationBase(BaseModel):
 
 class OriginalCreationResponse(ConquestResponseBase):
     """Risposta per una creazione originale."""
+    destination: str = 'original_creations'
 
     class Config:
         from_attributes = True

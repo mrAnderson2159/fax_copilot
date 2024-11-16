@@ -111,6 +111,7 @@ class CreationConditions:
 
             logger.info(f"Prototipo creato: {original_creation_name}")
             return schemas.OriginalCreationResponse(
+                id=original_creation.id,
                 name=original_creation.name,
                 created=True,
                 image_url=original_creation.image_url,
@@ -122,6 +123,7 @@ class CreationConditions:
             original_creation.created = False
             logger.info(f"Prototipo annullato: {original_creation_name}")
             return schemas.OriginalCreationResponse(
+                id=original_creation.id,
                 name=original_creation.name,
                 created=False,
                 image_url=original_creation.image_url
@@ -207,6 +209,7 @@ class CreationConditions:
 
                     # Aggiunge la conquista alla lista dei risultati, includendo la ricompensa
                     results.append(schema_class(
+                        id=conquest.id,
                         name=conquest.name,
                         created=True,
                         image_url=conquest.image_url,
@@ -218,6 +221,7 @@ class CreationConditions:
                 conquest.created = False
                 logger.info(f"Conquista annullata: {conquest.name}")
                 results.append(schema_class(
+                    id=conquest.id,
                     name=conquest.name,
                     created=False,
                     image_url=conquest.image_url

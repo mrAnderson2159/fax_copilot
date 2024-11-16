@@ -2,13 +2,27 @@ import React from "react";
 import "./CreationAlertModal.scss";
 import Card from "./Card";
 import { titleCase } from "../utils";
+import { useNavigate } from "react-router-dom";
+import { useSound } from "../context/SoundContext";
 
 const CreationAlertModal = ({ show, onClose, creation }) => {
+    const navigate = useNavigate();
+    const { clickSound } = useSound();
+
     if (!show || !creation) {
         return null; // Non renderizzare se `show` è false o `creation` non è presente
     }
 
-    const { name, created, type, image_url, reward } = creation;
+    const {
+        id,
+        name,
+        created,
+        type,
+        image_url,
+        reward,
+        destination,
+        destinationName,
+    } = creation;
 
     let rewardItem, rewardQuantity;
 
@@ -20,6 +34,11 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
         if (e.target.classList.contains("creation-alert-modal-overlay")) {
             onClose();
         }
+    };
+
+    const handleCreationClick = () => {
+        clickSound();
+        navigate(`/zoolab/${destination}/${destinationName}/${id}`);
     };
 
     return (
@@ -55,7 +74,8 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                             <Card
                                 name={name}
                                 imageUrl={image_url}
-                                className="unclickable"
+                                clickHandler={handleCreationClick}
+                                // className="unclickable"
                             />
                             {reward && (
                                 <div className="reward-container">

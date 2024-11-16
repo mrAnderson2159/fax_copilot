@@ -149,14 +149,17 @@ const FiendList = () => {
             ...(area_conquests || []).map((conquest) => ({
                 ...conquest,
                 type: "Campione di Zona",
+                destinationName: "Campioni di Zona",
             })),
             ...(species_conquests || []).map((conquest) => ({
                 ...conquest,
                 type: "Campione di Specie",
+                destinationName: "Campioni di Specie",
             })),
             ...(original_creations || []).map((conquest) => ({
                 ...conquest,
                 type: "Prototipo",
+                destinationName: "Prototipi Zoolab",
             })),
         ];
 
