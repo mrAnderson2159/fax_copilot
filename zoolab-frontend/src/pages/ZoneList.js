@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
-import "../styles/CommonStyles.scss";
-import "./ZoneList.scss";
 import renderCards from "../utils/renderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
 import { useSound } from "../context/SoundContext";
+import "../styles/CommonStyles.scss";
+import "./ZoneList.scss";
 
 const DEBUG_MODE = false;
 
@@ -74,6 +74,10 @@ const ZoneList = () => {
         return clickedZoneId === id ? "zone-card-clicked" : "";
     };
 
+    const zoneShadow = (zone) => {
+        return `zone-${zone.status.replace(/_/g, "-")}`;
+    };
+
     return (
         <div className="transparent-background">
             <TransitionGroup>
@@ -91,6 +95,7 @@ const ZoneList = () => {
                             transitionOnCard: transitionOnCard,
                             onAnimationEnd: handleAnimationEnd,
                             transitionClass: "zone-card-clicked",
+                            classNameFunction: zoneShadow,
                         })}
                     </div>
                 </CSSTransition>

@@ -4,13 +4,14 @@ from typing import Optional
 
 class ZoneBase(BaseModel):
     """Rappresenta la struttura base per una zona, con nome e URL opzionale dell'immagine."""
+    id: int
     name: str
     image_url: Optional[str] = None
 
 
 class Zone(ZoneBase):
     """Rappresenta una zona nel database, con un ID per identificazione."""
-    id: int
+    status: Optional[str] = None
 
     class Config:
         from_attributes = True

@@ -10,3 +10,15 @@
 .zone-card-clicked div.card {
     @extend .lift-and-fade; // Usa il nome generico
 }
+
+.zone-completed {
+    @include bordeaux-aura;
+}
+
+.zone-area-conquest-created {
+    @include cyan-aura;
+}
+
+// .zone-just-started {}
+
+// .zone-fresh {}

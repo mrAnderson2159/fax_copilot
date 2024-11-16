@@ -19,7 +19,20 @@ def get_zones(db: Session = Depends(get_db)):
     :param db: Sessione del database ottenuta tramite dependency injection.
     :return: Lista di tutte le zone.
     """
-    return db.query(models.Zone).order_by(models.Zone.id).all()
+    zones = db.query(models.Zone).order_by(models.Zone.id).all()
+
+    for zone in zones:
+        if all([fiend.was_captured == 10 for fiend in zone.fiends]):
+            zone.status = "completed"
+        elif all([fiend.was_captured for fiend in zone.fiends]):
+            zone.status = "area_conquest_created"
+        elif any([fiend.was_captured for fiend in zone.fiends]):
+            zone.status = "just_started"
+        else:
+            zone.status = "fresh"
+
+    return zones  # Restituisce tutte le zone presenti nel database
+
 
 
 # Definisce un endpoint GET per ottenere una singola zona specificata tramite il suo ID
