@@ -3,5 +3,5 @@
 database
 backend/venv
 __pycache__
-alembic/versions
-alembic_test/versions
+backend/alembic/versions
+backend/alembic_test/versions
