@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException  # Importa i moduli necess
 from app import models, schemas  # Importa i modelli e gli schemi per il database e la serializzazione
 from sqlalchemy.orm import Session  # Importa la sessione per interagire con il database
 from app.database import get_db  # Importa la funzione per ottenere una connessione al database
+from app.routers.functions import get_one, get_all  # Importa le funzioni di utilità per ottenere oggetti dal database
 
 # Crea un router per le API di FastAPI, con prefisso /zones e tag "Zones"
 router = APIRouter(
@@ -19,7 +20,8 @@ def get_zones(db: Session = Depends(get_db)):
     :param db: Sessione del database ottenuta tramite dependency injection.
     :return: Lista di tutte le zone.
     """
-    zones = db.query(models.Zone).order_by(models.Zone.id).all()
+    # zones = db.query(models.Zone).order_by(models.Zone.id).all()
+    zones = get_all(db, models.Zone)
 
     for zone in zones:
         if all([fiend.was_captured == 10 for fiend in zone.fiends]):
@@ -47,21 +49,19 @@ def get_zone(zone_id: int, db: Session = Depends(get_db)):
     :return: Dati della zona trovata.
     """
     # Cerca la zona nel database con l'ID specificato
-    zone = db.query(models.Zone).filter(models.Zone.id == zone_id).first()
-    if not zone:
-        # Se la zona non esiste, lancia un errore HTTP 404
-        raise HTTPException(status_code=404, detail="Zona non trovata")
-    return zone  # Restituisce la zona trovata
+    # zone = db.query(models.Zone).filter(models.Zone.id == zone_id).first()
+    return get_one(db, models.Zone, zone_id)    # Restituisce la zona trovata o lancia un errore HTTP 404 se non esiste
 
 
 # Definisce un endpoint GET per ottenere i mostri in una zona specificata tramite il suo ID
 @router.get("/{zone_id}/fiends", response_model=list[schemas.Fiend])
 def get_zone_fiends(zone_id: int, db: Session = Depends(get_db)):
-    zone = db.query(models.Zone).filter(models.Zone.id == zone_id).first()
-    if not zone:
-        # Se la zona non esiste, lancia un errore HTTP 404
-        raise HTTPException(status_code=404, detail="Zona non trovata")
+    # zone = db.query(models.Zone).filter(models.Zone.id == zone_id).first()
+    # if not zone:
+    #     # Se la zona non esiste, lancia un errore HTTP 404
+    #     raise HTTPException(status_code=404, detail="Zona non trovata")
 
+    zone = get_one(db, models.Zone, zone_id)
     fiends = db.query(models.Fiend).filter(models.Fiend.zone_id == zone_id).order_by(models.Fiend.id).all()
     return fiends
 

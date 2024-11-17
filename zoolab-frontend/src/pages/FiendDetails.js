@@ -109,17 +109,23 @@ const FiendDetails = () => {
         }
     };
 
-    const renderDefeatButton = () => {
+    const renderDefeatButton = (created) => {
+        if (created)
+            return (
+                <button
+                    className={`defeat-btn btn btn-${
+                        defeatButton ? "danger" : "primary"
+                    } bold`}
+                    onClick={defeatButtonHandler}
+                >
+                    {defeatButton
+                        ? "Segna come non sconfitto"
+                        : "Segna come sconfitto"}
+                </button>
+            );
         return (
-            <button
-                className={`defeat-btn btn btn-${
-                    defeatButton ? "danger" : "primary"
-                } bold`}
-                onClick={defeatButtonHandler}
-            >
-                {defeatButton
-                    ? "Segna come non sconfitto"
-                    : "Segna come sconfitto"}
+            <button className="defeat-btn btn btn-secondary" disabled>
+                Segna come sconfitto
             </button>
         );
     };
@@ -216,7 +222,9 @@ const FiendDetails = () => {
                         </table>
                     </div>
                 </div>
-                <div className="btn-container ">{renderDefeatButton()}</div>
+                <div className="btn-container ">
+                    {renderDefeatButton(fiend.created)}
+                </div>
             </div>
         </div>
     );

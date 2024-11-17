@@ -6,6 +6,7 @@ import logging
 from app.creation_conditions import CreationConditions
 from app import models, schemas
 from app.database import get_db
+from app.routers.functions import get_one, get_all
 
 router = APIRouter(
     prefix="/fiends",
@@ -24,7 +25,7 @@ def get_all_fiends(db: Session = Depends(get_db)):
     :param db: Sessione del database ottenuta tramite dependency injection.
     :return: Lista di tutti i mostri.
     """
-    return db.query(models.Fiend).all()
+    return get_all(db, models.Fiend)
 
 
 # Rotta per ottenere un singolo mostro specificato tramite il suo ID
@@ -38,10 +39,7 @@ def get_fiend(fiend_id: int, db: Session = Depends(get_db)):
     :raises HTTPException: Se il mostro non viene trovato, lancia un'eccezione HTTP 404.
     :return: Dati del mostro trovato.
     """
-    fiend = db.query(models.Fiend).filter(models.Fiend.id == fiend_id).first()
-    if not fiend:
-        raise HTTPException(status_code=404, detail="Mostro non trovato")
-    return fiend
+    return get_one(db, models.Fiend, fiend_id)
 
 
 # Rotta per aggiornare il numero di catture dei mostri

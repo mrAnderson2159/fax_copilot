@@ -2,31 +2,25 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class ZoneBase(BaseModel):
-    """Rappresenta la struttura base per una zona, con nome e URL opzionale dell'immagine."""
+class BaseElement(BaseModel):
+    """Represents the base structure for an element, with an ID, a name and an optional image URL."""
     id: int
     name: str
     image_url: Optional[str] = None
 
 
-class Zone(ZoneBase):
-    """Rappresenta una zona nel database, con un ID per identificazione."""
+class Zone(BaseElement):
+    """Represents a zone in the database, with BaseElement fields and a status field reflecting
+    the completion status of the zone."""
     status: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-class FiendBase(BaseModel):
-    """Rappresenta la struttura base per un mostro, con nome, stato di cattura e URL opzionale dell'immagine."""
-    name: str
+class Fiend(BaseElement):
+    """Represents a fiend in the database, with BaseElement fields, a zone ID field and a was_captured field."""
     was_captured: Optional[int] = 0
-    image_url: Optional[str] = None
-
-
-class Fiend(FiendBase):
-    """Rappresenta un mostro nel database, con un ID e il campo zone_id per la zona di appartenenza."""
-    id: int
     zone_id: int
 
     class Config:
@@ -34,116 +28,87 @@ class Fiend(FiendBase):
 
 
 class FiendCaptureUpdate(BaseModel):
-    """Rappresenta l'aggiornamento del numero di catture di un mostro, con ID e variazione."""
+    """Represents an update to the number of captures of a fiend, with a fiend ID and a delta value."""
     fiend_id: int
     delta: int
 
 
 class FiendCapturesUpdateRequest(BaseModel):
-    """Richiesta per aggiornare le catture dei mostri."""
+    """Request to update the captures of fiends."""
     updates: list[FiendCaptureUpdate]
 
 
 class FiendWithFound(BaseModel):
+    """Represents a group of fiends, with a list of native fiends and a list of other fiends that can be found
+    in the same zone of the native fiends."""
     native: list[Fiend]
     others: list[Fiend]
 
 
-class ConquestResponseBase(BaseModel):
-    """Base per la risposta delle conquiste, contenente il nome e lo stato di creazione."""
-    id: int
-    name: str
+class ConquestResponseBase(BaseElement):
+    """Base for conquest responses, containing BaseElement fields, a created field, an optional defeated field and
+    an optional reward field."""
     created: bool
-    image_url: str
-    reward: Optional[tuple[str, int]] = None
-    # destination: str
-
-
-class AreaConquestBase(BaseModel):
-    """Rappresenta la struttura base per una conquista di zona, con nome, immagine e stato di creazione."""
-    name: str
-    image_url: Optional[str] = None
-    created: Optional[bool] = False
     defeated: Optional[bool] = False
+    reward: Optional[tuple[str, int]] = None
+
+
+class AreaConquest(ConquestResponseBase):
+    """Represents an area conquest, with ConquestResponseBase fields."""
+    class Config:
+        from_attributes = True
 
 
 class AreaConquestResponse(ConquestResponseBase):
-    """Risposta per una conquista di zona."""
+    """Represents an area conquest response, with ConquestResponseBase fields and
+    a destination field set to 'area_conquests'."""
     destination: str = 'area_conquests'
 
     class Config:
         from_attributes = True
 
 
-class AreaConquest(AreaConquestBase):
-    """Rappresenta una conquista di zona nel database, con un ID per identificazione."""
-    id: int
+class SpeciesConquest(ConquestResponseBase):
+    """Represents a species conquest, with ConquestResponseBase fields and a required_fiends field."""
+    required_fiends: int
 
     class Config:
         from_attributes = True
 
 
-class SpeciesConquestBase(BaseModel):
-    """Rappresenta la struttura base per una conquista di specie, con nome, immagine, requisiti e stato."""
-    name: str
-    image_url: Optional[str] = None
-    required_fiends: int
-    created: Optional[bool] = False
-    defeated: Optional[bool] = False
-
-
 class SpeciesConquestResponse(ConquestResponseBase):
-    """Risposta per una conquista di specie."""
+    """Represents a species conquest response, with ConquestResponseBase fields and a destination field
+    set to 'species_conquests'."""
     destination: str = 'species_conquests'
 
     class Config:
         from_attributes = True
 
 
-class SpeciesConquest(SpeciesConquestBase):
-    """Rappresenta una conquista di specie nel database, con un ID per identificazione."""
-    id: int
+class OriginalCreation(ConquestResponseBase):
+    """Represents an original creation, with ConquestResponseBase fields and a creation_rule field."""
+    creation_rule: str
 
     class Config:
         from_attributes = True
 
 
-class OriginalCreationBase(BaseModel):
-    """Rappresenta la struttura base per una creazione originale, con nome, immagine, regola e stato."""
-    name: str
-    image_url: Optional[str] = None
-    created: Optional[bool] = False
-    defeated: Optional[bool] = False
-    creation_rule: Optional[str] = None
-
-
 class OriginalCreationResponse(ConquestResponseBase):
-    """Risposta per una creazione originale."""
+    """Represents an original creation response, with ConquestResponseBase fields and a destination field
+    set to 'original_creations'."""
     destination: str = 'original_creations'
 
     class Config:
         from_attributes = True
 
 
-class OriginalCreation(OriginalCreationBase):
-    """Rappresenta una creazione originale nel database, con un ID per identificazione."""
-    id: int
-
-    class Config:
-        from_attributes = True
-
-
-class ConquestRepr(BaseModel):
-    id: int
-    name: str
-    image_url: str
+class ConquestRepr(BaseElement):
+    """Represents a conquest, with BaseElement fields and a destination field."""
     destination: str
 
 
-class FullDetailsResponse(BaseModel):
-    id: int
-    name: str
-    image_url: str
+class FullDetailsResponse(BaseElement):
+    """Represents a full details response, with BaseElement fields and other optional fields."""
     created: Optional[bool] = False
     defeated: Optional[bool] = False
     creation_reward: Optional[tuple[str, int]] = None
@@ -163,4 +128,3 @@ class FullDetailsResponse(BaseModel):
     resistance: Optional[list[str]] = None
     common_steal: Optional[tuple[str, int]] = None
     rare_steal: Optional[tuple[str, int]] = None
-
