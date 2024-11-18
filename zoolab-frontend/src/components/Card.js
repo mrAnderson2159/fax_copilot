@@ -16,6 +16,7 @@ const Card = ({
     type = "",
     className = "",
     showName = true,
+    imageLoadingFunction = () => true,
 }) => {
     const DEBUG = false;
     const localDebug = (...stuff) => debug(DEBUG, "Card.js", ...stuff);
@@ -54,6 +55,7 @@ const Card = ({
                 alt={name}
                 onError={handleImageError}
                 draggable="false" // Disabilita il drag sull'immagine
+                onLoad={() => imageLoadingFunction(false)}
                 style={{ userSelect: "none", WebkitUserDrag: "none" }} // Stili per disabilitare selezione e drag
             />
             {children}

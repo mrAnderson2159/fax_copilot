@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import axios from "../api/axios";
 import { titleCase } from "../utils";
-import renderCards from "../utils/renderCards";
+import RenderCards from "../utils/RenderCards";
 import { useSound } from "../context/SoundContext";
 import "../styles/CommonStyles.scss";
 import "./ZoolabCategory.scss";
@@ -62,13 +62,14 @@ const ZoolabCategory = () => {
                         <h2 className="display-4 list-title">
                             {titleCase(title)}
                         </h2>
-                        {renderCards(creations, "creation", {
-                            clickHandler: handleCreationClick,
-                            transitionOnCard: transitionOnCard,
-                            onAnimationEnd: handleAnimationEnd,
-                            transitionClass: "creation-card-clicked",
-                            classNameFunction: progressStyle,
-                        })}
+                        <RenderCards
+                            items={creations}
+                            type="creation"
+                            clickHandler={handleCreationClick}
+                            onAnimationEnd={handleAnimationEnd}
+                            transitionOnCard={transitionOnCard}
+                            classNameFunction={progressStyle}
+                        />
                     </div>
                 </CSSTransition>
             </TransitionGroup>

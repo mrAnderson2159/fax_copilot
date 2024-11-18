@@ -5,3 +5,5 @@ backend/venv
 __pycache__
 backend/alembic/versions
 backend/alembic_test/versions
+*_orig/
+.DS_Store

@@ -47,7 +47,7 @@ def get_or_create(model, filter_key: str, **kwargs):
 
 @lower_case
 def new_zone(zone_name: str) -> Zone:
-    return get_or_create(Zone, 'name', name=zone_name, image_url=f"../images/zones/{zone_name}.png")
+    return get_or_create(Zone, 'name', name=zone_name, image_url=f"../images/zones/{zone_name}.webp")
 
 
 @lower_case

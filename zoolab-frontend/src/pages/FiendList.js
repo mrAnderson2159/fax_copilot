@@ -3,15 +3,16 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
 import { titleCase, MAX_CAPTURES } from "../utils";
-import "../styles/CommonStyles.scss";
-import "./FiendList.scss";
-import renderCards from "../utils/renderCards";
+import ContentLoader from "../components/ContentLoader";
+import RenderCards from "../utils/RenderCards";
 import CaptureBar from "../components/CaptureBar";
 import Badge from "../components/Badge";
 import CaptureModal from "../components/CaptureModal";
 import AlertModal from "../components/AlertModal";
 import CreationAlertModal from "../components/CreationAlertModal";
 import { useSound } from "../context/SoundContext";
+import "../styles/CommonStyles.scss";
+import "./FiendList.scss";
 
 const FiendList = () => {
     const { zoneId, zoneName } = useParams();
@@ -220,7 +221,11 @@ const FiendList = () => {
                     {titleCase(zoneName || "")}
                 </h2>
                 <div className="fiend-cards fiend-cards-native">
-                    {renderCards(fiends, "fiend", renderCardsKeywords)}
+                    <RenderCards
+                        items={fiends}
+                        type="fiend"
+                        {...renderCardsKeywords}
+                    />
                 </div>
 
                 {otherFiends.length > 0 && (
@@ -228,11 +233,11 @@ const FiendList = () => {
                         <h3 className="section-title">Extra</h3>
                         <div className="divider"></div>
                         <div className="fiend-cards fiend-cards-extra">
-                            {renderCards(
-                                otherFiends,
-                                "fiend",
-                                renderCardsKeywords
-                            )}
+                            <RenderCards
+                                items={otherFiends}
+                                type="fiend"
+                                {...renderCardsKeywords}
+                            />
                         </div>
                     </>
                 )}

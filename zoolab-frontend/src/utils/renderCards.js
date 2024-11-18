@@ -1,28 +1,46 @@
-// src/utils/renderCards.js
-import React from "react";
+// src/utils/RenderCards.js
+import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 import { debug } from "../utils";
 
 const DEBUG_MODE = false;
 
-const renderCards = (
-    items,
-    type,
-    {
-        clickHandler = () => {},
-        onLongPress = () => {},
-        transitionOnCard = () => "",
-        onAnimationEnd = () => {},
-        transitionClass = "",
-        children = () => null,
-        props = null,
-        className = "",
-        classNameFunction = (item) => "",
-    }
-) => {
-    const rows = [];
+const RenderCards = ({
+    items = [],
+    type = "",
+    clickHandler = () => {},
+    onLongPress = () => {},
+    transitionOnCard = () => "",
+    onAnimationEnd = () => {},
+    transitionClass = "",
+    children = () => null,
+    props = null,
+    className = "",
+    classNameFunction = (item) => "",
+    imageLoadingFunction = () => true,
+}) => {
     const localDebug = (functionName, ...stuff) =>
-        debug(DEBUG_MODE, "renderCards.js", functionName, ...stuff);
+        debug(DEBUG_MODE, "RenderCards.js", functionName, ...stuff);
+
+    const [loadedImages, setLoadedImages] = useState([]);
+
+    useEffect(() => {
+        setLoadedImages(new Array(items.length).fill(false));
+    }, []);
+
+    const imageLoader = (index, state) => {
+        const newImages = [...loadedImages];
+        newImages[index] = state;
+        setLoadedImages(newImages);
+    };
+
+    useEffect(() => {
+        if (loadedImages.every((image) => image)) {
+            imageLoadingFunction(false);
+        }
+    }, [loadedImages]);
+
+    const rows = [];
 
     for (let i = 0; i < items.length; i += 2) {
         rows.push(
@@ -48,8 +66,11 @@ const renderCards = (
                                 imageUrl={item.image_url}
                                 clickHandler={() => clickHandler(item, props)}
                                 onLongPress={() => onLongPress(item, props)}
-                                type={type} // Passa il tipo alla Card per gestire l'animazione
+                                type={type}
                                 props={props}
+                                imageLoadingFunction={(state) =>
+                                    imageLoader(i, state)
+                                }
                                 className={
                                     className + " " + classNameFunction(item)
                                 }
@@ -63,7 +84,7 @@ const renderCards = (
         );
     }
 
-    return rows;
+    return <>{rows}</>;
 };
 
-export default renderCards;
+export default RenderCards;

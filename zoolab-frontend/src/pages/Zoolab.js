@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
-import renderCards from "../utils/renderCards";
+import RenderCards from "../utils/RenderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
 import { useSound } from "../context/SoundContext";
@@ -77,13 +77,14 @@ const Zoolab = () => {
                 >
                     <div className="zoolab-content container-fluid pt-5">
                         <h2 className="display-4 list-title">Zoolab</h2>
-                        {renderCards(representatives, "category", {
-                            clickHandler: handleCategoryClick,
-                            onLongPress: () => {}, // Puoi implementare azioni extra se necessarie
-                            transitionOnCard: transitionOnCard,
-                            onAnimationEnd: handleAnimationEnd,
-                            transitionClass: "category-card-clicked",
-                        })}
+                        <RenderCards
+                            items={representatives}
+                            type="category"
+                            clickHandler={handleCategoryClick}
+                            transitionOnCard={transitionOnCard}
+                            onAnimationEnd={handleAnimationEnd}
+                            transitionClass="category-card-clicked"
+                        />
                     </div>
                 </CSSTransition>
             </TransitionGroup>
