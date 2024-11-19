@@ -6,6 +6,8 @@ import RenderCards from "../utils/RenderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
 import { useSound } from "../context/SoundContext";
+import ContentLoader from "../components/ContentLoader";
+import { phRenderCards, phTitle } from "../utils/placeholders";
 import "../styles/CommonStyles.scss";
 import "./Zoolab.scss";
 
@@ -14,6 +16,8 @@ const DEBUG_MODE = false;
 const Zoolab = () => {
     const [representatives, setRepresentatives] = useState([]);
     const [clickedCategory, setClickedCategory] = useState(null);
+    const [dataLoading, setDataLoading] = useState(true);
+    const [imageLoading, setImageLoading] = useState(true);
     const navigate = useNavigate();
     const { clickSound } = useSound();
     const localDebug = (functionName, ...stuff) =>
@@ -34,6 +38,7 @@ const Zoolab = () => {
                     area_conquest.data,
                     original_creation.data,
                 ]);
+                setDataLoading(false);
             } catch (error) {
                 console.error("Errore nel recupero dei rappresentanti:", error);
             }
@@ -68,26 +73,39 @@ const Zoolab = () => {
 
     return (
         <div className="transparent-background">
-            <TransitionGroup>
-                <CSSTransition
-                    in={true}
-                    timeout={300}
-                    classNames="fade"
-                    unmountOnExit
-                >
-                    <div className="zoolab-content container-fluid pt-5">
-                        <h2 className="display-4 list-title">Zoolab</h2>
-                        <RenderCards
-                            items={representatives}
-                            type="category"
-                            clickHandler={handleCategoryClick}
-                            transitionOnCard={transitionOnCard}
-                            onAnimationEnd={handleAnimationEnd}
-                            transitionClass="category-card-clicked"
-                        />
-                    </div>
-                </CSSTransition>
-            </TransitionGroup>
+            <div className="zoolab-content container-fluid pt-5">
+                <ContentLoader isLoading={false || dataLoading || imageLoading}>
+                    <ContentLoader.Placeholder>
+                        {phTitle("mb-5")}
+                        {phRenderCards(representatives, 3)}
+                    </ContentLoader.Placeholder>
+                    <ContentLoader.Render>
+                        <TransitionGroup>
+                            <CSSTransition
+                                in={true}
+                                timeout={300}
+                                classNames="fade"
+                                unmountOnExit
+                            >
+                                <>
+                                    <h2 className="display-4 list-title">
+                                        Zoolab
+                                    </h2>
+                                    <RenderCards
+                                        items={representatives}
+                                        type="category"
+                                        clickHandler={handleCategoryClick}
+                                        transitionOnCard={transitionOnCard}
+                                        onAnimationEnd={handleAnimationEnd}
+                                        transitionClass="category-card-clicked"
+                                        imageLoadingFunction={setImageLoading}
+                                    />
+                                </>
+                            </CSSTransition>
+                        </TransitionGroup>
+                    </ContentLoader.Render>
+                </ContentLoader>
+            </div>
         </div>
     );
 };

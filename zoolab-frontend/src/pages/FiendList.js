@@ -10,6 +10,7 @@ import Badge from "../components/Badge";
 import CaptureModal from "../components/CaptureModal";
 import AlertModal from "../components/AlertModal";
 import CreationAlertModal from "../components/CreationAlertModal";
+import { phCaptureBar, phRenderCards, phTitle } from "../utils/placeholders";
 import { useSound } from "../context/SoundContext";
 import "../styles/CommonStyles.scss";
 import "./FiendList.scss";
@@ -18,7 +19,6 @@ const FiendList = () => {
     const { zoneId, zoneName } = useParams();
     const [fiends, setFiends] = useState([]);
     const [otherFiends, setOtherFiends] = useState([]);
-    const [zone, setZone] = useState({});
     const [deltas, setDeltas] = useState({});
     const [selectedFiend, setSelectedFiend] = useState(null);
     const [alert, setAlert] = useState({
@@ -26,6 +26,8 @@ const FiendList = () => {
         action: null,
         details: "",
     });
+    const [dataLoading, setDataLoading] = useState(true);
+    const [imageLoading, setImageLoading] = useState(true);
     const [currentCreation, setCurrentCreation] = useState(null);
     const [creationQueue, setCreationQueue] = useState([]);
     const {
@@ -56,6 +58,8 @@ const FiendList = () => {
             setDeltas(initialDeltas);
         } catch (error) {
             console.error("Errore nel recupero dei mostri:", error);
+        } finally {
+            setDataLoading(false);
         }
     }, [zoneId]);
 
@@ -212,95 +216,106 @@ const FiendList = () => {
             deltas,
         },
         classNameFunction: maxCaptured,
+        imageLoadingFunction: setImageLoading,
     };
 
     return (
         <div className="transparent-background">
             <div className="fiend-list-content container-fluid pt-5">
-                <h2 className="display-4 fiendlist-title">
-                    {titleCase(zoneName || "")}
-                </h2>
-                <div className="fiend-cards fiend-cards-native">
-                    <RenderCards
-                        items={fiends}
-                        type="fiend"
-                        {...renderCardsKeywords}
-                    />
-                </div>
-
-                {otherFiends.length > 0 && (
-                    <>
-                        <h3 className="section-title">Extra</h3>
-                        <div className="divider"></div>
-                        <div className="fiend-cards fiend-cards-extra">
+                <ContentLoader isLoading={false || dataLoading || imageLoading}>
+                    <ContentLoader.Placeholder>
+                        {phTitle("mb-5")}
+                        {phRenderCards(fiends)}
+                        {phTitle("fiendlist-title capturebar-title")}
+                        {phCaptureBar(fiends)}
+                    </ContentLoader.Placeholder>
+                    <ContentLoader.Render>
+                        <h2 className="display-4 fiendlist-title">
+                            {titleCase(zoneName || "")}
+                        </h2>
+                        <div className="fiend-cards fiend-cards-native">
                             <RenderCards
-                                items={otherFiends}
+                                items={fiends}
                                 type="fiend"
                                 {...renderCardsKeywords}
                             />
                         </div>
-                    </>
-                )}
 
-                <CaptureModal
-                    show={selectedFiend !== null}
-                    onClose={handleCloseModal}
-                    fiend={selectedFiend}
-                    deltas={deltas}
-                    setDeltas={setDeltas}
-                    badge={badge}
-                />
+                        {otherFiends.length > 0 && (
+                            <>
+                                <h3 className="section-title">Extra</h3>
+                                <div className="divider"></div>
+                                <div className="fiend-cards fiend-cards-extra">
+                                    <RenderCards
+                                        items={otherFiends}
+                                        type="fiend"
+                                        {...renderCardsKeywords}
+                                    />
+                                </div>
+                            </>
+                        )}
 
-                <AlertModal
-                    show={alert.show}
-                    onConfirm={handleAlertConfirm}
-                    onCancel={handleAlertCancel}
-                    message={
-                        alert.action === "save"
-                            ? "Sei sicuro di voler salvare le modifiche?"
-                            : "Sei sicuro di voler annullare tutte le modifiche?"
-                    }
-                    details={alert.details}
-                />
+                        <CaptureModal
+                            show={selectedFiend !== null}
+                            onClose={handleCloseModal}
+                            fiend={selectedFiend}
+                            deltas={deltas}
+                            setDeltas={setDeltas}
+                            badge={badge}
+                        />
 
-                <CreationAlertModal
-                    show={!!currentCreation}
-                    onClose={handleCreationAlertClose}
-                    creation={currentCreation}
-                />
+                        <AlertModal
+                            show={alert.show}
+                            onConfirm={handleAlertConfirm}
+                            onCancel={handleAlertCancel}
+                            message={
+                                alert.action === "save"
+                                    ? "Sei sicuro di voler salvare le modifiche?"
+                                    : "Sei sicuro di voler annullare tutte le modifiche?"
+                            }
+                            details={alert.details}
+                        />
 
-                <h2 className="display-4 fiendlist-title capturebar-title">
-                    Mostri Catturati
-                </h2>
-                <div className="container-fluid capture-bar">
-                    <CaptureBar fiends={fiends} />
-                </div>
-                {otherFiends.length > 0 && (
-                    <>
-                        <h3 className="section-title">Extra</h3>
-                        <div className="divider"></div>
+                        <CreationAlertModal
+                            show={!!currentCreation}
+                            onClose={handleCreationAlertClose}
+                            creation={currentCreation}
+                        />
+
+                        <h2 className="display-4 fiendlist-title capturebar-title">
+                            Mostri Catturati
+                        </h2>
                         <div className="container-fluid capture-bar">
-                            <CaptureBar fiends={otherFiends} />
+                            <CaptureBar fiends={fiends} />
                         </div>
-                    </>
-                )}
+                        {otherFiends.length > 0 && (
+                            <>
+                                <h3 className="section-title">Extra</h3>
+                                <div className="divider"></div>
+                                <div className="container-fluid capture-bar">
+                                    <CaptureBar fiends={otherFiends} />
+                                </div>
+                            </>
+                        )}
 
-                {Object.values(deltas).some((delta) => delta !== 0) && (
-                    <>
-                        <button
-                            className="floating-btn save-btn btn btn-success"
-                            onClick={confirmSaveChanges}
-                        >
-                            <i className="bi bi-check"></i>
-                        </button>
-                        <button
-                            className="floating-btn reset-btn btn btn-danger"
-                            onClick={confirmResetChanges}
-                        >
-                            <i className="bi bi-x"></i>
-                        </button>
-                    </>
-                )}
+                        {Object.values(deltas).some((delta) => delta !== 0) && (
+                            <>
+                                <button
+                                    className="floating-btn save-btn btn btn-success"
+                                    onClick={confirmSaveChanges}
+                                >
+                                    <i className="bi bi-check"></i>
+                                </button>
+                                <button
+                                    className="floating-btn reset-btn btn btn-danger"
+                                    onClick={confirmResetChanges}
+                                >
+                                    <i className="bi bi-x"></i>
+                                </button>
+                            </>
+                        )}
+                    </ContentLoader.Render>
+                </ContentLoader>
             </div>
         </div>
     );

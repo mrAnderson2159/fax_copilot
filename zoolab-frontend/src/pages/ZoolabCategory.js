@@ -6,6 +6,8 @@ import axios from "../api/axios";
 import { titleCase } from "../utils";
 import RenderCards from "../utils/RenderCards";
 import { useSound } from "../context/SoundContext";
+import ContentLoader from "../components/ContentLoader";
+import { phRenderCards, phTitle } from "../utils/placeholders";
 import "../styles/CommonStyles.scss";
 import "./ZoolabCategory.scss";
 
@@ -13,6 +15,8 @@ const ZoolabCategory = () => {
     const { category, title } = useParams();
     const [creations, setCreations] = useState([]);
     const [clickedCreation, setClickedCreation] = useState(null);
+    const [dataLoading, setDataLoading] = useState(true);
+    const [imageLoading, setImageLoading] = useState(true);
     const { clickSound } = useSound();
     const navigate = useNavigate();
 
@@ -21,6 +25,7 @@ const ZoolabCategory = () => {
             try {
                 const response = await axios.get(`/${category}`);
                 setCreations(response.data);
+                setDataLoading(false);
             } catch (error) {
                 console.error(error);
             }
@@ -51,28 +56,40 @@ const ZoolabCategory = () => {
 
     return (
         <div className="trasparent-background">
-            <TransitionGroup>
-                <CSSTransition
-                    in={true}
-                    timeout={300}
-                    classNames="fade"
-                    unmountOnExit
-                >
-                    <div className="fiend-list-content container-fluid pt-5">
-                        <h2 className="display-4 list-title">
-                            {titleCase(title)}
-                        </h2>
-                        <RenderCards
-                            items={creations}
-                            type="creation"
-                            clickHandler={handleCreationClick}
-                            onAnimationEnd={handleAnimationEnd}
-                            transitionOnCard={transitionOnCard}
-                            classNameFunction={progressStyle}
-                        />
-                    </div>
-                </CSSTransition>
-            </TransitionGroup>
+            <div className="fiend-list-content container-fluid pt-5">
+                <ContentLoader isLoading={false || dataLoading || imageLoading}>
+                    <ContentLoader.Placeholder>
+                        {phTitle("mb-5")}
+                        {phRenderCards(creations)}
+                    </ContentLoader.Placeholder>
+                    <ContentLoader.Render>
+                        <TransitionGroup>
+                            <CSSTransition
+                                in={true}
+                                timeout={300}
+                                classNames="fade"
+                                unmountOnExit
+                            >
+                                <>
+                                    <h2 className="display-4 list-title">
+                                        {titleCase(title)}
+                                    </h2>
+                                    <RenderCards
+                                        items={creations}
+                                        type="creation"
+                                        transitionClass="creation-card-clicked"
+                                        clickHandler={handleCreationClick}
+                                        onAnimationEnd={handleAnimationEnd}
+                                        transitionOnCard={transitionOnCard}
+                                        classNameFunction={progressStyle}
+                                        imageLoadingFunction={setImageLoading}
+                                    />
+                                </>
+                            </CSSTransition>
+                        </TransitionGroup>
+                    </ContentLoader.Render>
+                </ContentLoader>
+            </div>
         </div>
     );
 };

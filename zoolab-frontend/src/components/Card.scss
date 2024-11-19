@@ -90,3 +90,23 @@ $card-radius: 20px;
     user-select: none;
     -webkit-user-drag: none;
 }
+
+.placeholder-image {
+    background-color: #868e96;
+    border-radius: $card-radius;
+    display: block;
+    width: 100%;
+    padding-top: 100%; // Questo assicura un'altezza uguale alla larghezza (rapporto 1:1)
+    user-select: none;
+    -webkit-user-drag: none;
+    position: relative; // Necessario per il contenuto assoluto se necessario
+}
+
+.hidden {
+    visibility: hidden;
+    height: 0;
+}
+
+.devnulled {
+    display: none;
+}

@@ -1,10 +1,10 @@
 // zoolab-frontend/src/components/CaptureModal.js
 import React, { useEffect, useState } from "react";
-import "./CaptureModal.scss";
 import Card from "./Card";
 import { MAX_CAPTURES, modalShow } from "../utils";
 import { signed, debug } from "../utils";
 import { useSound } from "../context/SoundContext";
+import "./CaptureModal.scss";
 
 const DEBUG_MODE = false;
 

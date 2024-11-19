@@ -1,9 +1,10 @@
+// zoolab-frontend/src/components/CreationAlertModal.js
 import React from "react";
-import "./CreationAlertModal.scss";
 import Card from "./Card";
 import { titleCase } from "../utils";
 import { useNavigate } from "react-router-dom";
 import { useSound } from "../context/SoundContext";
+import "./CreationAlertModal.scss";
 
 const CreationAlertModal = ({ show, onClose, creation }) => {
     const navigate = useNavigate();

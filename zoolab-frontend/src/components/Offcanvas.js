@@ -1,9 +1,9 @@
 // Offcanvas.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useSound } from "../context/SoundContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Offcanvas.scss";
-import { useSound } from "../context/SoundContext";
 
 const Offcanvas = () => {
     const { clickSound, backSound } = useSound();

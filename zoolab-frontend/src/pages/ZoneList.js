@@ -7,6 +7,7 @@ import ContentLoader from "../components/ContentLoader";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { debug } from "../utils";
 import { useSound } from "../context/SoundContext";
+import { phRenderCards, phTitle } from "../utils/placeholders";
 import "../styles/CommonStyles.scss";
 import "./ZoneList.scss";
 
@@ -85,9 +86,10 @@ const ZoneList = () => {
     return (
         <div className="transparent-background">
             <div className="zone-list-content container-fluid pt-5">
-                <ContentLoader isLoading={dataLoading || imageLoading}>
+                <ContentLoader isLoading={false || dataLoading || imageLoading}>
                     <ContentLoader.Placeholder>
-                        <h2 className="display-4 list-title">Loading...</h2>
+                        {phTitle("mb-5")}
+                        {phRenderCards(zones)}
                     </ContentLoader.Placeholder>
                     <ContentLoader.Render>
                         <TransitionGroup>
@@ -97,7 +99,7 @@ const ZoneList = () => {
                                 classNames="fade"
                                 unmountOnExit
                             >
-                                <div>
+                                <>
                                     <h2 className="display-4 list-title">
                                         Zone di Spira
                                     </h2>
@@ -112,7 +114,7 @@ const ZoneList = () => {
                                         classNameFunction={zoneShadow}
                                         imageLoadingFunction={setImageLoading}
                                     />
-                                </div>
+                                </>
                             </CSSTransition>
                         </TransitionGroup>
                     </ContentLoader.Render>
