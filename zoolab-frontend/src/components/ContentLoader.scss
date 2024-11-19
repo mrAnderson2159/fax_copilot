@@ -1,3 +1,8 @@
 // zoolab-frontend/src/components/ContentLoader.scss
 @import "../styles/variables.scss";
 @import "../styles/mixins.scss";
+
+.loading-overlay {
+    @include modal-overlay;
+    background-color: rgba(0, 0, 0, 0.5);
+}

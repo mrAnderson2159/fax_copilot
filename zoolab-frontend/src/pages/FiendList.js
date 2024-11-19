@@ -28,6 +28,7 @@ const FiendList = () => {
     });
     const [dataLoading, setDataLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
+    const [confirmLoading, setConfirmLoading] = useState(false);
     const [currentCreation, setCurrentCreation] = useState(null);
     const [creationQueue, setCreationQueue] = useState([]);
     const {
@@ -128,13 +129,15 @@ const FiendList = () => {
                     Object.entries(prev).map(([key]) => [key, 0])
                 )
             );
+            setConfirmLoading(false);
             highConfirmSound();
             fetchFiendsWithFound(); // Aggiorna i mostri dopo aver salvato
             enqueueConquests(response.data);
         } catch (error) {
             console.error("Errore nell'aggiornamento delle catture:", error);
+        } finally {
+            setAlert({ show: false, action: null, details: "" });
         }
-        setAlert({ show: false, action: null, details: "" });
     };
 
     const resetChanges = () => {
@@ -274,6 +277,8 @@ const FiendList = () => {
                                     : "Sei sicuro di voler annullare tutte le modifiche?"
                             }
                             details={alert.details}
+                            loadingFunction={setConfirmLoading}
+                            isLoading={confirmLoading}
                         />
 
                         <CreationAlertModal

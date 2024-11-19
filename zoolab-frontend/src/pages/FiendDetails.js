@@ -15,6 +15,7 @@ const FiendDetails = () => {
     const [defeatButton, setDefeatButton] = useState(false);
     const [dataLoading, setDataLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
+    const [buttonLoading, setButtonLoading] = useState(false);
     const { lowConfirmSound } = useSound();
 
     useEffect(() => {
@@ -127,6 +128,7 @@ const FiendDetails = () => {
                 await axios.post(`/${category}/${fiendId}/defeated`);
                 setDefeatButton(true);
             }
+            setButtonLoading(false);
             lowConfirmSound();
         } catch (error) {
             console.error(
@@ -136,20 +138,36 @@ const FiendDetails = () => {
         }
     };
 
-    const renderDefeatButton = (created, placeholderMode = false) => {
+    const renderDefeatButton = (
+        created,
+        { placeholderMode = false, loadingMode = false }
+    ) => {
         if (placeholderMode)
             return (
                 <button className="defeat-btn btn btn-secondary w-50" disabled>
                     <span className="placeholder"></span>
                 </button>
             );
+
+        const classNames = `defeat-btn btn btn-${
+            defeatButton ? "danger" : "primary"
+        } bold`;
+
+        if (loadingMode)
+            return (
+                <button className={classNames} disabled>
+                    <span className="spinner-border spinner-border-sm"></span>
+                </button>
+            );
+
         if (created)
             return (
                 <button
-                    className={`defeat-btn btn btn-${
-                        defeatButton ? "danger" : "primary"
-                    } bold`}
-                    onClick={defeatButtonHandler}
+                    className={classNames}
+                    onClick={() => {
+                        setButtonLoading(true);
+                        defeatButtonHandler();
+                    }}
                 >
                     {defeatButton
                         ? "Segna come non sconfitto"
@@ -239,7 +257,9 @@ const FiendDetails = () => {
                             </table>
                         </div>
                         <div className="btn-container">
-                            {renderDefeatButton(null, true)}
+                            {renderDefeatButton(null, {
+                                placeholderMode: true,
+                            })}
                         </div>
                     </ContentLoader.Placeholder>
                     <ContentLoader.Render>
@@ -340,8 +360,17 @@ const FiendDetails = () => {
                                 </table>
                             </div>
                         </div>
-                        <div className="btn-container ">
-                            {renderDefeatButton(fiend.created)}
+                        <div className="btn-container">
+                            <ContentLoader isLoading={false || buttonLoading}>
+                                <ContentLoader.Placeholder>
+                                    {renderDefeatButton(fiend.created, {
+                                        loadingMode: true,
+                                    })}
+                                </ContentLoader.Placeholder>
+                                <ContentLoader.Render>
+                                    {renderDefeatButton(fiend.created, {})}
+                                </ContentLoader.Render>
+                            </ContentLoader>
                         </div>
                     </ContentLoader.Render>
                 </ContentLoader>

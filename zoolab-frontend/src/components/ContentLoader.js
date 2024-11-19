@@ -21,11 +21,11 @@ const ContentLoader = ({ isLoading, children, showRender = false }) => {
             <div style={{ display: isLoading ? "block" : "none" }}>
                 {placeholderContent}
             </div>
-            {showRender ?? <div className="loading-overlay"></div>}
+            {showRender && isLoading && <div className="loading-overlay"></div>}
             <div
                 style={{
-                    visibility: isLoading || showRender ? "hidden" : "visible",
-                    height: isLoading || showRender ? 0 : "auto",
+                    visibility: !showRender && isLoading ? "hidden" : "visible",
+                    height: !showRender && isLoading ? 0 : "auto",
                 }}
             >
                 {renderContent}

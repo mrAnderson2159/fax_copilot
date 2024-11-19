@@ -2,7 +2,15 @@
 import "./AlertModal.scss";
 import React from "react";
 
-const AlertModal = ({ show, onConfirm, onCancel, message, details }) => {
+const AlertModal = ({
+    show,
+    onConfirm,
+    onCancel,
+    message,
+    details,
+    loadingFunction = () => null,
+    isLoading = false,
+}) => {
     if (!show) {
         return null; // Non renderizzare il modal se `show` è false
     }
@@ -46,9 +54,23 @@ const AlertModal = ({ show, onConfirm, onCancel, message, details }) => {
                             </button>
                             <button
                                 className="btn btn-primary"
-                                onClick={onConfirm}
+                                onClick={() => {
+                                    loadingFunction(true);
+                                    onConfirm();
+                                }}
                             >
-                                Conferma
+                                {isLoading ? (
+                                    <div
+                                        className="spinner-border spinner-border-sm"
+                                        role="status"
+                                    >
+                                        <span className="visually-hidden">
+                                            Loading...
+                                        </span>
+                                    </div>
+                                ) : (
+                                    "Conferma"
+                                )}
                             </button>
                         </div>
                     </div>
