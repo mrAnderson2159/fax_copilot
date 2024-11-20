@@ -6,6 +6,7 @@ import Card from "../components/Card";
 import { useSound } from "../context/SoundContext";
 import ContentLoader from "../components/ContentLoader";
 import { phCard, phTitle } from "../utils/placeholders";
+import CreationAlertModal from "../components/CreationAlertModal";
 import "../styles/CommonStyles.scss";
 import "./FiendDetails.scss";
 
@@ -16,7 +17,8 @@ const FiendDetails = () => {
     const [dataLoading, setDataLoading] = useState(true);
     const [imageLoading, setImageLoading] = useState(true);
     const [buttonLoading, setButtonLoading] = useState(false);
-    const { lowConfirmSound } = useSound();
+    const [nemesis, setNemesis] = useState(null);
+    const { lowConfirmSound, backSound } = useSound();
 
     useEffect(() => {
         const fetchFiend = async () => {
@@ -43,7 +45,11 @@ const FiendDetails = () => {
         };
 
         fetchFiend();
-    }, [defeatButton]);
+    }, [defeatButton, category, fiendId]);
+
+    useEffect(() => {
+        console.log(nemesis);
+    }, [nemesis]);
 
     const renderRequiredFiends = (fiend) => {
         return (fiend.required_fiends || [])
@@ -121,15 +127,22 @@ const FiendDetails = () => {
 
     const defeatButtonHandler = async () => {
         try {
+            let response;
             if (defeatButton) {
-                await axios.post(`/${category}/${fiendId}/undefeated`);
+                response = await axios.post(
+                    `/${category}/${fiendId}/undefeated`
+                );
                 setDefeatButton(false);
             } else {
-                await axios.post(`/${category}/${fiendId}/defeated`);
+                response = await axios.post(`/${category}/${fiendId}/defeated`);
                 setDefeatButton(true);
             }
             setButtonLoading(false);
             lowConfirmSound();
+            if (response.data) {
+                response.data.destinationName = response.data.destination_name;
+                setNemesis(response.data);
+            }
         } catch (error) {
             console.error(
                 "Errore nel segnare il mostro come sconfitto:",
@@ -179,6 +192,13 @@ const FiendDetails = () => {
                 Segna come sconfitto
             </button>
         );
+    };
+
+    const handleNemesisAlertClose = () => {
+        console.log("Closing nemesis alert");
+
+        backSound();
+        setNemesis(null);
     };
 
     return (
@@ -372,6 +392,11 @@ const FiendDetails = () => {
                                 </ContentLoader.Render>
                             </ContentLoader>
                         </div>
+                        <CreationAlertModal
+                            show={!!nemesis}
+                            onClose={handleNemesisAlertClose}
+                            creation={nemesis}
+                        />
                     </ContentLoader.Render>
                 </ContentLoader>
             </div>

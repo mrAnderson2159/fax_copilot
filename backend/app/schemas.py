@@ -128,3 +128,12 @@ class FullDetailsResponse(BaseElement):
     resistance: Optional[list[str]] = None
     common_steal: Optional[tuple[str, int]] = None
     rare_steal: Optional[tuple[str, int]] = None
+
+
+class NemesisResponse(BaseElement):
+    type: str
+    created: bool
+    reward: Optional[tuple[str, int]] = None
+    destination: str
+    destination_name: str
+

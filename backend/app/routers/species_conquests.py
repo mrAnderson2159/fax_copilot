@@ -25,12 +25,12 @@ def get_species_conquest(species_conquest_id: int, db: Session = Depends(get_db)
     return get_one(db, models.SpeciesConquest, species_conquest_id)
 
 
-@router.post("/{species_conquest_id}/defeated", response_model=schemas.SpeciesConquest)
+@router.post("/{species_conquest_id}/defeated")
 def defeated_species_conquest(species_conquest_id: int, db: Session = Depends(get_db)):
     return defeated(db, models.SpeciesConquest, species_conquest_id)
 
 
-@router.post("/{species_conquest_id}/undefeated", response_model=schemas.SpeciesConquest)
+@router.post("/{species_conquest_id}/undefeated")
 def undefeated_species_conquest(species_conquest_id: int, db: Session = Depends(get_db)):
     return undefeated(db, models.SpeciesConquest, species_conquest_id)
 

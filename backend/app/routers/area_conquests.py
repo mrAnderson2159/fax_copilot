@@ -39,7 +39,7 @@ def get_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     return get_one(db, models.AreaConquest, area_conquest_id)
 
 
-@router.post("/{area_conquest_id}/defeated", response_model=schemas.AreaConquest)
+@router.post("/{area_conquest_id}/defeated")
 def defeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     """
     Segna un campione di zona come sconfitto.
@@ -52,7 +52,7 @@ def defeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db))
     return defeated(db, models.AreaConquest, area_conquest_id)
 
 
-@router.post("/{area_conquest_id}/undefeated", response_model=schemas.AreaConquest)
+@router.post("/{area_conquest_id}/undefeated")
 def undefeated_area_conquest(area_conquest_id: int, db: Session = Depends(get_db)):
     """
     Segna un campione di zona come non sconfitto.

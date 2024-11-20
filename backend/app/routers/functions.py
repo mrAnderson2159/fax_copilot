@@ -1,7 +1,10 @@
+from typing import Optional
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session  # Importa la sessione per interagire con il database
 from app.database import Base
-from app.schemas import ConquestRepr, FullDetailsResponse
+from app.schemas import ConquestRepr, FullDetailsResponse, NemesisResponse
+from app.creation_conditions import CreationConditions
 
 
 def get_one(db: Session, model: type[Base], obj_id: int) -> Base:
@@ -54,9 +57,14 @@ def repr(db: Session, model: type[Base], creation_name: str, category_name: str,
     )
 
 
-def __defeat_func(db: Session, model: type[Base], obj_id: int, defeated: bool) -> type[Base]:
+def __defeat_func(db: Session, model: type[Base], obj_id: int, defeated: bool) -> Optional[NemesisResponse]:
     conquest = get_one(db, model, obj_id)
     conquest.defeated = defeated
+
+    db.flush()
+    db.refresh(conquest)
+
+    il_supremo = CreationConditions(db).check_il_supremo()
 
     try:
         db.commit()
@@ -64,10 +72,20 @@ def __defeat_func(db: Session, model: type[Base], obj_id: int, defeated: bool) -
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Errore durante l'aggiornamento: {str(e)}")
 
-    return conquest
+    if il_supremo:
+        return NemesisResponse(
+            id=il_supremo.id,
+            name=il_supremo.name,
+            image_url=il_supremo.image_url,
+            created=il_supremo.created,
+            reward=il_supremo.reward if il_supremo.reward else None,
+            destination=il_supremo.destination,
+            destination_name='Prototipi Zoolab',
+            type='Prototipo'
+        )
 
 
-def defeated(db: Session, model: type[Base], obj_id: int) -> type[Base]:
+def defeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisResponse]:
     """
     Segna un oggetto come sconfitto.
 
@@ -79,7 +97,7 @@ def defeated(db: Session, model: type[Base], obj_id: int) -> type[Base]:
     return __defeat_func(db, model, obj_id, True)
 
 
-def undefeated(db: Session, model: type[Base], obj_id: int) -> type[Base]:
+def undefeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisResponse]:
     """
     Segna un oggetto come non sconfitto.
 

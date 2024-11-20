@@ -37,12 +37,12 @@ def get_original_creation(original_creation_id: int, db: Session = Depends(get_d
     return get_one(db, models.OriginalCreation, original_creation_id)
 
 
-@router.post("/{original_creation_id}/defeated", response_model=schemas.OriginalCreation)
+@router.post("/{original_creation_id}/defeated")
 def defeated_original_creation(original_creation_id: int, db: Session = Depends(get_db)):
     return defeated(db, models.OriginalCreation, original_creation_id)
 
 
-@router.post("/{original_creation_id}/undefeated", response_model=schemas.OriginalCreation)
+@router.post("/{original_creation_id}/undefeated")
 def undefeated_original_creation(original_creation_id: int, db: Session = Depends(get_db)):
     return undefeated(db, models.OriginalCreation, original_creation_id)
 

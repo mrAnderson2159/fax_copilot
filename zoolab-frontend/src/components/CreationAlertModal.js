@@ -1,5 +1,5 @@
 // zoolab-frontend/src/components/CreationAlertModal.js
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "./Card";
 import { titleCase } from "../utils";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,11 @@ import "./CreationAlertModal.scss";
 const CreationAlertModal = ({ show, onClose, creation }) => {
     const navigate = useNavigate();
     const { clickSound } = useSound();
+
+    useEffect(() => {
+        console.log(show);
+        console.log(creation);
+    }, [show, creation]);
 
     if (!show || !creation) {
         return null; // Non renderizzare se `show` è false o `creation` non è presente
@@ -40,6 +45,7 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
     const handleCreationClick = () => {
         clickSound();
         navigate(`/zoolab/${destination}/${destinationName}/${id}`);
+        onClose();
     };
 
     return (
@@ -76,7 +82,6 @@ const CreationAlertModal = ({ show, onClose, creation }) => {
                                 name={name}
                                 imageUrl={image_url}
                                 clickHandler={handleCreationClick}
-                                // className="unclickable"
                             />
                             {reward && (
                                 <div className="reward-container">

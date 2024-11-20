@@ -18,7 +18,7 @@ class CreationConditions:
         negative_check (bool): Flag per determinare se eseguire la logica di annullamento.
     """
 
-    def __init__(self, db: Session, captured_fiends: list[models.Fiend], negative_check: bool):
+    def __init__(self, db: Session, captured_fiends: list[models.Fiend] = None, negative_check: bool = None):
         """
         Inizializza un'istanza della classe CreationConditions.
 
@@ -30,7 +30,10 @@ class CreationConditions:
         self.db = db
         self.captured_fiends = captured_fiends
         self.negative_check = negative_check
-        logger.info(f"Inizializzazione CreationConditions: negative_check={negative_check}, captured_fiends={[fiend.name for fiend in captured_fiends]}")
+        if captured_fiends is None and negative_check is None:
+            logger.info("Inizializzazione CreationConditions: nessun parametro specificato")
+        else:
+            logger.info(f"Inizializzazione CreationConditions: negative_check={negative_check}, captured_fiends={[fiend.name for fiend in captured_fiends]}")
 
     def __check_originals(self) -> Optional[list[schemas.OriginalCreationResponse]]:
         """
@@ -121,6 +124,18 @@ class CreationConditions:
         elif original_creation.created and self.negative_check and not create_condition:
             # Annulla il prototipo se è stato creato, il negative_check è attivo e la condizione non è più valida
             original_creation.created = False
+            original_creation.defeated = False
+            logger.info(f"Prototipo annullato: {original_creation_name}")
+            return schemas.OriginalCreationResponse(
+                id=original_creation.id,
+                name=original_creation.name,
+                created=False,
+                image_url=original_creation.image_url
+            )
+        elif original_creation.created and original_creation_name == "il supremo" and not create_condition:
+            # Annulla il prototipo "il supremo" se è stato creato e la condizione non è più valida
+            original_creation.created = False
+            original_creation.defeated = False
             logger.info(f"Prototipo annullato: {original_creation_name}")
             return schemas.OriginalCreationResponse(
                 id=original_creation.id,
@@ -219,6 +234,7 @@ class CreationConditions:
             # Annulla la conquista se il `negative_check` è attivo e la condizione non è più valida
             elif self.negative_check and conquest.created:
                 conquest.created = False
+                conquest.defeated = False
                 logger.info(f"Conquista annullata: {conquest.name}")
                 results.append(schema_class(
                     id=conquest.id,
