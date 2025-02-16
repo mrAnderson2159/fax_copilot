@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
-import { titleCase, MAX_CAPTURES } from "../utils";
+import { checkError, titleCase, MAX_CAPTURES } from "../utils";
 import ContentLoader from "../components/ContentLoader";
 import RenderCards from "../utils/RenderCards";
 import CaptureBar from "../components/CaptureBar";
@@ -42,9 +42,10 @@ const FiendList = () => {
     // Funzione per ottenere i dati sui mostri con le informazioni sulle catture
     const fetchFiendsWithFound = useCallback(async () => {
         try {
-            const fiendResponse = await axios.get(
-                `/zones/${zoneId}/fiends_with_found`
+            const fiendResponse = checkError(
+                await axios.get(`/zones/${zoneId}/fiends_with_found`)
             );
+
             const nativeFiends = fiendResponse.data.native || [];
             const otherFiendsData = fiendResponse.data.others || [];
 

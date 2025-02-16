@@ -1,6 +1,7 @@
 // zoolab-frontend/src/pages/Home.js
 import React, { useEffect, useState } from "react";
 import axios from "../api/axios";
+import { checkError } from "../utils";
 import "../styles/CommonStyles.scss";
 
 const Home = () => {
@@ -9,7 +10,7 @@ const Home = () => {
     useEffect(() => {
         const fetchMessage = async () => {
             try {
-                const response = await axios.get("/");
+                const response = checkError(await axios.get("/"));
                 console.log(response.data);
 
                 setMessage(response.data.message);

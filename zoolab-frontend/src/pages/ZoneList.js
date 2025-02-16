@@ -5,7 +5,7 @@ import axios from "../api/axios";
 import RenderCards from "../utils/RenderCards";
 import ContentLoader from "../components/ContentLoader";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { debug } from "../utils";
+import { checkError, debug } from "../utils";
 import { useSound } from "../context/SoundContext";
 import { phRenderCards, phTitle } from "../utils/placeholders";
 import "../styles/CommonStyles.scss";
@@ -26,7 +26,7 @@ const ZoneList = () => {
     useEffect(() => {
         const fetchZones = async () => {
             try {
-                const response = await axios.get("/zones/");
+                const response = checkError(await axios.get("/zones"));
                 setZones(response.data);
             } catch (error) {
                 console.error("Errore nel recupero delle zone:", error);

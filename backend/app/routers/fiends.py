@@ -6,7 +6,7 @@ import logging
 from app.creation_conditions import CreationConditions
 from app import models, schemas
 from app.database import get_db
-from app.routers.functions import get_one, get_all
+from app.routers.functions import get_one, get_all, try_except
 
 router = APIRouter(
     prefix="/fiends",
@@ -43,6 +43,7 @@ def get_fiend(fiend_id: int, db: Session = Depends(get_db)):
 
 
 # Rotta per aggiornare il numero di catture dei mostri
+@try_except
 @router.post("/update_captures")
 def update_fiend_captures(request: schemas.FiendCapturesUpdateRequest, db: Session = Depends(get_db)):
     """
@@ -137,7 +138,9 @@ def update_fiend_captures(request: schemas.FiendCapturesUpdateRequest, db: Sessi
 
     return response
 
+
 # Rotta per resettare il numero di catture di tutti i mostri
+@try_except
 @router.post("/reset")
 def reset_fiends(db: Session = Depends(get_db)):
     for fiend in db.query(models.Fiend).all():

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import axios from "../api/axios";
-import { titleCase } from "../utils";
+import { checkError, titleCase } from "../utils";
 import RenderCards from "../utils/RenderCards";
 import { useSound } from "../context/SoundContext";
 import ContentLoader from "../components/ContentLoader";
@@ -23,7 +23,7 @@ const ZoolabCategory = () => {
     useEffect(() => {
         const fetchCreations = async () => {
             try {
-                const response = await axios.get(`/${category}`);
+                const response = checkError(await axios.get(`/${category}`));
                 setCreations(response.data);
                 setDataLoading(false);
             } catch (error) {

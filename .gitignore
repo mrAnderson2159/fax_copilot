@@ -2,6 +2,7 @@
 .vscode
 database
 backend/venv
+venv
 __pycache__
 backend/alembic/versions
 backend/alembic_test/versions

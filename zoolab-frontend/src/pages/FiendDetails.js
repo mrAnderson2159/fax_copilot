@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../api/axios";
-import { boolToItalian, titleCase } from "../utils";
+import { boolToItalian, checkError, titleCase } from "../utils";
 import Card from "../components/Card";
 import { useSound } from "../context/SoundContext";
 import ContentLoader from "../components/ContentLoader";
@@ -23,8 +23,8 @@ const FiendDetails = () => {
     useEffect(() => {
         const fetchFiend = async () => {
             try {
-                const fiendResponse = await axios.get(
-                    `/${category}/${fiendId}/full_details`
+                const fiendResponse = checkError(
+                    await axios.get(`/${category}/${fiendId}/full_details`)
                 );
                 // console.log("Fiend details:", fiendResponse.data);
 
@@ -129,12 +129,14 @@ const FiendDetails = () => {
         try {
             let response;
             if (defeatButton) {
-                response = await axios.post(
-                    `/${category}/${fiendId}/undefeated`
+                response = checkError(
+                    await axios.post(`/${category}/${fiendId}/undefeated`)
                 );
                 setDefeatButton(false);
             } else {
-                response = await axios.post(`/${category}/${fiendId}/defeated`);
+                response = checkError(
+                    await axios.post(`/${category}/${fiendId}/defeated`)
+                );
                 setDefeatButton(true);
             }
             setButtonLoading(false);

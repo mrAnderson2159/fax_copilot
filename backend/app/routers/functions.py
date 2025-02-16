@@ -1,5 +1,5 @@
+# backend/app/routers/functions.py
 from typing import Optional
-
 from fastapi import HTTPException
 from sqlalchemy.orm import Session  # Importa la sessione per interagire con il database
 from app.database import Base
@@ -7,6 +7,27 @@ from app.schemas import ConquestRepr, FullDetailsResponse, NemesisResponse
 from app.creation_conditions import CreationConditions
 
 
+def try_except(func):
+    """
+    Decoratore per gestire le eccezioni nei metodi di questo modulo,
+    distinguendo tra errori server-side e client-side.
+    """
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except HTTPException as e:
+            # Passa eccezioni HTTPException esistenti senza modificarle
+            print(e)
+            raise e
+        except Exception as e:
+            # Per altre eccezioni, restituisce un errore generico server-side
+            print(e)
+            raise HTTPException(status_code=500, detail=f"Errore interno: {str(e)}")
+    return wrapper
+
+
+
+@try_except
 def get_one(db: Session, model: type[Base], obj_id: int) -> Base:
     """
     Recupera un oggetto di un modello dal database.
@@ -18,10 +39,11 @@ def get_one(db: Session, model: type[Base], obj_id: int) -> Base:
     """
     query = db.query(model).filter(model.id == obj_id).first()
     if not query:
-        raise HTTPException(status_code=404, detail=f"{model.__name__} non trovato")
+        raise HTTPException(status_code=404, detail=f'"{model.__name__}" non trovato')
     return query
 
 
+@try_except
 def get_all(db: Session, model: type[Base]) -> list[Base]:
     """
     Recupera tutti gli oggetti di un modello dal database.
@@ -32,10 +54,11 @@ def get_all(db: Session, model: type[Base]) -> list[Base]:
     """
     query = db.query(model).order_by(model.id).all()
     if not query:
-        raise HTTPException(status_code=404, detail=f"{model.__name__} non trovati")
+        raise HTTPException(status_code=404, detail=f'"{model.__name__}" non trovato')
     return query
 
 
+@try_except
 def repr(db: Session, model: type[Base], creation_name: str, category_name: str, destination: str) -> ConquestRepr:
     """
     Recupera un oggetto di un modello dal database.
@@ -47,7 +70,7 @@ def repr(db: Session, model: type[Base], creation_name: str, category_name: str,
     """
     query = db.query(model).filter(model.name == creation_name).first()
     if not query:
-        raise HTTPException(status_code=404, detail=f"{creation_name} non trovato")
+        raise HTTPException(status_code=404, detail=f'"{creation_name}" non trovato')
 
     return ConquestRepr(
         id=query.id,
@@ -57,6 +80,7 @@ def repr(db: Session, model: type[Base], creation_name: str, category_name: str,
     )
 
 
+@try_except
 def __defeat_func(db: Session, model: type[Base], obj_id: int, defeated: bool) -> Optional[NemesisResponse]:
     conquest = get_one(db, model, obj_id)
     conquest.defeated = defeated
@@ -85,6 +109,7 @@ def __defeat_func(db: Session, model: type[Base], obj_id: int, defeated: bool) -
         )
 
 
+@try_except
 def defeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisResponse]:
     """
     Segna un oggetto come sconfitto.
@@ -97,6 +122,7 @@ def defeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisRes
     return __defeat_func(db, model, obj_id, True)
 
 
+@try_except
 def undefeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisResponse]:
     """
     Segna un oggetto come non sconfitto.
@@ -109,6 +135,7 @@ def undefeated(db: Session, model: type[Base], obj_id: int) -> Optional[NemesisR
     return __defeat_func(db, model, obj_id, False)
 
 
+@try_except
 def full_details(obj, **fields) -> FullDetailsResponse:
     """
     Recupera i dettagli completi di un oggetto.

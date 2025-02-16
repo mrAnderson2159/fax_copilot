@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException  # Importa i moduli necess
 from app import models, schemas  # Importa i modelli e gli schemi per il database e la serializzazione
 from sqlalchemy.orm import Session  # Importa la sessione per interagire con il database
 from app.database import get_db  # Importa la funzione per ottenere una connessione al database
-from app.routers.functions import get_one, get_all  # Importa le funzioni di utilità per ottenere oggetti dal database
+from app.routers.functions import get_one, get_all, try_except  # Importa le funzioni di utilità per ottenere oggetti dal database
 
 # Crea un router per le API di FastAPI, con prefisso /zones e tag "Zones"
 router = APIRouter(
@@ -66,6 +66,7 @@ def get_zone_fiends(zone_id: int, db: Session = Depends(get_db)):
     return fiends
 
 
+@try_except
 @router.get("/{zone_id}/fiends_with_found", response_model=schemas.FiendWithFound)
 def get_zone_fiends_with_found(zone_id: int, db: Session = Depends(get_db)):
     """

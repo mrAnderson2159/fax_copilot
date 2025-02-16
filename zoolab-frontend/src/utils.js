@@ -5,6 +5,16 @@ export function boolToItalian(bool) {
     return bool ? "Sì" : "No";
 }
 
+export function checkError(response) {
+    if (response.status >= 200 && response.status < 300) {
+        return response;
+    } else {
+        const errorMessage = `Errore: ${response.status} - ${response.statusText}`;
+        alert(errorMessage); // Mostra un alert per qualunque errore
+        throw new Error(errorMessage); // Propaga l'errore
+    }
+}
+
 export function debug(flag, fileName, functionName, ...stuff) {
     if (flag) {
         console.log(`[DEBUG - ${fileName} - ${functionName}]`, ...stuff);

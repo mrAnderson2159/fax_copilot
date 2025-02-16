@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import RenderCards from "../utils/RenderCards";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
-import { debug } from "../utils";
+import { checkError, debug } from "../utils";
 import { useSound } from "../context/SoundContext";
 import ContentLoader from "../components/ContentLoader";
 import { phRenderCards, phTitle } from "../utils/placeholders";
@@ -28,11 +28,10 @@ const Zoolab = () => {
             try {
                 const [area_conquest, species_conquests, original_creation] =
                     await Promise.all([
-                        axios.get("/area_conquests/repr"),
-                        axios.get("/species_conquests/repr"),
-                        axios.get("/original_creations/repr"),
+                        axios.get("/area_conquests/repr").then(checkError),
+                        axios.get("/species_conquests/repr").then(checkError),
+                        axios.get("/original_creations/repr").then(checkError),
                     ]);
-
                 setRepresentatives([
                     species_conquests.data,
                     area_conquest.data,
@@ -41,6 +40,13 @@ const Zoolab = () => {
                 setDataLoading(false);
             } catch (error) {
                 console.error("Errore nel recupero dei rappresentanti:", error);
+                if (error instanceof Error) {
+                    alert(
+                        `Errore durante il recupero: ${
+                            error.response.data.detail || error.message
+                        }`
+                    );
+                }
             }
         };
 
